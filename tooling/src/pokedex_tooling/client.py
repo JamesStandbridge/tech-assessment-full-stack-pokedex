@@ -11,7 +11,7 @@ from pokedex_tooling.contract import ContractValidator, ContractViolationError
 from pokedex_tooling.entities import EntityKind, EntityRef
 
 API_URL_VARIABLE = "POKEDEX_API_URL"
-DEFAULT_API_URL = "http://localhost:8000"
+DEFAULT_API_URL = "http://127.0.0.1:8000"
 DEFAULT_TIMEOUT_SECONDS = 10.0
 MAX_PAGES_PER_SECTION = 100
 
