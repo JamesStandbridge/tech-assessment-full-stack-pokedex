@@ -19,6 +19,14 @@ install:
 data:
     mise run data
 
+# Run the development processes with process-compose
+dev:
+    mise run dev
+
+# Stop the development processes of this project
+dev-down:
+    mise run dev:down
+
 # Run the search API
 serve:
     mise run serve

@@ -9,6 +9,8 @@ uv = "0.10.12"
 UV_PYTHON = "3.14"
 UV_PYTHON_PREFERENCE = "only-system"
 POKEDEX_API_URL = "http://127.0.0.1:8000"
+PC_SOCKET_PATH = "{{config_root}}/.process-compose.sock"
+PC_LOG_FILE = "{{config_root}}/.process-compose.log"
 
 [tasks."install:backend"]
 description = "Install the backend dependencies from the lock file"
@@ -39,6 +41,14 @@ run = "echo 'Setup complete. Run just dev to start the search API.'"
 description = "Run the search API"
 dir = "backend"
 run = "uv run serve"
+
+[tasks.dev]
+description = "Run the development processes with process-compose"
+run = "process-compose up --use-uds"
+
+[tasks."dev:down"]
+description = "Stop the development processes of this project"
+run = "process-compose down --use-uds"
 
 [tasks."lint:backend"]
 description = "Lint and check the formatting of the backend"
