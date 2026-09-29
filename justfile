@@ -67,6 +67,10 @@ test:
 size:
     mise run size
 
+# Run the interface scenarios of specs/ui against the production build and a fresh API
+ui:
+    mise run ui
+
 # Check that the specifications are consistent
 specs:
     mise run specs

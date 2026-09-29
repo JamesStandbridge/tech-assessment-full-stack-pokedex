@@ -161,6 +161,12 @@ dir = "frontend"
 depends = ["build:frontend"]
 run = "pnpm run size"
 
+[tasks.ui]
+description = "Run the interface scenarios of specs/ui against the production build and a fresh API"
+dir = "frontend"
+depends = ["build:frontend"]
+run = "pnpm run ui"
+
 [tasks.specs]
 description = "Check that the specifications are consistent"
 dir = "tooling"
