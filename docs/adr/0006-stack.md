@@ -1,6 +1,6 @@
 # 6. Build the API with FastAPI and the interface with React
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-09-29
 
 ## Context and problem statement
@@ -18,7 +18,7 @@ interface relies on animated, adaptive views and a relation graph.
 
 ## Decision outcome
 
-Option 1, proposed.
+Option 1.
 
 - The API shares Python, Pydantic and the test tooling with the specification
   harness, and FastAPI validates input from typed models.
