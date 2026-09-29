@@ -4,7 +4,7 @@ import pytest
 
 from pokedex_tooling.client import Outcome, RankedResult, SearchOutcome
 from pokedex_tooling.entities import EntityKind, EntityRef
-from pokedex_tooling.relevance import ndcg, reciprocal_rank, score_outcomes
+from pokedex_tooling.relevance import condensed_ndcg, ndcg, reciprocal_rank, score_outcomes
 from pokedex_tooling.specs import (
     AssessorThreshold,
     JudgedQuery,
@@ -57,6 +57,11 @@ def test_swapped_ranking_matches_the_formula() -> None:
 def test_unjudged_names_score_zero_and_the_cutoff_truncates() -> None:
     assert ndcg(["x", "y"], {"a": 3}, cutoff=10) == 0.0
     assert ndcg(["x", "a"], {"a": 3}, cutoff=1) == 0.0
+
+
+def test_condensed_ndcg_skips_unjudged_names_but_not_judged_zeros() -> None:
+    assert condensed_ndcg(["x", "a"], {"a": 3}, cutoff=1) == pytest.approx(1.0)
+    assert condensed_ndcg(["z", "a"], {"a": 3, "z": 0}, cutoff=1) == 0.0
 
 
 def test_reciprocal_rank_targets_the_highest_grade() -> None:

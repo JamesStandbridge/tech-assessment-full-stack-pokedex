@@ -20,6 +20,7 @@ from pokedex_tooling.client import (
 from pokedex_tooling.contract import ContractValidator, ContractViolationError
 from pokedex_tooling.entities import EntityKind, EntityRef
 from pokedex_tooling.specs import (
+    AssessedQuery,
     AssessmentsDocument,
     JudgedQuery,
     JudgmentsDocument,
@@ -90,6 +91,29 @@ def ndcg(ranking: Sequence[str], grades: Mapping[str, int], cutoff: int) -> floa
     ideal = dcg(sorted(grades.values(), reverse=True)[:cutoff])
     actual = dcg([grades.get(name, 0) for name in ranking[:cutoff]])
     return actual / ideal
+
+
+def condensed_ndcg(ranking: Sequence[str], judged: Mapping[str, int], cutoff: int) -> float:
+    """Return nDCG at the cutoff after removing unjudged names from the ranking.
+
+    Args:
+        ranking: Names in rank order.
+        judged: Grade per judged name, zeros included, at least one of them positive.
+        cutoff: Number of leading positions considered in the condensed ranking.
+
+    Returns:
+        A value between 0 and 1.
+    """
+    condensed = [name for name in ranking if name in judged]
+    return ndcg(condensed, {name: grade for name, grade in judged.items() if grade > 0}, cutoff)
+
+
+def judged_share(ranking: Sequence[str], judged: Mapping[str, int], cutoff: int) -> float | None:
+    """Return the share of the leading results that have a grade, or None without results."""
+    leading = ranking[:cutoff]
+    if not leading:
+        return None
+    return sum(name in judged for name in leading) / len(leading)
 
 
 def reciprocal_rank(ranking: Sequence[str], grades: Mapping[str, int]) -> float:
@@ -190,6 +214,13 @@ def evaluate(
     return score_outcomes(judgments, thresholds, outcomes)
 
 
+class GradedCandidate(BaseModel):
+    """A pooled candidate that has an assessor grade."""
+
+    ref: str
+    grade: int
+
+
 class GradePair(BaseModel):
     """The rule grade and the assessor grade of one candidate."""
 
@@ -198,12 +229,13 @@ class GradePair(BaseModel):
 
 
 class AssessorScore(BaseModel):
-    """nDCG against assessor grades for the results of one kind, for one query."""
+    """Condensed nDCG against assessor grades for the results of one kind, for one query."""
 
     query_id: str
     query: str
     kind: EntityKind
     ndcg: float
+    judged_share: float | None
 
 
 class Disagreement(BaseModel):
@@ -222,6 +254,7 @@ class AssessorReport(BaseModel):
     pending_queries: list[str]
     scores: list[AssessorScore]
     mean_ndcg: float | None
+    judged_share: float | None
     kappa: float | None
     disagreements: list[Disagreement]
     minimum: float
@@ -276,64 +309,89 @@ def score_against_assessments(
     thresholds: ThresholdsDocument,
     outcomes: Mapping[str, SearchOutcome],
 ) -> AssessorReport:
-    """Score outcomes of fully graded queries against the assessor grades.
+    """Score outcomes against the assessor grades with condensed nDCG.
+
+    Candidates without a grade are unjudged: they are removed from the rankings
+    instead of counting as irrelevant, and the report gives the share of leading
+    results that are judged.
 
     Args:
         assessments: The assessment sheet.
         judgments: Rule judgments, compared with the assessor grades.
         thresholds: Source of the cutoff and the pre-registered minimum.
-        outcomes: Search outcome by query id, for the fully graded queries.
+        outcomes: Search outcome by query id, for the queries with a grade.
 
     Returns:
-        The report; its status is not-assessed while no query is fully graded.
+        The report; its status is not-assessed while no candidate has a grade.
     """
     by_id = {judged.id: judged for judged in judgments.queries}
-    complete = [query for query in assessments.queries if query.complete and query.candidates]
-    pending = [query.id for query in assessments.queries if query not in complete]
+    assessed = [query for query in assessments.queries if graded_candidates(query)]
     scores: list[AssessorScore] = []
     pairs: list[GradePair] = []
     disagreements: list[Disagreement] = []
-    for query in complete:
-        graded: dict[EntityKind, dict[str, int]] = {}
-        for candidate in query.candidates:
+    for query in assessed:
+        judged: dict[EntityKind, dict[str, int]] = {}
+        for candidate in graded_candidates(query):
             ref = EntityRef.parse(candidate.ref)
-            grade = candidate.grade if candidate.grade is not None else 0
-            if grade > 0:
-                graded.setdefault(ref.kind, {})[ref.name] = grade
+            judged.setdefault(ref.kind, {})[ref.name] = candidate.grade
             rule = _rule_grade(by_id, query.id, ref)
             if rule is None:
                 continue
-            pairs.append(GradePair(rule=rule, assessor=grade))
-            if abs(rule - grade) >= DISAGREEMENT_GAP:
+            pairs.append(GradePair(rule=rule, assessor=candidate.grade))
+            if abs(rule - candidate.grade) >= DISAGREEMENT_GAP:
                 disagreements.append(
-                    Disagreement(query_id=query.id, ref=candidate.ref, rule=rule, assessor=grade)
+                    Disagreement(
+                        query_id=query.id, ref=candidate.ref, rule=rule, assessor=candidate.grade
+                    )
                 )
-        outcome = outcomes[query.id]
-        scores.extend(
-            AssessorScore(
-                query_id=query.id,
-                query=query.query,
-                kind=kind,
-                ndcg=ndcg(
-                    [result.ref.name for result in outcome.of_kind(kind)],
-                    grades,
-                    thresholds.cutoff,
-                ),
-            )
-            for kind, grades in graded.items()
-        )
+        scores.extend(_kind_scores(query, judged, outcomes[query.id], thresholds.cutoff))
+    pending = [query.id for query in assessments.queries if not query.complete]
     status: Literal["not-assessed", "partial", "complete"] = (
-        "not-assessed" if not complete else "partial" if pending else "complete"
+        "not-assessed" if not assessed else "partial" if pending else "complete"
     )
+    shares = [score.judged_share for score in scores if score.judged_share is not None]
     return AssessorReport(
         status=status,
         pending_queries=pending,
         scores=scores,
         mean_ndcg=fmean(score.ndcg for score in scores) if scores else None,
+        judged_share=fmean(shares) if shares else None,
         kappa=quadratic_weighted_kappa(pairs),
         disagreements=disagreements,
         minimum=thresholds.assessor.ndcg_mean_minimum,
     )
+
+
+def graded_candidates(query: AssessedQuery) -> list[GradedCandidate]:
+    """Return the candidates of a query that have a grade."""
+    return [
+        GradedCandidate(ref=candidate.ref, grade=candidate.grade)
+        for candidate in query.candidates
+        if candidate.grade is not None
+    ]
+
+
+def _kind_scores(
+    query: AssessedQuery,
+    judged: Mapping[EntityKind, Mapping[str, int]],
+    outcome: SearchOutcome,
+    cutoff: int,
+) -> list[AssessorScore]:
+    scores: list[AssessorScore] = []
+    for kind, grades in judged.items():
+        if not any(grade > 0 for grade in grades.values()):
+            continue
+        ranking = [result.ref.name for result in outcome.of_kind(kind)]
+        scores.append(
+            AssessorScore(
+                query_id=query.id,
+                query=query.query,
+                kind=kind,
+                ndcg=condensed_ndcg(ranking, grades, cutoff),
+                judged_share=judged_share(ranking, grades, cutoff),
+            )
+        )
+    return scores
 
 
 def evaluate_assessments(
@@ -342,11 +400,11 @@ def evaluate_assessments(
     judgments: JudgmentsDocument,
     thresholds: ThresholdsDocument,
 ) -> AssessorReport:
-    """Run every fully graded query against the API and score it against the assessor."""
+    """Run every query with a grade against the API and score it against the assessor."""
     outcomes = {
         query.id: client.search(query.query)
         for query in assessments.queries
-        if query.complete and query.candidates
+        if graded_candidates(query)
     }
     return score_against_assessments(assessments, judgments, thresholds, outcomes)
 
@@ -355,19 +413,22 @@ def format_assessor_report(report: AssessorReport) -> str:
     """Render an assessor report as plain text."""
     if report.status == "not-assessed":
         return (
-            "Assessor evaluation has not run: no query is fully graded in "
+            "Assessor evaluation has not run: no candidate is graded in "
             "specs/relevance/assessments.yaml."
         )
-    lines = [f"{'query':<12} {'kind':<8} {'nDCG':>6}  query text"]
+    lines = [f"{'query':<12} {'kind':<8} {'nDCG':>6} {'judged':>7}  query text"]
     lines.extend(
-        f"{score.query_id:<12} {score.kind:<8} {score.ndcg:>6.3f}  {score.query}"
+        f"{score.query_id:<12} {score.kind:<8} {score.ndcg:>6.3f} "
+        f"{_percent(score.judged_share):>7}  {score.query}"
         for score in report.scores
     )
     kappa = "undefined" if report.kappa is None else f"{report.kappa:.3f}"
     mean = "undefined" if report.mean_ndcg is None else f"{report.mean_ndcg:.3f}"
     lines.append(
-        f"mean nDCG against assessor: {mean} (pre-registered minimum {report.minimum:.2f})"
+        f"mean condensed nDCG against assessor: {mean} "
+        f"(pre-registered minimum {report.minimum:.2f})"
     )
+    lines.append(f"judged share of the leading results: {_percent(report.judged_share)}")
     lines.append(f"agreement with rule grades, quadratic-weighted kappa: {kappa}")
     if report.disagreements:
         lines.append(f"to adjudicate, grades {DISAGREEMENT_GAP} or more apart (rule -> assessor):")
@@ -376,8 +437,15 @@ def format_assessor_report(report: AssessorReport) -> str:
             for item in report.disagreements
         )
     if report.pending_queries:
-        lines.append(f"not yet fully graded: {', '.join(report.pending_queries)}")
+        lines.append(
+            "unjudged candidates, left out of the rankings, in: "
+            f"{', '.join(report.pending_queries)}"
+        )
     return "\n".join(lines)
+
+
+def _percent(share: float | None) -> str:
+    return "-" if share is None else f"{share:.0%}"
 
 
 def format_report(report: RelevanceReport) -> str:

@@ -60,3 +60,45 @@ Option 3, following the pooling method of TREC evaluations.
   does not state.
 - Pools grow when a new ranker contributes candidates; existing grades are
   kept, and only new candidates need grading.
+
+## Amendment of 2026-09-29: frozen sheet and condensed nDCG
+
+### Context
+
+Pooling after every change to the engine added new ungraded candidates, which
+counted as grade 0, and each grading round came with new assessor queries that
+led to further changes. The loop did not converge. It also exposed a defect:
+`pool-assessments` rebuilt each pool from the current rankers, so a candidate
+no ranker proposed anymore was dropped with its grade. Seventeen grades were
+lost this way, eight of them positive.
+
+### Decision
+
+- The sheet is frozen on 2026-09-29: `frozen_on` is set, and
+  `pool-assessments` refuses to change a frozen sheet. No query and no
+  candidate is added afterwards.
+- Pools now keep every earlier candidate. The seventeen lost grades were
+  restored from git history with their last recorded value.
+- Scores against the assessor use condensed nDCG@10: unjudged results are
+  removed from the ranking before the cutoff instead of counting as
+  irrelevant, and every query with at least one grade is scored. The report
+  gives the share of the leading results that are judged, so an unjudged
+  ranking remains visible.
+- The pre-registered minimum of 0.80 is unchanged.
+
+### Consequences
+
+- Once frozen, the measure only moves when the engine does.
+- Condensed nDCG rewards nothing it cannot see: a kind whose leading results
+  are all unjudged scores 0 when no judged relevant result is retrieved.
+- Queries Q-USER-06 to Q-USER-14 were added by the assessor after the engine
+  existed, and their failures led to fixes: healing and forced switches, type
+  immunities, stat changes, move priority, shared chances of alternative
+  effects, and ties broken by the number of sources. They are regression
+  evidence, not an independent measure.
+- On the frozen sheet, the mean condensed nDCG is 0.846 with 94% of leading
+  results judged, and kappa against the rule grades is 0.833.
+- Grades still to adjudicate: assessor grades given to kinds a query excludes,
+  such as abilities for tanky water pokemon; clefairy and clefable graded 0 for
+  freeze the opponent while nidorino and squirtle, which learn the same freezing
+  moves, are graded 2; and starmie, tentacool and tentacruel.

@@ -1,8 +1,10 @@
+from datetime import date
+
 import pytest
 
 from pokedex_tooling.client import Outcome, RankedResult, SearchOutcome
 from pokedex_tooling.entities import EntityKind, EntityRef
-from pokedex_tooling.pooling import build_assessments, shuffle_key
+from pokedex_tooling.pooling import FrozenAssessmentsError, build_assessments, shuffle_key
 from pokedex_tooling.relevance import GradePair, quadratic_weighted_kappa, score_against_assessments
 from pokedex_tooling.snapshot import load_snapshot
 from pokedex_tooling.specs import (
@@ -119,13 +121,31 @@ def test_user_queries_are_pooled_across_every_kind() -> None:
     assert "move:thunder" in {candidate.ref for candidate in pooled.candidates}
 
 
-def test_report_has_not_run_until_a_query_is_fully_graded() -> None:
+def test_report_has_not_run_until_a_candidate_is_graded() -> None:
     report = score_against_assessments(
-        sheet({"pokemon:mew": 3, "pokemon:mewtwo": None}), JUDGMENTS, load_thresholds(), {}
+        sheet({"pokemon:mew": None, "pokemon:mewtwo": None}), JUDGMENTS, load_thresholds(), {}
     )
     assert report.status == "not-assessed"
     assert not report.passed
+
+
+def test_unjudged_results_are_left_out_of_the_ranking() -> None:
+    report = score_against_assessments(
+        sheet({"pokemon:mew": 3, "pokemon:mewtwo": None}),
+        JUDGMENTS,
+        load_thresholds(),
+        {"Q-NAME-02": pokemon_outcome("mewtwo", "abra", "mew", "ditto")},
+    )
+    assert report.status == "partial"
     assert report.pending_queries == ["Q-NAME-02"]
+    assert report.mean_ndcg == pytest.approx(1.0)
+    assert report.judged_share == pytest.approx(0.25)
+
+
+def test_a_frozen_sheet_takes_no_more_candidates() -> None:
+    frozen = sheet({"pokemon:mew": 3}).model_copy(update={"frozen_on": date(2026, 9, 29)})
+    with pytest.raises(FrozenAssessmentsError):
+        build_assessments(SNAPSHOT, JUDGMENTS, frozen, {})
 
 
 def test_report_scores_the_live_ranking_against_the_assessor() -> None:

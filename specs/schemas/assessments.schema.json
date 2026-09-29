@@ -7,6 +7,11 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": { "const": 1 },
+    "frozen_on": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Date after which the sheet takes no more candidates or queries."
+    },
     "instructions": { "type": "string", "minLength": 1 },
     "grades": {
       "type": "object",

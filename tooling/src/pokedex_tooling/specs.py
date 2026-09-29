@@ -1,5 +1,6 @@
 """Typed loaders for the specification files."""
 
+from datetime import date
 from pathlib import Path
 from typing import Literal
 
@@ -131,9 +132,13 @@ class AssessedQuery(BaseModel):
 
 
 class AssessmentsDocument(BaseModel):
-    """Content of specs/relevance/assessments.yaml."""
+    """Content of specs/relevance/assessments.yaml.
+
+    A sheet with a freeze date takes no more candidates or queries.
+    """
 
     schema_version: Literal[1]
+    frozen_on: date | None = None
     instructions: str
     grades: dict[str, str]
     queries: list[AssessedQuery]
