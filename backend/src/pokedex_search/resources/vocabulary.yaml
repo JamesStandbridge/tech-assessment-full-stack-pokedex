@@ -1,0 +1,136 @@
+# Words the search understands. The first phrase of every list is canonical:
+# the canonical query serializer writes it, and the parser reads it back.
+
+kinds:
+  pokemon: [pokemon, pokemons, creature, creatures]
+  move: [moves, move, attacks]
+  ability: [abilities, ability]
+
+types:
+  [normal, fire, water, electric, grass, ice, fighting, poison, ground, flying,
+   psychic, bug, rock, ghost, dragon, dark, steel, fairy]
+
+stats:
+  hp: [hp, hit points, health]
+  attack: [attack, atk, physical attack]
+  defense: [defense, def, defence, physical defense]
+  special-attack: [special attack, sp atk, sp attack, spatk, spa, special atk, spattack]
+  special-defense: [special defense, sp def, sp defense, spdef, special def, special defence]
+  speed: [speed, spe]
+  total: [base stat total, stat total, total stats, base stats, bst, stats, total, overall]
+  bulk: [bulk]
+  offense: [offense, offence]
+  power: [power, base power]
+  accuracy: [accuracy]
+  pp: [pp, power points]
+  priority: [priority]
+
+stat_adjectives:
+  - phrases: [fast, fastest, quick, quickest, speedy, speediest, rapid]
+    comparatives: [faster, quicker, speedier]
+    stat: speed
+    direction: desc
+  - phrases: [slow, slowest, sluggish]
+    comparatives: [slower]
+    stat: speed
+    direction: asc
+  - phrases: [strong, strongest, powerful, most powerful, mighty, hard hitting]
+    comparatives: [stronger]
+    stat: offense
+    move_stat: power
+    direction: desc
+  - phrases: [bulky, bulkiest, tanky, tankiest, tough, toughest, durable]
+    comparatives: [bulkier, tankier, tougher]
+    stat: bulk
+    direction: desc
+  - phrases: [frail, fragile]
+    comparatives: []
+    stat: bulk
+    direction: asc
+  - phrases: [accurate, most accurate]
+    comparatives: []
+    stat: accuracy
+    direction: desc
+
+directions:
+  desc: [highest, high, higher, most, best, top, max, maximum, greatest, largest, biggest]
+  asc: [lowest, low, lower, least, min, minimum, worst, smallest]
+
+comparators:
+  gt: [over, above, more than, greater than, higher than, exceeding]
+  gte: [at least]
+  lt: [under, below, less than, lower than, fewer than]
+  lte: [at most]
+
+colors:
+  black: [black]
+  blue: [blue]
+  brown: [brown]
+  gray: [gray, grey]
+  green: [green]
+  pink: [pink]
+  purple: [purple]
+  red: [red]
+  white: [white]
+  yellow: [yellow]
+
+habitats:
+  cave: [cave, caves]
+  forest: [forest, forests, woods]
+  grassland: [grassland, grasslands, meadow, meadows]
+  mountain: [mountain, mountains]
+  rough-terrain: [rough terrain]
+  sea: [sea, seas, ocean, oceans]
+  urban: [urban, city, cities, town]
+  waters-edge: [waters edge, waterside, shore]
+
+legendary: [legendary, legendaries, legend, legends]
+mythical: [mythical, mythic]
+
+damage_classes:
+  physical: [physical]
+  special: [special]
+  status: [status]
+
+effects:
+  sleep: [sleep, asleep, sleeping, sleeps, sleepy, slumber, drowsy]
+  paralysis: [paralysis, paralyze, paralyzes, paralyzed, paralyzing, paralyse, paralysed]
+  poison: [poison, poisons, poisoned, poisoning]
+  burn: [burn, burns, burned, burnt, burning]
+  freeze: [freeze, freezes, frozen, freezing]
+  confusion: [confusion, confuse, confuses, confused, confusing]
+  flinch: [flinch, flinches, flinching, flinched]
+
+modes:
+  prevents: [prevent, prevents, preventing, avoid, avoids, immune, immunity, block, blocks,
+             stop, stops, protect against]
+
+targets:
+  opponent: [opponent, opponents, target, targets, enemy, enemies, foe, foes, rival]
+  user: [user, self, myself, itself, yourself, my own]
+
+weathers:
+  rain: [rain, rainy, raining, rains, rain dance, downpour, rainstorm]
+  sun: [sun, sunny, sunlight, sunshine, sunny day, harsh sunlight, strong sunlight]
+  sandstorm: [sandstorm, sandstorms, sand storm, sand, sandy]
+  hail: [hail, hailstorm, snow, snowy, snowstorm]
+
+relations:
+  learns: [learn, learns, learned, learning, learned by, knows, know, can learn, taught, teach]
+  has: [has, have, having, carries, carry]
+
+fillers:
+  [a, an, the, that, this, these, those, which, who, whom, what, whose, can, could, will,
+   would, should, may, might, to, of, for, in, "on", at, is, are, was, be, been, being, and, or,
+   with, from, by, as, into, it, its, their, them, they, i, me, my, we, our, you, your, some,
+   any, all, every, one, ones, other, put, make, makes, cause, causes, inflict, inflicts,
+   give, gives, get, find, show, list, want, need, looking, look, please, team, teams, type,
+   types, typed, kind, kinds, benefit, benefits, benefiting, benefitting, like, likes, use,
+   uses, using, effect, effects, fall, falls, very, really, than, also, both, either, able,
+   help, helps, good, options]
+
+examples:
+  - bulba
+  - fast electric pokemon
+  - put the opponent to sleep
+  - rain team
