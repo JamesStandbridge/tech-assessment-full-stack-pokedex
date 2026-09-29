@@ -1,0 +1,42 @@
+[project]
+name = "pokedex-tooling"
+version = "0.1.0"
+description = "Dataset preparation, specification checks, acceptance tests and relevance evaluation for the Pokédex search."
+requires-python = ">=3.12"
+dependencies = [
+    "pytest>=8.3",
+]
+
+[project.scripts]
+prepare-data = "pokedex_tooling.dataset:main"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.13",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "D", "ANN", "BLE", "RUF", "PT"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+mypy_path = "src"
