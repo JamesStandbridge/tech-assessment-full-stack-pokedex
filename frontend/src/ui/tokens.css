@@ -1,0 +1,76 @@
+/*
+ * Design tokens. Tailwind turns every --color-* into utilities such as
+ * bg-type-fire or text-tone-effect; the other variables are read by components.
+ */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-ink: #0b0f1a;
+  --color-panel: #121829;
+  --color-panel-raised: #1a2238;
+  --color-line: #2a3452;
+  --color-text: #e8ecf6;
+  --color-muted: #9aa6c4;
+  --color-accent: #e3350d;
+  --color-accent-soft: #ff6b4a;
+  --color-focus: #ffd23f;
+
+  --color-type-normal: #a8a77a;
+  --color-type-fire: #ee8130;
+  --color-type-water: #6390f0;
+  --color-type-electric: #f7d02c;
+  --color-type-grass: #7ac74c;
+  --color-type-ice: #96d9d6;
+  --color-type-fighting: #c22e28;
+  --color-type-poison: #a33ea1;
+  --color-type-ground: #e2bf65;
+  --color-type-flying: #a98ff3;
+  --color-type-psychic: #f95587;
+  --color-type-bug: #a6b91a;
+  --color-type-rock: #b6a136;
+  --color-type-ghost: #735797;
+  --color-type-dragon: #6f35fc;
+  --color-type-dark: #705746;
+  --color-type-steel: #b7b7ce;
+  --color-type-fairy: #d685ad;
+
+  --color-tone-entity: #ffd23f;
+  --color-tone-kind: #7cc4ff;
+  --color-tone-type: #ff9f5a;
+  --color-tone-trait: #5ee6c1;
+  --color-tone-stat: #b6f36b;
+  --color-tone-effect: #f07cff;
+  --color-tone-weather: #5fd4ff;
+  --color-tone-relation: #ffb45e;
+  --color-tone-filler: #6b7593;
+  --color-tone-ignored: #ff6b8a;
+
+  --color-role-setter: #ffd23f;
+  --color-role-benefit: #5ee6a0;
+  --color-role-protection: #7cc4ff;
+  --color-role-mixed: #c9a6ff;
+  --color-role-drawback: #ff6b8a;
+
+  --radius-card: 1.25rem;
+  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 12px 32px -12px rgb(0 0 0 / 0.6);
+}
+
+:root {
+  --ambience-none:
+    radial-gradient(1200px 600px at 10% -10%, #1f2a4d 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, #3a1422 0%, transparent 55%);
+  --ambience-rain:
+    radial-gradient(1000px 700px at 50% -20%, #1b3f6b 0%, transparent 65%),
+    linear-gradient(180deg, #0c1a2e 0%, #0b0f1a 70%);
+  --ambience-sun:
+    radial-gradient(900px 600px at 85% -15%, #7a3a0c 0%, transparent 60%),
+    linear-gradient(180deg, #24140a 0%, #0b0f1a 70%);
+  --ambience-sandstorm:
+    radial-gradient(1000px 700px at 20% -10%, #5a4520 0%, transparent 60%),
+    linear-gradient(180deg, #1f1a10 0%, #0b0f1a 70%);
+  --ambience-hail:
+    radial-gradient(1000px 700px at 50% -20%, #3d5a73 0%, transparent 60%),
+    linear-gradient(180deg, #121c26 0%, #0b0f1a 70%);
+  color-scheme: dark;
+}
