@@ -2,14 +2,17 @@ from pytest_bdd import parsers, scenarios, then, when
 
 from pokedex_tooling import vocabulary
 from pokedex_tooling.assertions import (
+    assert_best_match,
     assert_every_pokemon_has_type,
     assert_excludes,
     assert_first,
     assert_has_explanation,
     assert_in_order,
     assert_includes,
+    assert_notice,
     assert_outcome,
     assert_ranks_before,
+    assert_term_role,
     assert_within_first_of_kind,
 )
 from pokedex_tooling.client import Outcome, SearchClient, SearchOutcome
@@ -73,3 +76,28 @@ def every_pokemon_has_type(search_outcome: SearchOutcome, type_name: str) -> Non
 @then(parsers.re(vocabulary.HAS_EXPLANATION))
 def has_explanation(search_outcome: SearchOutcome) -> None:
     assert_has_explanation(search_outcome)
+
+
+@then(parsers.re(vocabulary.TERM_ROLE))
+def term_is_recognized(search_outcome: SearchOutcome, term: str, role: str) -> None:
+    assert_term_role(search_outcome, term, role)
+
+
+@then(parsers.re(vocabulary.TERM_IGNORED))
+def term_is_ignored(search_outcome: SearchOutcome, term: str) -> None:
+    assert_term_role(search_outcome, term, vocabulary.IGNORED_ROLE)
+
+
+@then(parsers.re(vocabulary.IGNORED_TERMS_NOTICE))
+def ignored_terms_are_noted(search_outcome: SearchOutcome) -> None:
+    assert_notice(search_outcome, vocabulary.IGNORED_TERMS_NOTICE_CODE)
+
+
+@then(parsers.re(vocabulary.BEST_MATCH))
+def best_match_is(search_outcome: SearchOutcome, ref: str) -> None:
+    assert_best_match(search_outcome, EntityRef.parse(ref))
+
+
+@then(parsers.re(vocabulary.NO_BEST_MATCH))
+def no_best_match(search_outcome: SearchOutcome) -> None:
+    assert_best_match(search_outcome, None)

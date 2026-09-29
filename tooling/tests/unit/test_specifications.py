@@ -141,6 +141,20 @@ def test_valid_runs_raise_no_problem() -> None:
         ),
         (
             run(
+                ["SRCH-NAME-002"], step('I search for "mew"'), step('the term "mewtwo" is ignored')
+            ),
+            "not a word",
+        ),
+        (
+            run(
+                ["SRCH-NAME-002"],
+                step('I search for "mew"'),
+                step('the term "mew" is recognized as legend'),
+            ),
+            "Unknown term role",
+        ),
+        (
+            run(
                 ["SRCH-NAME-002"],
                 step('I search for "mew"'),
                 step("the results include:", ["pokemon:mewtwo"]),

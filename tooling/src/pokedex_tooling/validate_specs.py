@@ -185,6 +185,22 @@ def _match_step(text: str) -> re.Match[str] | None:
     return None
 
 
+def _check_term(match: re.Match[str], query: str, location: str, problems: list[Problem]) -> None:
+    if "term" not in match.re.groupindex:
+        return
+    term = match.group("term")
+    if term.casefold() not in query.casefold().split():
+        problems.append(
+            Problem(location=location, message=f"The term {term!r} is not a word of {query!r}.")
+        )
+    if "role" in match.re.groupindex and match.group("role") not in (
+        vocabulary.RECOGNIZED_TERM_ROLES
+    ):
+        problems.append(
+            Problem(location=location, message=f"Unknown term role {match.group('role')!r}.")
+        )
+
+
 def _check_tags(
     run: ScenarioRun, requirements: RequirementsDocument, problems: list[Problem]
 ) -> list[str]:
@@ -273,6 +289,7 @@ def check_scenarios(
                         message=f"Unknown type {match.group('type_name')!r}.",
                     )
                 )
+            _check_term(match, query, run.location, problems)
             for group in vocabulary.REFERENCE_GROUPS:
                 if group in match.re.groupindex:
                     ref = _parse_ref(match.group(group), run.location, index, problems)

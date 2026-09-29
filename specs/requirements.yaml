@@ -417,7 +417,7 @@ requirements:
     statement: The search API shall return every term of the query with the role it was recognized in, or mark it as ignored, and shall add a notice when a term is ignored.
     source: brief/product-expectations
     priority: must
-    verification: api-test
+    verification: acceptance
 
   - id: SRCH-PAGE-001
     need: query-understanding
@@ -457,7 +457,7 @@ requirements:
     statement: When a query exactly matches one entity name, or is the prefix of exactly one name, the search API shall identify that entity as the best match.
     source: brief/situation-1
     priority: should
-    verification: api-test
+    verification: acceptance
 
   - id: SRCH-SUGGEST-001
     need: query-understanding

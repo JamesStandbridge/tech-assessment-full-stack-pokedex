@@ -1,17 +1,20 @@
 import pytest
 
 from pokedex_tooling.assertions import (
+    assert_best_match,
     assert_every_pokemon_has_type,
     assert_excludes,
     assert_first,
     assert_has_explanation,
     assert_in_order,
     assert_includes,
+    assert_notice,
     assert_outcome,
     assert_ranks_before,
+    assert_term_role,
     assert_within_first_of_kind,
 )
-from pokedex_tooling.client import Outcome, RankedResult, SearchOutcome
+from pokedex_tooling.client import Notice, Outcome, RankedResult, SearchOutcome, Term
 from pokedex_tooling.entities import EntityRef
 
 POKEMON_TYPES: dict[str, list[str]] = {
@@ -137,3 +140,38 @@ def test_explanation_must_not_be_blank() -> None:
         assert_has_explanation(outcome_of(explanation="  "))
     with pytest.raises(AssertionError):
         assert_has_explanation(outcome_of())
+
+
+def understood(best_match: str | None = None) -> SearchOutcome:
+    return outcome_of("move:thunder").model_copy(
+        update={
+            "terms": [
+                Term(text="Rain", role="weather", value="rain"),
+                Term(text="brock", role="ignored", value=None),
+            ],
+            "notices": [Notice(code="ignored-terms", message="Ignored: brock.")],
+            "best_match": ref(best_match) if best_match else None,
+        }
+    )
+
+
+def test_term_roles_are_matched_ignoring_case() -> None:
+    assert_term_role(understood(), "rain", "weather")
+    assert_term_role(understood(), "brock", "ignored")
+    with pytest.raises(AssertionError, match="as effect"):
+        assert_term_role(understood(), "rain", "effect")
+    with pytest.raises(AssertionError, match="in the response terms"):
+        assert_term_role(understood(), "misty", "name")
+
+
+def test_notices_are_matched_by_code() -> None:
+    assert_notice(understood(), "ignored-terms")
+    with pytest.raises(AssertionError, match="missing-mechanic"):
+        assert_notice(understood(), "missing-mechanic")
+
+
+def test_best_match_is_compared_exactly() -> None:
+    assert_best_match(understood("move:thunder"), ref("move:thunder"))
+    assert_best_match(understood(), None)
+    with pytest.raises(AssertionError, match="best match"):
+        assert_best_match(understood("move:thunder"), None)

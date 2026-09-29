@@ -111,6 +111,28 @@ def assert_every_pokemon_has_type(outcome: SearchOutcome, type_name: str) -> Non
     _require(not offenders, f"Pokémon without type {type_name}: {offenders}", outcome)
 
 
+def assert_term_role(outcome: SearchOutcome, text: str, role: str) -> None:
+    """Assert the role a query term was recognized in, ignoring letter case."""
+    roles = [term.role for term in outcome.terms if term.text.casefold() == text.casefold()]
+    _require(bool(roles), f"Expected the term {text!r} in the response terms", outcome)
+    _require(role in roles, f"Expected the term {text!r} as {role}, got {roles}", outcome)
+
+
+def assert_notice(outcome: SearchOutcome, code: str) -> None:
+    """Assert that the response carries a notice with the given code."""
+    codes = [notice.code for notice in outcome.notices]
+    _require(code in codes, f"Expected a {code!r} notice, got {codes}", outcome)
+
+
+def assert_best_match(outcome: SearchOutcome, ref: EntityRef | None) -> None:
+    """Assert which entity is the best match, or that there is none."""
+    _require(
+        outcome.best_match == ref,
+        f"Expected best match {ref}, got {outcome.best_match}",
+        outcome,
+    )
+
+
 def assert_has_explanation(outcome: SearchOutcome) -> None:
     """Assert that the response explains its outcome."""
     _require(
