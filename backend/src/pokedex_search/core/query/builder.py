@@ -138,6 +138,7 @@ class PlanBuilder:
 
     def _effect(self, index: int, concept: Concept) -> int:
         self._draft.effect = concept.value
+        self._draft.default_target = concept.default_target
         return index + 1
 
     def _mode(self, index: int, concept: Concept) -> int:

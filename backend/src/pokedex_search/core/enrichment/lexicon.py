@@ -24,12 +24,20 @@ class WeatherScope(StrEnum):
 
 
 class EffectRule(Frozen):
-    """A pattern of short effect and the fact it expresses about the statuses it names."""
+    """A pattern of short effect and the fact it expresses about the effects it names.
+
+    A rule without effects admits every effect.
+    """
 
     pattern: str
+    effects: tuple[str, ...] = ()
     mode: EffectMode
     target: EffectTarget | None
     probability: ProbabilitySource
+
+    def admits(self, effect: str) -> bool:
+        """Tell whether the rule can express a fact about the effect."""
+        return not self.effects or effect in self.effects
 
 
 class WeatherRule(Frozen):
@@ -43,7 +51,7 @@ class WeatherRule(Frozen):
 class Lexicon(Frozen):
     """Every rule used to extract facts, in precedence order."""
 
-    statuses: dict[str, tuple[str, ...]]
+    effects: dict[str, tuple[str, ...]]
     effect_rules: tuple[EffectRule, ...]
     weathers: dict[str, tuple[str, ...]]
     generic_weather: str

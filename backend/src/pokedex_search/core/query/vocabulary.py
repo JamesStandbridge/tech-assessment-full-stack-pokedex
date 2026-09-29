@@ -31,6 +31,7 @@ class Vocabulary(Frozen):
     mythical: tuple[str, ...]
     damage_classes: dict[DamageClass, tuple[str, ...]]
     effects: dict[str, tuple[str, ...]]
+    self_effects: tuple[str, ...]
     modes: dict[EffectMode, tuple[str, ...]]
     targets: dict[EffectTarget, tuple[str, ...]]
     weathers: dict[str, tuple[str, ...]]

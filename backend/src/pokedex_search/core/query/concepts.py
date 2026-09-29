@@ -1,6 +1,7 @@
 """Meanings a phrase of the query can carry."""
 
 from pokedex_search.domain.entities import EntityRef, Frozen
+from pokedex_search.domain.facts import EffectTarget
 from pokedex_search.domain.terms import TermRole
 
 
@@ -12,6 +13,7 @@ class Concept(Frozen):
     move_value: str | None = None
     comparative: bool = False
     entity: EntityRef | None = None
+    default_target: EffectTarget = EffectTarget.OPPONENT
 
 
 class Span(Frozen):

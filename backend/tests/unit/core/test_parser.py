@@ -78,6 +78,15 @@ PLANS: list[tuple[str, dict[str, object]]] = [
         "poison the opponent",
         {"effect": {"effect": "poison", "mode": "causes", "target": "opponent"}},
     ),
+    (
+        "moves that restore hp",
+        {"kinds": ["move"], "effect": {"effect": "healing", "mode": "causes", "target": "user"}},
+    ),
+    (
+        "force the opponent to switch",
+        {"effect": {"effect": "forced-switch", "mode": "causes", "target": "opponent"}},
+    ),
+    ("the opponent", {}),
 ]
 
 

@@ -74,10 +74,11 @@ class CanonicalWriter:
         name = words.effects[effect.effect][0]
         if effect.mode is EffectMode.PREVENTS:
             return f"{words.modes[EffectMode.PREVENTS][0]} {name}"
-        if effect.target is EffectTarget.USER:
-            return f"{name} {words.targets[EffectTarget.USER][0]}"
-        if name in words.types:
-            return f"{name} {words.targets[EffectTarget.OPPONENT][0]}"
+        default = (
+            EffectTarget.USER if effect.effect in words.self_effects else EffectTarget.OPPONENT
+        )
+        if effect.target is not None and (effect.target is not default or name in words.types):
+            return f"{name} {words.targets[effect.target][0]}"
         return name
 
     def _weather(self, weather: WeatherConstraint | None) -> str:

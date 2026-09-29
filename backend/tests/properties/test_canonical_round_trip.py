@@ -40,7 +40,16 @@ CHARACTERISTICS = [
     Characteristic(facet=CharacteristicFacet.LEGENDARY, value="true"),
     Characteristic(facet=CharacteristicFacet.MYTHICAL, value="true"),
 ]
-EFFECTS = ["sleep", "paralysis", "poison", "burn", "confusion", "flinch"]
+EFFECTS = [
+    "sleep",
+    "paralysis",
+    "poison",
+    "burn",
+    "confusion",
+    "flinch",
+    "healing",
+    "forced-switch",
+]
 RELATIONS = [
     RelationConstraint(
         predicate=RelationPredicate.LEARNS_MOVE,

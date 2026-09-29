@@ -6,6 +6,7 @@ from pokedex_search.core.query.concepts import Concept, Span
 from pokedex_search.core.query.tokenizer import Token, tokenize
 from pokedex_search.core.query.vocabulary import Vocabulary
 from pokedex_search.domain.entities import EntityRef, Frozen
+from pokedex_search.domain.facts import EffectTarget
 from pokedex_search.domain.terms import TermRole
 
 MAX_NUMBER_LENGTH = 4
@@ -47,7 +48,7 @@ def _vocabulary_concepts(vocabulary: Vocabulary) -> Iterable[tuple[str, Concept]
     yield from _grouped(vocabulary.comparators.items(), TermRole.COMPARATOR)
     yield from _characteristics(vocabulary)
     yield from _grouped(vocabulary.damage_classes.items(), TermRole.CHARACTERISTIC, "damage-class:")
-    yield from _grouped(vocabulary.effects.items(), TermRole.EFFECT)
+    yield from _effects(vocabulary)
     yield from _grouped(vocabulary.modes.items(), TermRole.MODE)
     yield from _grouped(vocabulary.targets.items(), TermRole.TARGET)
     yield from _grouped(vocabulary.weathers.items(), TermRole.WEATHER)
@@ -60,6 +61,13 @@ def _grouped(
 ) -> Iterable[tuple[str, Concept]]:
     for value, phrases in groups:
         yield from ((phrase, Concept(role=role, value=f"{prefix}{value}")) for phrase in phrases)
+
+
+def _effects(vocabulary: Vocabulary) -> Iterable[tuple[str, Concept]]:
+    for effect, phrases in vocabulary.effects.items():
+        target = EffectTarget.USER if effect in vocabulary.self_effects else EffectTarget.OPPONENT
+        concept = Concept(role=TermRole.EFFECT, value=effect, default_target=target)
+        yield from ((phrase, concept) for phrase in phrases)
 
 
 def _characteristics(vocabulary: Vocabulary) -> Iterable[tuple[str, Concept]]:

@@ -1,4 +1,4 @@
-"""Extract status effect facts from short effects."""
+"""Extract effect facts from short effects."""
 
 import re
 from typing import assert_never
@@ -11,52 +11,53 @@ PERCENT = 100
 
 
 class EffectClassifier:
-    """Applies the first matching lexicon rule to a short effect."""
+    """Gives every effect a short effect names the first lexicon rule that matches and admits it."""
 
     def __init__(self, lexicon: Lexicon) -> None:
         """Compile the lexicon.
 
         Args:
-            lexicon: Status words and effect rules.
+            lexicon: Effect words and effect rules.
         """
         self._rules = tuple((re.compile(rule.pattern), rule) for rule in lexicon.effect_rules)
-        self._statuses = tuple(
+        self._effects = tuple(
             (re.compile(rf"\b(?:{'|'.join(words)})\b", re.IGNORECASE), effect)
-            for effect, words in lexicon.statuses.items()
+            for effect, words in lexicon.effects.items()
         )
 
-    def named_statuses(self, text: str) -> tuple[str, ...]:
-        """Return the status effects a text names, in lexicon order."""
-        return tuple(effect for pattern, effect in self._statuses if pattern.search(text))
+    def named_effects(self, text: str) -> tuple[str, ...]:
+        """Return the effects a text names, in lexicon order."""
+        return tuple(effect for pattern, effect in self._effects if pattern.search(text))
 
-    def matching_rule(self, text: str) -> EffectRule | None:
-        """Return the first rule matching a text, if any."""
-        return next((rule for pattern, rule in self._rules if pattern.search(text)), None)
+    def matching_rule(self, effect: str, text: str) -> EffectRule | None:
+        """Return the first rule that matches a text and admits the effect, if any."""
+        return next(
+            (rule for pattern, rule in self._rules if rule.admits(effect) and pattern.search(text)),
+            None,
+        )
 
     def classify(self, entity: Move | Ability) -> tuple[EffectFact, ...]:
-        """Return the status facts of a move or an ability.
+        """Return the effect facts of a move or an ability.
 
         Args:
             entity: The entity to read.
 
         Returns:
-            One fact per status its short effect names, or none.
+            One fact per effect its short effect names and a rule expresses.
         """
         text = entity.short_effect or ""
-        statuses = self.named_statuses(text)
-        if not statuses:
-            return ()
+        facts = (self._fact(effect, text, entity) for effect in self.named_effects(text))
+        return tuple(fact for fact in facts if fact is not None)
+
+    def _fact(self, effect: str, text: str, entity: Move | Ability) -> EffectFact | None:
         for pattern, rule in self._rules:
-            match = pattern.search(text)
+            match = pattern.search(text) if rule.admits(effect) else None
             if match is not None:
                 probability = self._probability(rule, match, entity)
-                return tuple(
-                    EffectFact(
-                        effect=status, mode=rule.mode, target=rule.target, probability=probability
-                    )
-                    for status in statuses
+                return EffectFact(
+                    effect=effect, mode=rule.mode, target=rule.target, probability=probability
                 )
-        return ()
+        return None
 
     @staticmethod
     def _probability(

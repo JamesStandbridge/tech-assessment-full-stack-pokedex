@@ -100,6 +100,14 @@ effects:
   freeze: [freeze, freezes, frozen, freezing]
   confusion: [confusion, confuse, confuses, confused, confusing]
   flinch: [flinch, flinches, flinching, flinched]
+  healing: [healing, heal, heals, healed, heal hp, restore hp, restores hp, restoring hp,
+            restore health, restores health, recover hp, recovers hp, regain hp, recovery,
+            restore, restores, restoring, drain, drains, draining]
+  forced-switch: [forced switch, force switch, forces switch, force a switch, switch, switches,
+                  switching, switch out, force out, forces out, phaze, phazes, phazing]
+
+# Effects that apply to the user when a query names no target.
+self_effects: [healing]
 
 modes:
   prevents: [prevent, prevents, preventing, avoid, avoids, immune, immunity, block, blocks,
@@ -124,7 +132,8 @@ fillers:
    would, should, may, might, to, of, for, in, "on", at, is, are, was, be, been, being, and, or,
    with, from, by, as, into, it, its, their, them, they, i, me, my, we, our, you, your, some,
    any, all, every, one, ones, other, put, make, makes, cause, causes, inflict, inflicts,
-   give, gives, get, find, show, list, want, need, looking, look, please, team, teams, type,
+   give, gives, get, find, show, list, want, need, looking, look, please, force, forces,
+   forced, forcing, team, teams, type,
    types, typed, kind, kinds, benefit, benefits, benefiting, benefitting, like, likes, use,
    uses, using, effect, effects, fall, falls, very, really, than, also, both, either, able,
    help, helps, good, options]

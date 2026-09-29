@@ -20,8 +20,19 @@ def _entity(snapshot: Snapshot, name: str) -> Move | Ability:
 EFFECTS = [
     ("spore", [("sleep", "causes", "opponent", 1.0)]),
     ("sing", [("sleep", "causes", "opponent", 0.55)]),
-    ("rest", [("sleep", "causes", "user", 1.0)]),
-    ("dream-eater", [("sleep", "requires", "opponent", None)]),
+    ("rest", [("sleep", "causes", "user", 1.0), ("healing", "causes", "user", 1.0)]),
+    (
+        "dream-eater",
+        [("sleep", "requires", "opponent", None), ("healing", "causes", "user", 1.0)],
+    ),
+    ("recover", [("healing", "causes", "user", 1.0)]),
+    ("leech-seed", [("healing", "causes", "user", 0.9)]),
+    ("rain-dish", [("healing", "causes", "user", None)]),
+    ("regenerator", [("healing", "causes", "user", None)]),
+    ("liquid-ooze", []),
+    ("roar", [("forced-switch", "causes", "opponent", 1.0)]),
+    ("natural-cure", []),
+    ("arena-trap", []),
     ("insomnia", [("sleep", "prevents", None, None)]),
     ("thrash", [("confusion", "causes", "user", 1.0)]),
     ("toxic", [("poison", "causes", "opponent", 0.9)]),
@@ -60,15 +71,15 @@ def test_weather_facts_match_the_golden_table(
     assert [(f.weather, f.role, f.stat) for f in facts] == expected
 
 
-def test_every_short_effect_naming_a_status_matches_a_rule(
+def test_every_effect_a_short_effect_names_matches_a_rule(
     snapshot: Snapshot, lexicon: Lexicon
 ) -> None:
     classifier = EffectClassifier(lexicon)
     entities: tuple[Move | Ability, ...] = (*snapshot.moves, *snapshot.abilities)
     unmatched = [
-        entity.name
+        f"{entity.name}:{effect}"
         for entity in entities
-        if classifier.named_statuses(entity.short_effect or "")
-        and classifier.matching_rule(entity.short_effect or "") is None
+        for effect in classifier.named_effects(entity.short_effect or "")
+        if classifier.matching_rule(effect, entity.short_effect or "") is None
     ]
     assert unmatched == []

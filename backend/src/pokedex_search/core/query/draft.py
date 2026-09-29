@@ -31,6 +31,7 @@ class PlanDraft:
     effect: str | None = None
     mode: EffectMode = EffectMode.CAUSES
     target: EffectTarget | None = None
+    default_target: EffectTarget = EffectTarget.OPPONENT
     weather: str | None = None
     weather_stat: StatName | None = None
     mention: EntityRef | None = None
@@ -65,7 +66,7 @@ class PlanDraft:
             return None
         target = self.target
         if target is None and self.mode is EffectMode.CAUSES:
-            target = EffectTarget.OPPONENT
+            target = self.default_target
         return EffectConstraint(effect=self.effect, mode=self.mode, target=target)
 
     def _relation(self) -> RelationConstraint | None:

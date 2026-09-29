@@ -1,9 +1,10 @@
-# Rules that turn effect texts into facts. Status effects are read from short
-# effects only, because long effects cite mechanics outside the snapshot, such
-# as Sleep Talk. Weather roles are read from short effects, and from long
-# effects only for a weather the short effect does not mention.
+# Rules that turn effect texts into facts. Effects are read from short effects
+# only, because long effects cite mechanics outside the snapshot, such as Sleep
+# Talk. Each effect takes the first rule that matches and admits it. Weather
+# roles are read from short effects, and from long effects only for a weather
+# the short effect does not mention.
 
-statuses:
+effects:
   sleep: [sleep, sleeps, sleeping, asleep]
   paralysis: [paralyze, paralyzes, paralyzing, paralysis]
   poison: [poison, poisons, poisoning, poisoned]
@@ -11,8 +12,20 @@ statuses:
   freeze: [freeze, freezes, frozen]
   confusion: [confuse, confuses, confusion, confused]
   flinch: [flinch, flinching]
+  healing: [heal the user, heals, healing, stealing HP]
+  forced-switch: [switch]
 
 effect_rules:
+  - pattern: "heal the user|\\bHeals\\b|\\bhealing\\b|stealing HP"
+    effects: [healing]
+    mode: causes
+    target: user
+    probability: move
+  - pattern: "Forces \\w+ to switch"
+    effects: [forced-switch]
+    mode: causes
+    target: opponent
+    probability: move
   - pattern: "\\bUser sleeps\\b"
     mode: causes
     target: user
