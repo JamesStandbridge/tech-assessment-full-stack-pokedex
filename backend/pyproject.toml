@@ -1,0 +1,100 @@
+[project]
+name = "pokedex-search"
+version = "0.1.0"
+description = "Search API over the published Pokédex snapshot."
+requires-python = ">=3.12"
+dependencies = [
+    "bm25s>=0.2",
+    "fastapi>=0.115",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "pyyaml>=6.0",
+    "rapidfuzz>=3.10",
+    "uvicorn>=0.32",
+]
+
+[project.scripts]
+serve = "pokedex_search.bootstrap:serve"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28",
+    "hypothesis>=6.115",
+    "import-linter>=2.1",
+    "jsonschema>=4.23",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "referencing>=0.35",
+    "ruff>=0.8",
+    "types-jsonschema>=4.23",
+    "types-pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "I", "UP", "B", "D", "ANN", "BLE", "RUF", "PT",
+    "PL", "C90", "SIM", "RET", "PIE", "PERF", "N",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-args = 7
+max-statements = 30
+max-returns = 6
+max-branches = 10
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["D104"]
+"tests/**" = ["D", "PLR2004"]
+
+[tool.mypy]
+strict = true
+warn_unreachable = true
+files = ["src", "tests"]
+mypy_path = "src"
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["bm25s.*"]
+ignore_missing_imports = true
+
+[tool.importlinter]
+root_package = "pokedex_search"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers depend inwards only"
+type = "layers"
+layers = [
+    "pokedex_search.bootstrap",
+    "pokedex_search.api | pokedex_search.infrastructure",
+    "pokedex_search.application",
+    "pokedex_search.core",
+    "pokedex_search.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Inner layers stay free of frameworks and I/O libraries"
+type = "forbidden"
+source_modules = [
+    "pokedex_search.domain",
+    "pokedex_search.core",
+    "pokedex_search.application",
+]
+forbidden_modules = ["fastapi", "starlette", "uvicorn", "yaml", "pydantic_settings", "httpx"]
