@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.features-gen/
+playwright-report/
+test-results/
+.lighthouseci/
+*.tsbuildinfo

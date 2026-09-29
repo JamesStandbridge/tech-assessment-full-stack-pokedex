@@ -1,0 +1,8 @@
+dist
+coverage
+pnpm-lock.yaml
+src/api/schema.gen.ts
+.features-gen
+playwright-report
+test-results
+.lighthouseci

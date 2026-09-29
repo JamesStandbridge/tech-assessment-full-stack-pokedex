@@ -4,6 +4,8 @@
 [tools]
 python = "3.14.7"
 uv = "0.10.12"
+node = "24.21.0"
+pnpm = "12.8.1"
 
 [env]
 UV_PYTHON = "3.14"
@@ -22,9 +24,14 @@ description = "Install the tooling dependencies from the lock file"
 dir = "tooling"
 run = "uv sync --locked"
 
+[tasks."install:frontend"]
+description = "Install the frontend dependencies from the lock file"
+dir = "frontend"
+run = "pnpm install --frozen-lockfile"
+
 [tasks.install]
 description = "Install every dependency"
-depends = ["install:backend", "install:tooling"]
+depends = ["install:backend", "install:tooling", "install:frontend"]
 
 [tasks.data]
 description = "Download the published snapshot and verify its checksum"
@@ -35,12 +42,17 @@ run = "uv run prepare-data"
 [tasks.setup]
 description = "Prepare a fresh clone: runtimes, dependencies and dataset"
 depends = ["install", "data"]
-run = "echo 'Setup complete. Run just dev to start the search API.'"
+run = "echo 'Setup complete. Run just dev to start the search API and the interface.'"
 
 [tasks.serve]
 description = "Run the search API"
 dir = "backend"
 run = "uv run serve"
+
+[tasks.web]
+description = "Run the interface development server"
+dir = "frontend"
+run = "pnpm run dev"
 
 [tasks.dev]
 description = "Run the development processes with process-compose"
@@ -49,6 +61,11 @@ run = "process-compose up --use-uds"
 [tasks."dev:down"]
 description = "Stop the development processes of this project"
 run = "process-compose down --use-uds"
+
+[tasks."api:types"]
+description = "Regenerate the frontend contract types from specs/api/openapi.yaml"
+dir = "frontend"
+run = "pnpm run api:types"
 
 [tasks."lint:backend"]
 description = "Lint and check the formatting of the backend"
@@ -60,15 +77,21 @@ description = "Lint and check the formatting of the tooling"
 dir = "tooling"
 run = ["uv run ruff check", "uv run ruff format --check"]
 
+[tasks."lint:frontend"]
+description = "Lint and check the formatting of the frontend"
+dir = "frontend"
+run = ["pnpm run lint", "pnpm run format:check"]
+
 [tasks.lint]
-description = "Lint every Python project"
-depends = ["lint:backend", "lint:tooling"]
+description = "Lint every project"
+depends = ["lint:backend", "lint:tooling", "lint:frontend"]
 
 [tasks."format"]
-description = "Format and autofix every Python project"
+description = "Format and autofix every project"
 run = [
   "cd backend && uv run ruff format && uv run ruff check --fix",
   "cd tooling && uv run ruff format && uv run ruff check --fix",
+  "cd frontend && pnpm run format && pnpm run lint --fix",
 ]
 
 [tasks."typecheck:backend"]
@@ -81,14 +104,28 @@ description = "Type check the tooling with mypy strict"
 dir = "tooling"
 run = "uv run mypy"
 
-[tasks.typecheck]
-description = "Type check every Python project"
-depends = ["typecheck:backend", "typecheck:tooling"]
+[tasks."typecheck:frontend"]
+description = "Type check the frontend and check that its contract types are current"
+dir = "frontend"
+run = ["pnpm run api:types:check", "pnpm run typecheck"]
 
-[tasks.layers]
+[tasks.typecheck]
+description = "Type check every project"
+depends = ["typecheck:backend", "typecheck:tooling", "typecheck:frontend"]
+
+[tasks."layers:backend"]
 description = "Check the backend layer contracts"
 dir = "backend"
 run = "uv run lint-imports"
+
+[tasks."layers:frontend"]
+description = "Check the frontend layer rules and unused code"
+dir = "frontend"
+run = ["pnpm run layers", "pnpm run knip"]
+
+[tasks.layers]
+description = "Check the layer rules of every project"
+depends = ["layers:backend", "layers:frontend"]
 
 [tasks."test:backend"]
 description = "Run the backend tests"
@@ -100,9 +137,25 @@ description = "Run the tooling unit tests"
 dir = "tooling"
 run = "uv run pytest -q"
 
+[tasks."test:frontend"]
+description = "Run the frontend unit and component tests with coverage thresholds"
+dir = "frontend"
+run = "pnpm run test"
+
 [tasks.test]
 description = "Run every unit test suite"
-depends = ["test:backend", "test:tooling"]
+depends = ["test:backend", "test:tooling", "test:frontend"]
+
+[tasks."build:frontend"]
+description = "Build the interface for production"
+dir = "frontend"
+run = "pnpm run build"
+
+[tasks.size]
+description = "Check the initial JavaScript budget of the production build"
+dir = "frontend"
+depends = ["build:frontend"]
+run = "pnpm run size"
 
 [tasks.specs]
 description = "Check that the specifications are consistent"
@@ -111,7 +164,7 @@ run = "uv run validate-specs"
 
 [tasks.check]
 description = "Run every check that needs no running API"
-depends = ["lint", "typecheck", "layers", "test", "specs"]
+depends = ["lint", "typecheck", "layers", "test", "size", "specs"]
 
 [tasks.acceptance]
 description = "Run the Gherkin acceptance scenarios against the search API"
@@ -132,8 +185,9 @@ description = "Report the versions of the tools and whether the dataset is ready
 run = "scripts/doctor.sh"
 
 [tasks.clean]
-description = "Remove caches and virtual environments"
+description = "Remove caches, virtual environments, dependency directories and builds"
 run = """
 find backend tooling -type d \\( -name .venv -o -name __pycache__ -o -name .pytest_cache \
   -o -name .mypy_cache -o -name .ruff_cache -o -name .hypothesis \\) -prune -exec rm -rf {} +
+rm -rf frontend/node_modules frontend/dist frontend/coverage
 """

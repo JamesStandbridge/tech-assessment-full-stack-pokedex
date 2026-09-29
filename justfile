@@ -31,25 +31,37 @@ dev-down:
 serve:
     mise run serve
 
-# Lint every Python project
+# Run the interface development server
+web:
+    mise run web
+
+# Regenerate the frontend contract types from specs/api/openapi.yaml
+api-types:
+    mise run api:types
+
+# Lint every project
 lint:
     mise run lint
 
-# Format and autofix every Python project
+# Format and autofix every project
 format:
     mise run format
 
-# Type check every Python project
+# Type check every project
 typecheck:
     mise run typecheck
 
-# Check the backend layer contracts
+# Check the layer rules of every project
 layers:
     mise run layers
 
 # Run every unit test suite
 test:
     mise run test
+
+# Check the initial JavaScript budget of the production build
+size:
+    mise run size
 
 # Check that the specifications are consistent
 specs:
@@ -75,6 +87,6 @@ verify:
 doctor:
     mise run doctor
 
-# Remove caches and virtual environments
+# Remove caches, virtual environments, dependency directories and builds
 clean:
     mise run clean
