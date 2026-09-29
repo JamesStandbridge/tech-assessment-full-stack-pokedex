@@ -1,12 +1,14 @@
 openapi: 3.1.0
 info:
   title: Pokédex Search API
-  version: 0.4.0
+  version: 0.5.0
   description: >
     Searches the published pokedex.json snapshot for Pokémon, moves and
     abilities. Results come in one ranked section per entity kind, every result
     says why it matched, and the response describes how the query was
-    understood.
+    understood. Every GET resource also answers HEAD; responses above 1 kB are
+    compressed when the client accepts gzip, and every response carries
+    X-Content-Type-Options: nosniff.
 paths:
   /api/search:
     get:
@@ -43,10 +45,17 @@ paths:
       responses:
         "200":
           description: The query is valid. The outcome says whether anything answers it.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControl"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/SearchResponse"
+        "304":
+          $ref: "#/components/responses/NotModified"
         "400":
           description: The query or a parameter breaks the input rules.
           content:
@@ -73,10 +82,17 @@ paths:
       responses:
         "200":
           description: Suggestions, best first. The list may be empty.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControl"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/SuggestResponse"
+        "304":
+          $ref: "#/components/responses/NotModified"
         "400":
           description: The partial query breaks the input rules.
           content:
@@ -104,10 +120,17 @@ paths:
       responses:
         "200":
           description: The entity and its relations.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControl"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/EntityDetail"
+        "304":
+          $ref: "#/components/responses/NotModified"
         "404":
           description: No entity of this kind has this name.
           content:
@@ -139,7 +162,26 @@ paths:
                   dataset_sha256:
                     type: string
 components:
+  headers:
+    ETag:
+      description: >
+        Weak entity tag of the response body. Sending it back in If-None-Match
+        yields 304 Not Modified while the response is unchanged.
+      schema:
+        type: string
+    CacheControl:
+      description: Always no-cache, so every reuse of a stored response is validated.
+      schema:
+        type: string
+        const: no-cache
   responses:
+    NotModified:
+      description: The entity tag in If-None-Match still matches; the stored response is current.
+      headers:
+        ETag:
+          $ref: "#/components/headers/ETag"
+        Cache-Control:
+          $ref: "#/components/headers/CacheControl"
     InternalError:
       description: Unexpected failure. No internal detail is exposed.
       content:

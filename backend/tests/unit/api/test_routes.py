@@ -113,3 +113,65 @@ def test_health_and_suggestions_follow_the_contract() -> None:
         CONTRACT.errors(client.get("/api/suggest", params={"q": "pi"}).json(), "SuggestResponse")
         == []
     )
+
+
+def _large_result(count: int) -> SearchResult:
+    section = RESULT.sections[0]
+    items = tuple(
+        item.model_copy(update={"rank": rank})
+        for rank in range(1, count + 1)
+        for item in section.items
+    )
+    return RESULT.model_copy(
+        update={"sections": (section.model_copy(update={"total": count, "items": items}),)}
+    )
+
+
+def test_a_repeated_search_is_validated_by_its_entity_tag() -> None:
+    client = _client(FakeSearch(RESULT))
+    first = client.get("/api/search", params={"q": "pikachu"})
+    tag = first.headers["etag"]
+    again = client.get("/api/search", params={"q": "pikachu"}, headers={"If-None-Match": tag})
+    other = client.get("/api/search", params={"q": "pikachu"}, headers={"If-None-Match": 'W/"x"'})
+    assert tag.startswith('W/"')
+    assert first.headers["cache-control"] == "no-cache"
+    assert (again.status_code, again.content, again.headers["etag"]) == (304, b"", tag)
+    assert other.status_code == 200
+
+
+def test_errors_carry_no_entity_tag() -> None:
+    response = _client(FakeSearch(RESULT)).get("/api/entities/move/rain-dance")
+    assert response.status_code == 404
+    assert "etag" not in response.headers
+
+
+def test_large_responses_are_compressed() -> None:
+    response = _client(FakeSearch(_large_result(20))).get(
+        "/api/search", params={"q": "pikachu"}, headers={"Accept-Encoding": "gzip"}
+    )
+    assert response.headers["content-encoding"] == "gzip"
+    assert CONTRACT.errors(response.json(), "SearchResponse") == []
+
+
+def test_head_answers_like_get_without_a_body() -> None:
+    client = _client(FakeSearch(RESULT))
+    get = client.get("/api/entities/pokemon/pikachu")
+    head = client.head("/api/entities/pokemon/pikachu")
+    assert (head.status_code, head.content) == (200, b"")
+    assert head.headers["etag"] == get.headers["etag"]
+    assert head.headers["content-length"] == get.headers["content-length"]
+
+
+@pytest.mark.parametrize(
+    ("path", "result"),
+    [
+        ("/api/health", RESULT),
+        ("/api/entities/move/rain-dance", RESULT),
+        ("/api/search?q=pikachu", RuntimeError("unexpected")),
+    ],
+)
+def test_every_response_forbids_content_sniffing(
+    path: str, result: SearchResult | Exception
+) -> None:
+    response = _client(FakeSearch(result)).get(path)
+    assert response.headers["x-content-type-options"] == "nosniff"

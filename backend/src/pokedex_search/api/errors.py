@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from pokedex_search.api.http.security import SECURITY_HEADERS
 from pokedex_search.api.schemas.common import ErrorBodyDTO, ErrorResponseDTO
 from pokedex_search.domain.errors import (
     EntityNotFoundError,
@@ -45,7 +46,9 @@ async def _request_validation(_: Request, error: Exception) -> JSONResponse:
 
 async def _unexpected(request: Request, error: Exception) -> JSONResponse:
     LOGGER.error("Unhandled error on %s", request.url.path, exc_info=error)
-    return _response(500, ErrorBodyDTO(code="internal_error", message=GENERIC_FAILURE))
+    response = _response(500, ErrorBodyDTO(code="internal_error", message=GENERIC_FAILURE))
+    response.headers.update(SECURITY_HEADERS)
+    return response
 
 
 def register_error_handlers(app: FastAPI) -> None:
