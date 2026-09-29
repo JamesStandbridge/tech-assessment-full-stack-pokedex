@@ -37,6 +37,34 @@ Feature: Handle invalid, unsupported and ambiguous queries
       | item, not in the snapshot    | potion    |
       | other language               | dormir    |
 
+  @SRCH-INPUT-004 @SRCH-KIND-001
+  Scenario: A natural question with an accent and punctuation is understood
+    When I search for "Which Pokémon can put the opponent to sleep?"
+    Then the outcome is "results"
+    And every result is a pokemon
+    And the results include:
+      | result           |
+      | pokemon:jynx     |
+      | pokemon:paras    |
+      | pokemon:gengar   |
+    And the results exclude:
+      | result          |
+      | pokemon:snorlax |
+
+  @SRCH-INPUT-004
+  Scenario Outline: Hyphenated and plural vocabulary forms are understood
+    When I search for "<query>"
+    Then the outcome is "results"
+    And every pokemon result has the type "<type>"
+    And the results include:
+      | result     |
+      | <included> |
+
+    Examples:
+      | query                 | type     | included           |
+      | electric-type pokemon | electric | pokemon:zapdos     |
+      | FIRE TYPES            | fire     | pokemon:charmander |
+
   @SRCH-AMBIG-001
   Scenario: A word that is both a type and a move covers both readings
     When I search for "psychic"

@@ -111,6 +111,19 @@ def assert_every_pokemon_has_type(outcome: SearchOutcome, type_name: str) -> Non
     _require(not offenders, f"Pokémon without type {type_name}: {offenders}", outcome)
 
 
+def assert_every_result_of_kind(outcome: SearchOutcome, kind: EntityKind) -> None:
+    """Assert that the search returned results, all of the given kind."""
+    others = [str(result.ref) for result in outcome.results if result.ref.kind != kind]
+    _require(bool(outcome.results), f"Expected {kind} results", outcome)
+    _require(not others, f"Expected only {kind} results, got {others}", outcome)
+
+
+def assert_count_of_kind(outcome: SearchOutcome, kind: EntityKind, count: int) -> None:
+    """Assert the number of results of one kind across all pages."""
+    actual = len(outcome.of_kind(kind))
+    _require(actual == count, f"Expected {count} {kind} results, got {actual}", outcome)
+
+
 def assert_term_role(outcome: SearchOutcome, text: str, role: str) -> None:
     """Assert the role a query term was recognized in, ignoring letter case."""
     roles = [term.role for term in outcome.terms if term.text.casefold() == text.casefold()]

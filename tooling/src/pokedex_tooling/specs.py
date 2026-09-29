@@ -186,11 +186,12 @@ def load_scenario_runs(features_dir: Path = FEATURES_DIR) -> list[ScenarioRun]:
                 steps = [
                     RenderedStep(
                         text=_render(step.text, row),
-                        table_header=step.datatable.rows[0].cells[0].value
+                        table_header=_render(step.datatable.rows[0].cells[0].value, row)
                         if step.datatable
                         else None,
                         table_values=[
-                            table_row.cells[0].value for table_row in step.datatable.rows[1:]
+                            _render(table_row.cells[0].value, row)
+                            for table_row in step.datatable.rows[1:]
                         ]
                         if step.datatable
                         else [],

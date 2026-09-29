@@ -21,19 +21,22 @@ Feature: Know what can be searched and see how a query was understood
     Then the term "<term>" is recognized as <role>
 
     Examples:
-      | query                     | term     | role      |
-      | bulba                     | bulba    | name      |
-      | fast electric pokemon     | fast     | stat      |
-      | fast electric pokemon     | electric | type      |
-      | fast electric pokemon     | pokemon  | filler    |
-      | high attack pokemon       | high     | direction |
-      | high attack pokemon       | attack   | stat      |
-      | highest sp atk pokemon    | sp atk   | stat      |
-      | put the opponent to sleep | sleep    | effect    |
-      | put the opponent to sleep | opponent | target    |
-      | prevent sleep             | prevent  | mode      |
-      | rain team                 | rain     | weather   |
-      | rain team                 | team     | filler    |
+      | query                     | term      | role           |
+      | bulba                     | bulba     | name           |
+      | fast electric pokemon     | fast      | stat           |
+      | fast electric pokemon     | electric  | type           |
+      | fast electric pokemon     | pokemon   | kind           |
+      | electric moves            | moves     | kind           |
+      | fox pokemon               | fox       | characteristic |
+      | legendary pokemon         | legendary | characteristic |
+      | high attack pokemon       | high      | direction      |
+      | high attack pokemon       | attack    | stat           |
+      | highest sp atk pokemon    | sp atk    | stat           |
+      | put the opponent to sleep | sleep     | effect         |
+      | put the opponent to sleep | opponent  | target         |
+      | prevent sleep             | prevent   | mode           |
+      | rain team                 | rain      | weather        |
+      | rain team                 | team      | filler         |
 
   @SRCH-TERM-001
   Scenario: Terms outside the vocabulary are reported as ignored

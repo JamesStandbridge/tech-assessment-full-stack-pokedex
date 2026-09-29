@@ -32,13 +32,18 @@ query (online)       text -> QueryParser -> SearchPlan -> SearchIndex -> Ranker 
 - Relations are denormalized at indexing time: each Pokémon carries the facts
   it can reach through its moves and abilities, with their sources. Effect and
   weather queries become filters and sorts, not joins.
-- `QueryParser` turns text into a typed `SearchPlan` and reports the role of
-  every term. It depends on small vocabularies only, never on data volume. A
+- `QueryParser` turns text into one conjunctive `SearchPlan`, or several
+  alternative plans when the query is truly ambiguous, and reports the role of
+  every term. A plan holds every constraint of the query (kinds, name or
+  number, types, characteristics, stats, damage classes, effect, weather and
+  relation); results satisfy all of them. Entity names are detected inside the
+  query, including names of several words. The parser depends on small
+  vocabularies and the list of entity names only, never on data volume. A
   serializer turns a plan back into its canonical query, and
   `parse(serialize(plan)) == plan` is a tested property.
 - `SearchIndex` is the only port that changes with scale. It exposes name
-  matching, filtered sorts with cursors, and facet counts. The first adapter
-  keeps everything in memory.
+  matching, conjunctive filtered sorts with cursors, relation lookups and facet
+  counts. The first adapter keeps everything in memory.
 - `Ranker` applies the models of ADR 4 and builds the reasons.
 - Notices about missing mechanics come from facet counts, not from hard-coded
   text, so they stay true if the data changes.

@@ -143,6 +143,14 @@ requirements:
     priority: must
     verification: acceptance
 
+  - id: SRCH-INPUT-004
+    need: input-handling
+    template: ubiquitous
+    statement: The search service shall ignore accents, punctuation other than a leading number sign, and the plural and hyphenated forms of vocabulary words, so that a question such as Which Pokémon can put the opponent to sleep? and a query such as electric-type pokemon are understood.
+    source: brief/context
+    priority: must
+    verification: acceptance
+
   - id: SRCH-EMPTY-001
     need: input-handling
     template: unwanted
@@ -182,6 +190,32 @@ requirements:
     source: brief/product-expectations
     priority: must
     verification: api-test
+
+  # Result quality: combined constraints
+
+  - id: SRCH-KIND-001
+    need: input-handling
+    template: event-driven
+    statement: When a query names an entity kind, such as pokemon, move or ability, in singular or plural form, the search service shall return results of that kind only.
+    source: brief/context
+    priority: must
+    verification: acceptance
+
+  - id: SRCH-PLAN-001
+    need: input-handling
+    template: event-driven
+    statement: When a query combines constraints, such as types, characteristics, stat comparisons, an effect, a weather or a relation, the search service shall return only entities that satisfy all of them, and no entity of a kind to which one of them cannot apply.
+    source: brief/situation-2, brief/situation-3
+    priority: must
+    verification: acceptance
+
+  - id: SRCH-PLAN-002
+    need: input-handling
+    template: event-driven
+    statement: When a query combines constraints, the search service shall rank by the stats the query asks for, and otherwise by the strength of its effect or weather relation, breaking remaining ties by dataset identifier.
+    source: product
+    priority: must
+    verification: acceptance
 
   # Result quality: name recovery
 
@@ -233,12 +267,28 @@ requirements:
     priority: should
     verification: acceptance
 
+  - id: SRCH-CHAR-001
+    need: name-recovery
+    template: event-driven
+    statement: When a query names a characteristic of a species, such as a word of its genus, its color, its habitat, or legendary or mythical, the search service shall return only Pokémon with that characteristic, reading a word that is also a type name as the type.
+    source: brief/context
+    priority: must
+    verification: acceptance
+
+  - id: SRCH-CHAR-002
+    need: name-recovery
+    template: optional
+    statement: Where no other reading applies to the remaining words of a query, the search service shall match them as whole words against species descriptions, rank Pokémon by BM25, and mark the results as approximate.
+    source: brief/context
+    priority: could
+    verification: acceptance
+
   # Result quality: criteria comparison
 
   - id: SRCH-CRIT-001
     need: criteria-comparison
     template: event-driven
-    statement: When a query names one or more types, the search service shall return only Pokémon that have all of those types.
+    statement: When a query names one or more types, the search service shall return only Pokémon that have all of those types and, when a single type is named, moves of that type.
     source: brief/situation-2
     priority: must
     verification: acceptance
@@ -296,6 +346,14 @@ requirements:
     template: event-driven
     statement: When a query compares a stat with a number, the search service shall return only Pokémon that satisfy the comparison, strictly for over, above, more than, under, below and less than, and inclusively for at least and at most.
     source: brief/situation-2
+    priority: should
+    verification: acceptance
+
+  - id: SRCH-MOVE-001
+    need: criteria-comparison
+    template: event-driven
+    statement: When a query asks for moves by power, accuracy, PP, priority or damage class, the search service shall filter and rank moves by those attributes, reading strong and powerful as power.
+    source: brief/context
     priority: should
     verification: acceptance
 
@@ -410,7 +468,7 @@ requirements:
   - id: SRCH-STRAT-006
     need: strategy-exploration
     template: optional
-    statement: Where a query combines a speed adjective and a weather condition, the search service shall rank by the weather relation instead of by base speed.
+    statement: Where a comparative speed word applies to a weather condition, as in faster in the rain, the search service shall rank by the weather effects that raise speed instead of by base speed.
     source: product
     priority: should
     verification: acceptance
@@ -421,6 +479,14 @@ requirements:
     statement: When Pokémon are returned for a weather query, the search service shall rank first those that set the weather, then by the sum over their weather effects of 1 for a benefit, 0.5 for a mixed effect and -0.5 for a drawback, halved for effects that come from a move, and shall not return Pokémon whose sum is not positive unless they set the weather.
     source: product
     priority: must
+    verification: acceptance
+
+  - id: SRCH-LINK-001
+    need: strategy-exploration
+    template: event-driven
+    statement: When a query names an entity within a sentence together with a relation, such as pokemon that learn thunder wave, pokemon with levitate or moves learned by pikachu, the search service shall return the entities linked to it by that relation.
+    source: brief/context
+    priority: should
     verification: acceptance
 
   # Result quality: evaluation
@@ -650,3 +716,9 @@ out_of_scope:
   - id: OUT-006
     statement: An external search engine or database.
     reason: An in-memory index serves 429 entities; the index interface allows another adapter when volume requires it.
+  - id: OUT-007
+    statement: Searching by body shape.
+    reason: Shape labels such as armor, wings, arms or heads collide with move and ability names and add little to recall.
+  - id: OUT-008
+    statement: Evolution order and evolution conditions.
+    reason: The snapshot only groups species by evolution chain; it holds no order or conditions.

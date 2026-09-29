@@ -3,7 +3,9 @@ from pytest_bdd import parsers, scenarios, then, when
 from pokedex_tooling import vocabulary
 from pokedex_tooling.assertions import (
     assert_best_match,
+    assert_count_of_kind,
     assert_every_pokemon_has_type,
+    assert_every_result_of_kind,
     assert_excludes,
     assert_first,
     assert_has_explanation,
@@ -16,7 +18,7 @@ from pokedex_tooling.assertions import (
     assert_within_first_of_kind,
 )
 from pokedex_tooling.client import Outcome, SearchClient, SearchOutcome
-from pokedex_tooling.entities import EntityRef
+from pokedex_tooling.entities import EntityKind, EntityRef
 from pokedex_tooling.paths import FEATURES_DIR
 
 scenarios(str(FEATURES_DIR))
@@ -101,3 +103,18 @@ def best_match_is(search_outcome: SearchOutcome, ref: str) -> None:
 @then(parsers.re(vocabulary.NO_BEST_MATCH))
 def no_best_match(search_outcome: SearchOutcome) -> None:
     assert_best_match(search_outcome, None)
+
+
+@then(parsers.re(vocabulary.EVERY_RESULT_OF_KIND))
+def every_result_of_kind(search_outcome: SearchOutcome, kind: str) -> None:
+    assert_every_result_of_kind(search_outcome, EntityKind(kind))
+
+
+@then(parsers.re(vocabulary.COUNT_OF_KIND), converters={"count": int})
+def count_of_kind(search_outcome: SearchOutcome, count: int, kind: str) -> None:
+    assert_count_of_kind(search_outcome, EntityKind(kind), count)
+
+
+@then(parsers.re(vocabulary.NOTICE))
+def notice_is_present(search_outcome: SearchOutcome, code: str) -> None:
+    assert_notice(search_outcome, code)

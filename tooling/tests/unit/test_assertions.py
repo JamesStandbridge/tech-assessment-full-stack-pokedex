@@ -2,7 +2,9 @@ import pytest
 
 from pokedex_tooling.assertions import (
     assert_best_match,
+    assert_count_of_kind,
     assert_every_pokemon_has_type,
+    assert_every_result_of_kind,
     assert_excludes,
     assert_first,
     assert_has_explanation,
@@ -15,7 +17,7 @@ from pokedex_tooling.assertions import (
     assert_within_first_of_kind,
 )
 from pokedex_tooling.client import Notice, Outcome, RankedResult, SearchOutcome, Term
-from pokedex_tooling.entities import EntityRef
+from pokedex_tooling.entities import EntityKind, EntityRef
 
 POKEMON_TYPES: dict[str, list[str]] = {
     "electrode": ["electric"],
@@ -175,3 +177,18 @@ def test_best_match_is_compared_exactly() -> None:
     assert_best_match(understood(), None)
     with pytest.raises(AssertionError, match="best match"):
         assert_best_match(understood("move:thunder"), None)
+
+
+def test_every_result_of_kind_requires_results_of_that_kind_only() -> None:
+    assert_every_result_of_kind(outcome_of("move:thunder", "move:thunderbolt"), EntityKind.MOVE)
+    with pytest.raises(AssertionError, match="pokemon:jolteon"):
+        assert_every_result_of_kind(outcome_of("move:thunder", "pokemon:jolteon"), EntityKind.MOVE)
+    with pytest.raises(AssertionError, match="Expected move results"):
+        assert_every_result_of_kind(outcome_of(), EntityKind.MOVE)
+
+
+def test_count_of_kind_counts_only_that_kind() -> None:
+    outcome = outcome_of("pokemon:jolteon", "move:thunder", "pokemon:zapdos")
+    assert_count_of_kind(outcome, EntityKind.POKEMON, 2)
+    with pytest.raises(AssertionError, match="Expected 3 pokemon results, got 2"):
+        assert_count_of_kind(outcome, EntityKind.POKEMON, 3)

@@ -18,12 +18,17 @@ TERM_IGNORED = r'the term "(?P<term>[^"]+)" is ignored'
 IGNORED_TERMS_NOTICE = r"the response notes that some terms were ignored"
 BEST_MATCH = r'the best match is "(?P<ref>[^"]+)"'
 NO_BEST_MATCH = r"there is no best match"
+EVERY_RESULT_OF_KIND = r"every result is an? (?P<kind>pokemon|move|ability)"
+COUNT_OF_KIND = r"there (?:is|are) (?P<count>\d+) (?P<kind>pokemon|move|ability) results?"
+NOTICE = r'the response includes an? "(?P<code>[a-z-]+)" notice'
 
 RECOGNIZED_TERM_ROLES: frozenset[str] = frozenset(
     {
         "name",
         "dex-number",
+        "kind",
         "type",
+        "characteristic",
         "stat",
         "direction",
         "comparator",
@@ -32,11 +37,15 @@ RECOGNIZED_TERM_ROLES: frozenset[str] = frozenset(
         "mode",
         "target",
         "weather",
+        "relation",
         "filler",
     }
 )
 IGNORED_ROLE = "ignored"
 IGNORED_TERMS_NOTICE_CODE = "ignored-terms"
+NOTICE_CODES: frozenset[str] = frozenset(
+    {IGNORED_TERMS_NOTICE_CODE, "approximate-match", "missing-mechanic"}
+)
 
 STEP_PATTERNS: tuple[str, ...] = (
     SEARCH,
@@ -54,6 +63,9 @@ STEP_PATTERNS: tuple[str, ...] = (
     IGNORED_TERMS_NOTICE,
     BEST_MATCH,
     NO_BEST_MATCH,
+    EVERY_RESULT_OF_KIND,
+    COUNT_OF_KIND,
+    NOTICE,
 )
 TABLE_STEPS: frozenset[str] = frozenset({RESULTS_INCLUDE, RESULTS_EXCLUDE, RESULTS_IN_ORDER})
 REFERENCE_GROUPS: tuple[str, ...] = ("ref", "first", "second")

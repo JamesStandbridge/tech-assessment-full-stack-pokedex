@@ -162,6 +162,14 @@ def test_valid_runs_raise_no_problem() -> None:
             run(
                 ["SRCH-NAME-002"],
                 step('I search for "mew"'),
+                step('the response includes a "made-up" notice'),
+            ),
+            "Unknown notice code",
+        ),
+        (
+            run(
+                ["SRCH-NAME-002"],
+                step('I search for "mew"'),
                 step("the results include:", ["pokemon:mewtwo"]),
                 step("the results exclude:", ["pokemon:mewtwo"]),
             ),

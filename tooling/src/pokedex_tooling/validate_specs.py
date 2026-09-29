@@ -290,6 +290,13 @@ def check_scenarios(
                     )
                 )
             _check_term(match, query, run.location, problems)
+            if pattern == vocabulary.NOTICE and match.group("code") not in vocabulary.NOTICE_CODES:
+                problems.append(
+                    Problem(
+                        location=run.location,
+                        message=f"Unknown notice code {match.group('code')!r}.",
+                    )
+                )
             for group in vocabulary.REFERENCE_GROUPS:
                 if group in match.re.groupindex:
                     ref = _parse_ref(match.group(group), run.location, index, problems)

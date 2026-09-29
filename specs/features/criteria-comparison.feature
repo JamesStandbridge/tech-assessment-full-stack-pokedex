@@ -245,3 +245,38 @@ Feature: Find and compare candidates from practical criteria
     And the results exclude:
       | result          |
       | pokemon:pikachu |
+
+  @SRCH-MOVE-001 @should
+  Scenario: Strong means power for moves
+    When I search for "strongest fire move"
+    Then the outcome is "results"
+    And every result is a move
+    And these results appear in this order:
+      | result            |
+      | move:fire-blast   |
+      | move:flamethrower |
+      | move:fire-punch   |
+
+  @SRCH-MOVE-001 @should
+  Scenario: A damage class filters moves
+    When I search for "physical electric moves"
+    Then the outcome is "results"
+    And there is 1 move result
+    And the results include:
+      | result             |
+      | move:thunder-punch |
+
+  @SRCH-MOVE-001 @should
+  Scenario: Priority moves act first, not last
+    When I search for "priority moves"
+    Then the outcome is "results"
+    And every result is a move
+    And there are 2 move results
+    And the results include:
+      | result            |
+      | move:quick-attack |
+      | move:bide         |
+    And the results exclude:
+      | result       |
+      | move:counter |
+      | move:roar    |

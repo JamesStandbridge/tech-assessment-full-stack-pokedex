@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pokédex Search API
-  version: 0.3.0
+  version: 0.4.0
   description: >
     Searches the published pokedex.json snapshot for Pokémon, moves and
     abilities. Results come in one ranked section per entity kind, every result
@@ -240,72 +240,111 @@ components:
                 minItems: 1
     Interpretation:
       type: object
-      required: [readings, summary]
+      required: [alternatives, summary]
       properties:
-        readings:
+        alternatives:
           type: array
-          description: How the query was read. Several readings mean the query was ambiguous.
+          description: >
+            Plans the query was read as. Each plan is conjunctive: its results
+            satisfy all of its constraints. Several plans mean the query was
+            ambiguous, such as psychic, a type and a move.
           items:
-            $ref: "#/components/schemas/Reading"
+            $ref: "#/components/schemas/SearchPlan"
         summary:
           type: string
-          description: Human-readable description of the readings, shown to the user.
-    Reading:
-      oneOf:
-        - $ref: "#/components/schemas/NameReading"
-        - $ref: "#/components/schemas/DexNumberReading"
-        - $ref: "#/components/schemas/CriteriaReading"
-        - $ref: "#/components/schemas/EffectReading"
-        - $ref: "#/components/schemas/WeatherReading"
-      discriminator:
-        propertyName: reading
-        mapping:
-          name: "#/components/schemas/NameReading"
-          dex-number: "#/components/schemas/DexNumberReading"
-          criteria: "#/components/schemas/CriteriaReading"
-          effect: "#/components/schemas/EffectReading"
-          weather: "#/components/schemas/WeatherReading"
-    NameReading:
+          description: Human-readable description of the plans, shown to the user.
+    SearchPlan:
       type: object
-      required: [reading, term]
+      required:
+        - kinds
+        - name
+        - dex_number
+        - types
+        - characteristics
+        - stat_sort
+        - stat_filters
+        - damage_classes
+        - effect
+        - weather
+        - relation
       properties:
-        reading:
-          const: name
-        term:
-          type: string
-    DexNumberReading:
-      type: object
-      required: [reading, number]
-      properties:
-        reading:
-          const: dex-number
-        number:
-          type: integer
+        kinds:
+          type: array
+          description: Kinds the results are restricted to; empty means any kind a constraint applies to.
+          items:
+            $ref: "#/components/schemas/EntityKind"
+        name:
+          type: [string, "null"]
+          description: Name term matched against entity names.
+        dex_number:
+          type: [integer, "null"]
           minimum: 1
-    CriteriaReading:
-      type: object
-      required: [reading, types, sort, filters]
-      properties:
-        reading:
-          const: criteria
         types:
           type: array
           items:
             type: string
-        sort:
+        characteristics:
+          type: array
+          items:
+            $ref: "#/components/schemas/Characteristic"
+        stat_sort:
           type: array
           description: Stats to rank by. One stat ranks by its value; several rank by their mean percentile.
           items:
             $ref: "#/components/schemas/StatSort"
-        filters:
+        stat_filters:
           type: array
-          description: Comparisons every Pokémon result satisfies.
+          description: Comparisons every result satisfies.
           items:
             $ref: "#/components/schemas/StatFilter"
+        damage_classes:
+          type: array
+          description: Damage classes every move result has.
+          items:
+            type: string
+            enum: [physical, special, status]
+        effect:
+          oneOf:
+            - $ref: "#/components/schemas/EffectConstraint"
+            - type: "null"
+        weather:
+          oneOf:
+            - $ref: "#/components/schemas/WeatherConstraint"
+            - type: "null"
+        relation:
+          oneOf:
+            - $ref: "#/components/schemas/RelationConstraint"
+            - type: "null"
+    Characteristic:
+      type: object
+      required: [facet, value]
+      properties:
+        facet:
+          type: string
+          enum: [genus, color, habitat, legendary, mythical, description]
+        value:
+          type: string
+          description: Normalized value, such as fox, blue or cave; true for legendary and mythical.
     StatName:
       type: string
-      description: A base stat, or a derived stat; bulk is hp plus defense plus special defense, offense the higher of attack and special attack.
-      enum: [hp, attack, defense, special-attack, special-defense, speed, total, bulk, offense]
+      description: >
+        A Pokémon base stat, a derived Pokémon stat (bulk is hp plus defense
+        plus special defense, offense the higher of attack and special
+        attack), or a move attribute.
+      enum:
+        - hp
+        - attack
+        - defense
+        - special-attack
+        - special-defense
+        - speed
+        - total
+        - bulk
+        - offense
+        - power
+        - accuracy
+        - pp
+        - priority
     StatSort:
       type: object
       required: [stat, direction]
@@ -326,12 +365,10 @@ components:
           enum: [gt, gte, lt, lte]
         value:
           type: integer
-    EffectReading:
+    EffectConstraint:
       type: object
-      required: [reading, effect, mode, target]
+      required: [effect, mode, target]
       properties:
-        reading:
-          const: effect
         effect:
           type: string
           description: Effect concept, such as sleep or paralysis.
@@ -341,15 +378,30 @@ components:
         target:
           type: [string, "null"]
           enum: [opponent, user, null]
-    WeatherReading:
+    WeatherConstraint:
       type: object
-      required: [reading, weather]
+      required: [weather, stat]
       properties:
-        reading:
-          const: weather
         weather:
           type: string
           description: Weather concept, such as rain or sun.
+        stat:
+          description: Stat the weather effect must raise, as in faster in the rain.
+          oneOf:
+            - $ref: "#/components/schemas/StatName"
+            - type: "null"
+    RelationConstraint:
+      type: object
+      required: [predicate, entity]
+      properties:
+        predicate:
+          type: string
+          enum: [learns-move, has-ability, learned-by, carried-by]
+          description: >
+            learns-move and has-ability return Pokémon; learned-by returns the
+            moves of a Pokémon; carried-by returns the abilities of a Pokémon.
+        entity:
+          $ref: "#/components/schemas/EntityRef"
     Term:
       type: object
       required: [text, role, value]
@@ -362,7 +414,9 @@ components:
           enum:
             - name
             - dex-number
+            - kind
             - type
+            - characteristic
             - stat
             - direction
             - comparator
@@ -371,6 +425,7 @@ components:
             - mode
             - target
             - weather
+            - relation
             - filler
             - ignored
         value:
@@ -473,12 +528,16 @@ components:
             - name-fuzzy
             - dex-number
             - type-filter
+            - characteristic
             - stat-rank
             - stat-filter
             - effect
             - weather
             - learns-move
             - has-ability
+            - learned-by
+            - carried-by
+            - description-match
         detail:
           type: string
           description: Human-readable explanation shown to the user.
@@ -614,7 +673,7 @@ components:
               properties:
                 role:
                   type: string
-                  enum: [type, stat, direction, comparator, effect, mode, target, weather]
+                  enum: [kind, type, characteristic, stat, direction, comparator, effect, mode, target, weather, relation]
                 value:
                   type: string
             - type: "null"

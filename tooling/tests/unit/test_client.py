@@ -82,12 +82,22 @@ def response_body(sections: list[dict[str, object]]) -> dict[str, object]:
         "canonical_query": "electric pokemon",
         "outcome": "results" if sections else "empty",
         "interpretation": {
-            "readings": [
+            "alternatives": [
                 {
-                    "reading": "criteria",
+                    "kinds": ["pokemon"],
+                    "name": None,
+                    "dex_number": None,
                     "types": ["electric"],
-                    "sort": [{"stat": "speed", "direction": "desc"}],
-                    "filters": [{"stat": "speed", "comparator": "gt", "value": 100}],
+                    "characteristics": [{"facet": "color", "value": "yellow"}],
+                    "stat_sort": [{"stat": "speed", "direction": "desc"}],
+                    "stat_filters": [{"stat": "speed", "comparator": "gt", "value": 100}],
+                    "damage_classes": [],
+                    "effect": {"effect": "paralysis", "mode": "causes", "target": "opponent"},
+                    "weather": None,
+                    "relation": {
+                        "predicate": "learns-move",
+                        "entity": {"kind": "move", "name": "thunder-wave"},
+                    },
                 }
             ],
             "summary": "Electric Pokémon",
