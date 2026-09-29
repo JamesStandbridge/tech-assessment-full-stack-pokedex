@@ -88,7 +88,7 @@ Feature: Recover something partially remembered
       | pikachuu | pokemon:pikachu   |
       | charizrd | pokemon:charizard |
 
-  @SRCH-NAME-006 @stretch
+  @SRCH-NAME-006 @should
   Scenario: A Pokédex number finds the Pokémon
     When I search for "#25"
     Then the outcome is "results"

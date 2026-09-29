@@ -34,7 +34,7 @@
           "template": { "enum": ["ubiquitous", "event-driven", "state-driven", "unwanted", "optional"] },
           "statement": { "type": "string", "pattern": "\\bshall\\b" },
           "source": { "type": "string", "minLength": 1 },
-          "priority": { "enum": ["core", "stretch"] },
+          "priority": { "enum": ["must", "should", "could"] },
           "verification": { "enum": ["acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation"] }
         }
       }

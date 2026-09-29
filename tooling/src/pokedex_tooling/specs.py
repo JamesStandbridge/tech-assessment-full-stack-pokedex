@@ -10,6 +10,10 @@ from pytest_bdd.gherkin_parser import Scenario, get_gherkin_document
 from pokedex_tooling.entities import EntityKind
 from pokedex_tooling.paths import FEATURES_DIR, JUDGMENTS_PATH, REQUIREMENTS_PATH, THRESHOLDS_PATH
 
+Priority = Literal["must", "should", "could"]
+PRIORITIES_BY_CRITICALITY: tuple[Priority, ...] = ("must", "should", "could")
+PRIORITY_TAGS: frozenset[str] = frozenset({"should", "could"})
+
 
 class Need(BaseModel):
     """A user need the product supports."""
@@ -27,7 +31,7 @@ class Requirement(BaseModel):
     template: Literal["ubiquitous", "event-driven", "state-driven", "unwanted", "optional"]
     statement: str
     source: str
-    priority: Literal["core", "stretch"]
+    priority: Priority
     verification: Literal["acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation"]
 
 

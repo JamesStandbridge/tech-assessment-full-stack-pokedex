@@ -10,8 +10,7 @@ from pokedex_tooling.client import (
     SearchClient,
 )
 from pokedex_tooling.contract import ContractValidator
-
-STRETCH_TAG = "stretch"
+from pokedex_tooling.specs import PRIORITY_TAGS
 
 
 @pytest.fixture(scope="session")
@@ -34,6 +33,6 @@ def search_client(contract: ContractValidator) -> Iterator[SearchClient]:
 
 
 def pytest_bdd_apply_tag(tag: str, function: Callable[..., object]) -> bool:
-    marker = pytest.mark.stretch if tag == STRETCH_TAG else pytest.mark.requirement(tag)
+    marker = getattr(pytest.mark, tag) if tag in PRIORITY_TAGS else pytest.mark.requirement(tag)
     marker(function)
     return True

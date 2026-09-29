@@ -97,7 +97,7 @@ Feature: Discover an answer without knowing its vocabulary
       | move:rest        |
       | move:dream-eater |
 
-  @SRCH-INTENT-007 @stretch
+  @SRCH-INTENT-007 @should
   Scenario: Preventing an effect is the opposite need
     When I search for "prevent sleep"
     Then the outcome is "results"

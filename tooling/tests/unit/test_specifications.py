@@ -29,7 +29,7 @@ REQUIREMENTS = RequirementsDocument(
             template="event-driven",
             statement="When a query matches, the service shall rank it first.",
             source="product",
-            priority="core",
+            priority="must",
             verification="acceptance",
         ),
         Requirement(
@@ -38,7 +38,16 @@ REQUIREMENTS = RequirementsDocument(
             template="optional",
             statement="Where a query is a number, the service shall find it.",
             source="product",
-            priority="stretch",
+            priority="should",
+            verification="acceptance",
+        ),
+        Requirement(
+            id="SRCH-NAME-007",
+            need="name-recovery",
+            template="optional",
+            statement="Where a query is spoken, the service shall transcribe it.",
+            source="product",
+            priority="could",
             verification="acceptance",
         ),
     ],
@@ -63,9 +72,9 @@ def messages(*runs: ScenarioRun) -> list[str]:
 
 VALID_RUNS = (
     run(["SRCH-NAME-002"], step('I search for "mew"'), step('the first result is "pokemon:mew"')),
-    run(
-        ["SRCH-NAME-006", "stretch"], step('I search for "#151"'), step('the outcome is "results"')
-    ),
+    run(["SRCH-NAME-006", "should"], step('I search for "#151"'), step('the outcome is "results"')),
+    run(["SRCH-NAME-007", "could"], step('I search for "mew"')),
+    run(["SRCH-NAME-002", "SRCH-NAME-006"], step('I search for "mew"')),
 )
 
 
@@ -83,8 +92,13 @@ def test_valid_runs_raise_no_problem() -> None:
     [
         (run(["SRCH-NAME-999"], step('I search for "mew"')), "Unknown requirement tag"),
         (run([], step('I search for "mew"')), "No requirement tag"),
-        (run(["SRCH-NAME-006"], step('I search for "#151"')), "@stretch"),
-        (run(["SRCH-NAME-002", "stretch"], step('I search for "mew"')), "@stretch"),
+        (run(["SRCH-NAME-006"], step('I search for "#151"')), "Expected @should"),
+        (run(["SRCH-NAME-007", "should"], step('I search for "mew"')), "Expected @could"),
+        (run(["SRCH-NAME-002", "should"], step('I search for "mew"')), "no priority tag"),
+        (
+            run(["SRCH-NAME-006", "SRCH-NAME-007", "could"], step('I search for "mew"')),
+            "Expected @should",
+        ),
         (
             run(["SRCH-NAME-002"], step('I search for "mew"'), step("the moon is full")),
             "Unknown step",

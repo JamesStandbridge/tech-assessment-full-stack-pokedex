@@ -39,7 +39,8 @@ filterwarnings = [
     "ignore:Passing baseid to FixtureDef is deprecated:pytest.PytestRemovedIn10Warning",
 ]
 markers = [
-    "stretch: scenario verifying a stretch requirement",
+    "should: scenario whose most critical requirement has should priority",
+    "could: scenario whose most critical requirement has could priority",
     "requirement(identifier): requirement verified by the scenario",
 ]
 

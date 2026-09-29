@@ -81,7 +81,7 @@ Feature: Explore a strategy spanning connected information
       | pokemon:alakazam     |
       | ability:mold-breaker |
 
-  @SRCH-STRAT-006 @stretch
+  @SRCH-STRAT-006 @should
   Scenario: A weather relation wins over a plain speed ranking
     When I search for "faster in the rain"
     Then the outcome is "results"

@@ -24,6 +24,8 @@ from pokedex_tooling.paths import (
     SCHEMAS_DIR,
 )
 from pokedex_tooling.specs import (
+    PRIORITIES_BY_CRITICALITY,
+    PRIORITY_TAGS,
     JudgmentsDocument,
     RequirementsDocument,
     ScenarioRun,
@@ -34,8 +36,6 @@ from pokedex_tooling.specs import (
     load_thresholds,
     read_yaml,
 )
-
-STRETCH_TAG = "stretch"
 
 
 class Problem(BaseModel):
@@ -186,7 +186,7 @@ def _check_tags(
     run: ScenarioRun, requirements: RequirementsDocument, problems: list[Problem]
 ) -> list[str]:
     by_id = {requirement.id: requirement for requirement in requirements.requirements}
-    requirement_tags = [tag for tag in run.tags if tag != STRETCH_TAG]
+    requirement_tags = [tag for tag in run.tags if tag not in PRIORITY_TAGS]
     if not requirement_tags:
         problems.append(Problem(location=run.location, message="No requirement tag."))
     for tag in requirement_tags:
@@ -194,14 +194,19 @@ def _check_tags(
             problems.append(
                 Problem(location=run.location, message=f"Unknown requirement tag {tag}.")
             )
-    verifies_stretch = any(
-        by_id[tag].priority == "stretch" for tag in requirement_tags if tag in by_id
+    verified = {by_id[tag].priority for tag in requirement_tags if tag in by_id}
+    most_critical = next(
+        (priority for priority in PRIORITIES_BY_CRITICALITY if priority in verified), None
     )
-    if verifies_stretch != (STRETCH_TAG in run.tags):
+    expected_tags = {most_critical} & PRIORITY_TAGS
+    actual_tags = set(run.tags) & PRIORITY_TAGS
+    if most_critical is not None and actual_tags != expected_tags:
+        expected = f"@{most_critical}" if expected_tags else "no priority tag"
         problems.append(
             Problem(
                 location=run.location,
-                message="@stretch must be present exactly when a stretch requirement is verified.",
+                message=f"Expected {expected}, since the most critical verified requirement "
+                f"is {most_critical}.",
             )
         )
     return requirement_tags

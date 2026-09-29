@@ -4,8 +4,15 @@
 #   state-driven  While <state>, the <system> shall <response>.
 #   unwanted      If <condition>, then the <system> shall <response>.
 #   optional      Where <feature>, the <system> shall <response>.
+#
+# Priorities follow MoSCoW:
+#   must    The brief's minimum and the quality of results. Never traded away.
+#   should  How users understand and steer the search. Built once every must holds.
+#   could   Visual extras. Built only if time remains, never at the expense of a must.
+#
 # Every requirement verified by "acceptance" must be referenced by at least one
-# scenario tag in specs/features.
+# scenario tag in specs/features. A scenario whose most critical verified
+# requirement is should or could carries the @should or @could tag.
 
 schema_version: 1
 
@@ -32,7 +39,7 @@ requirements:
     template: state-driven
     statement: While a search request is in progress, the web interface shall show a loading state.
     source: brief/R1
-    priority: core
+    priority: must
     verification: ui-test
 
   - id: SYS-UI-002
@@ -40,7 +47,7 @@ requirements:
     template: event-driven
     statement: When a search outcome is empty or invalid, or the request fails, the web interface shall show a distinct message for that case.
     source: brief/R1
-    priority: core
+    priority: must
     verification: ui-test
 
   - id: SYS-API-001
@@ -48,7 +55,7 @@ requirements:
     template: ubiquitous
     statement: The search API shall return results from the published pokedex.json snapshot only.
     source: brief/R2, brief/R4
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SYS-API-002
@@ -56,7 +63,7 @@ requirements:
     template: unwanted
     statement: If an unexpected failure occurs, then the search API shall return a generic error without stack traces, file paths or secrets.
     source: brief/R2
-    priority: core
+    priority: must
     verification: api-test
 
   - id: SYS-DATA-001
@@ -64,7 +71,7 @@ requirements:
     template: event-driven
     statement: When the dataset is prepared, the preparation script shall verify the published SHA-256 checksum and fail on mismatch.
     source: brief/R4
-    priority: core
+    priority: must
     verification: unit-test
 
   - id: SRCH-INPUT-001
@@ -72,7 +79,7 @@ requirements:
     template: unwanted
     statement: If a query has fewer than 2 characters after trimming, then the search API shall reject it as invalid.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INPUT-002
@@ -80,7 +87,7 @@ requirements:
     template: unwanted
     statement: If a query has more than 200 characters after trimming, then the search API shall reject it as invalid.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INPUT-003
@@ -88,7 +95,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall ignore letter case and surrounding whitespace in queries.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-EMPTY-001
@@ -96,7 +103,7 @@ requirements:
     template: unwanted
     statement: If no entity in the dataset answers a valid query, then the search API shall return an empty outcome with an explanation.
     source: brief/R3
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-EMPTY-002
@@ -104,7 +111,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall not return an entity whose only connection to the query is loose string similarity.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-AMBIG-001
@@ -112,7 +119,7 @@ requirements:
     template: event-driven
     statement: When a query matches several kinds of entity, the search service shall return results for every matching reading.
     source: brief/R3
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-EXPL-001
@@ -120,7 +127,7 @@ requirements:
     template: ubiquitous
     statement: The search API shall attach to every result the reason it matched, naming the related entity when the match comes from a relationship.
     source: brief/product-expectations
-    priority: core
+    priority: must
     verification: api-test
 
   - id: SRCH-NAME-001
@@ -128,7 +135,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall match queries against the names of Pokémon, moves and abilities.
     source: brief/situation-1
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-NAME-002
@@ -136,7 +143,7 @@ requirements:
     template: event-driven
     statement: When a query exactly matches an entity name, the search service shall rank that entity before entities whose names only start with the query.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-NAME-003
@@ -144,7 +151,7 @@ requirements:
     template: event-driven
     statement: When a query matches the start of some names and the inside of others, the search service shall rank the names that start with it first.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-NAME-004
@@ -152,7 +159,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall ignore spaces, dots, apostrophes and hyphens when comparing a query with entity names.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-NAME-005
@@ -160,7 +167,7 @@ requirements:
     template: event-driven
     statement: When no entity name contains the query, the search service shall return names within a bounded edit distance of the query.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-NAME-006
@@ -168,7 +175,7 @@ requirements:
     template: optional
     statement: Where a query is a Pokédex number, the search service shall return the Pokémon with that number first.
     source: product
-    priority: stretch
+    priority: should
     verification: acceptance
 
   - id: SRCH-CRIT-001
@@ -176,7 +183,7 @@ requirements:
     template: event-driven
     statement: When a query names one or more types, the search service shall return only Pokémon that have all of those types.
     source: brief/situation-2
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-CRIT-002
@@ -184,7 +191,7 @@ requirements:
     template: event-driven
     statement: When a query contains a speed adjective, the search service shall rank Pokémon by base speed, descending for fast, quick and fastest, and ascending for slow and slowest.
     source: brief/situation-2
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-CRIT-003
@@ -192,7 +199,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall not match criteria words such as fast, slow, quick, type or pokemon against entity names or descriptions.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-CRIT-004
@@ -200,7 +207,7 @@ requirements:
     template: ubiquitous
     statement: The search API shall return the types and all base stats of every Pokémon result.
     source: brief/situation-2
-    priority: core
+    priority: must
     verification: api-test
 
   - id: SRCH-CRIT-005
@@ -208,7 +215,7 @@ requirements:
     template: unwanted
     statement: If a query's criteria match no Pokémon, then the search API shall return an empty outcome that names the unmatched criteria.
     source: brief/R3
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INTENT-001
@@ -216,7 +223,7 @@ requirements:
     template: event-driven
     statement: When a query describes an effect on a target, the search service shall return moves and abilities whose short effect causes it.
     source: brief/situation-3
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INTENT-002
@@ -224,7 +231,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall not return a move or ability for an effect query when the effect appears only in its long effect as a reference to another mechanic.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INTENT-003
@@ -232,7 +239,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall not return, for a query about affecting a target, entities that only affect the user, require the effect, or prevent it.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INTENT-004
@@ -240,7 +247,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall treat inflected forms of an effect word, such as asleep, sleeping and sleeps, as the same effect.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INTENT-005
@@ -248,7 +255,7 @@ requirements:
     template: event-driven
     statement: When moves or abilities match an effect query, the search service shall also return the Pokémon that learn or carry them.
     source: brief/situation-3
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INTENT-006
@@ -256,7 +263,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall rank guaranteed effects before chance-based effects, and more accurate moves before less accurate ones.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-INTENT-007
@@ -264,7 +271,7 @@ requirements:
     template: optional
     statement: Where a query asks to prevent an effect, the search service shall return entities that prevent it and exclude entities that cause it.
     source: product
-    priority: stretch
+    priority: should
     verification: acceptance
 
   - id: SRCH-STRAT-001
@@ -272,7 +279,7 @@ requirements:
     template: event-driven
     statement: When a query names a weather condition, the search service shall return the abilities and moves whose short or long effect depends on it, and the Pokémon that carry or learn them.
     source: brief/situation-4
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-STRAT-002
@@ -280,7 +287,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall match weather words as whole words, so that rain does not match drain, brain, rainbow or trainers.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-STRAT-003
@@ -288,7 +295,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall map weather synonyms to the dataset vocabulary, including sun to strong sunlight and Sunny Day.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-STRAT-004
@@ -296,7 +303,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall label every weather result as a benefit or a drawback, and shall not return entities tied only to a different weather.
     source: product
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-STRAT-005
@@ -304,7 +311,7 @@ requirements:
     template: ubiquitous
     statement: The search service shall not present facts absent from the dataset, such as a rain-setting move or a rain boost to Water moves.
     source: brief/product-expectations
-    priority: core
+    priority: must
     verification: acceptance
 
   - id: SRCH-STRAT-006
@@ -312,7 +319,7 @@ requirements:
     template: optional
     statement: Where a query combines a speed adjective and a weather condition, the search service shall rank by the weather relation instead of by base speed.
     source: product
-    priority: stretch
+    priority: should
     verification: acceptance
 
   - id: SRCH-REL-001
@@ -320,5 +327,5 @@ requirements:
     template: ubiquitous
     statement: The search service shall meet the relevance thresholds in specs/relevance/thresholds.yaml for every judged query.
     source: brief/R5
-    priority: core
+    priority: must
     verification: relevance-evaluation
