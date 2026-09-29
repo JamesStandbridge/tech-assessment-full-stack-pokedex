@@ -26,19 +26,27 @@ export class PokedexWorld {
       if (url.pathname === "/api/search") this.searches.push(url.searchParams.get("q") ?? "");
     });
     await this.page.addInitScript(() => {
-      const counter = { sounds: 0 };
-      Object.defineProperty(window, "__pokedexSounds", { get: () => counter.sounds });
-      const play = HTMLMediaElement.prototype.play.bind(HTMLMediaElement.prototype);
-      HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
-        counter.sounds += 1;
-        return play.call(this);
+      const record = (spoken?: string): void => {
+        const played = Number(Reflect.get(window, "__pokedexSounds") ?? 0);
+        Object.assign(window, { __pokedexSounds: played + 1 });
+        if (spoken !== undefined) Object.assign(window, { __pokedexSpoken: spoken });
       };
-      const speak = window.speechSynthesis.speak.bind(window.speechSynthesis);
-      window.speechSynthesis.speak = (utterance: SpeechSynthesisUtterance) => {
-        counter.sounds += 1;
-        Object.assign(window, { __pokedexSpoken: utterance.text });
-        speak(utterance);
-      };
+      Object.assign(window, { __pokedexSounds: 0 });
+      document.addEventListener(
+        "play",
+        () => {
+          record();
+        },
+        true,
+      );
+      if ("speechSynthesis" in window) {
+        const synthesis = window.speechSynthesis;
+        const speak = synthesis.speak.bind(synthesis);
+        synthesis.speak = (utterance: SpeechSynthesisUtterance) => {
+          record(utterance.text);
+          speak(utterance);
+        };
+      }
     });
   }
 
@@ -55,7 +63,10 @@ export class PokedexWorld {
   }
 
   result(ref: EntityRef): Locator {
-    return this.section(ref.kind).getByRole("article", { name: displayName(ref.name) });
+    return this.section(ref.kind).getByRole("article", {
+      name: displayName(ref.name),
+      exact: true,
+    });
   }
 
   openButton(ref: EntityRef): Locator {

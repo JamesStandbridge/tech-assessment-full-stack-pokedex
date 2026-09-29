@@ -53,9 +53,9 @@ Then(
   async ({ page, pokedex }, visual: string) => {
     if (visual === "comparison") {
       const section = pokedex.section("pokemon");
+      await expect(section.getByRole("meter").first()).toBeVisible();
       const meters = await section.getByRole("meter").count();
-      expect(meters).toBeGreaterThan(0);
-      await expect(section.getByRole("listitem")).toHaveCount(meters);
+      await expect(section.getByRole("article")).toHaveCount(meters);
       return;
     }
     const graph = page.getByRole("figure", { name: "Relation graph" });
