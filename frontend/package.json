@@ -19,10 +19,12 @@
     "knip": "knip",
     "test": "vitest run --coverage",
     "size": "size-limit",
-    "api:types": "openapi-typescript ../specs/api/openapi.yaml --output src/api/schema.gen.ts --immutable --export-type",
-    "api:types:check": "openapi-typescript ../specs/api/openapi.yaml --output src/api/schema.gen.ts --immutable --export-type --check"
+    "api:types": "openapi-typescript ../specs/api/openapi.yaml --output src/api/schema.gen.ts --export-type",
+    "api:types:check": "openapi-typescript ../specs/api/openapi.yaml --output src/api/schema.gen.ts --export-type --check",
+    "fixtures": "node scripts/record-fixtures.ts && prettier --write src/test/recorded"
   },
   "dependencies": {
+    "openapi-fetch": "^0.17.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
@@ -50,6 +52,7 @@
     "globals": "^17.12.0",
     "jsdom": "^30.1.1",
     "knip": "^6.38.0",
+    "msw": "^3.0.0",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",

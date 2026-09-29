@@ -39,6 +39,10 @@ web:
 api-types:
     mise run api:types
 
+# Record responses of the current API as typed frontend test fixtures
+fixtures:
+    mise run fixtures
+
 # Lint every project
 lint:
     mise run lint

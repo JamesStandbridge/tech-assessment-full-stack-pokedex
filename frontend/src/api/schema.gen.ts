@@ -4,396 +4,396 @@
  */
 
 export type paths = {
-    readonly "/api/search": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Search the Pokédex */
-        readonly get: operations["search"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/suggest": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Suggest entity names and vocabulary concepts while the user types */
-        readonly get: operations["suggest"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["suggest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/entities/{kind}/{name}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/entities/{kind}/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Get one Pokémon, move or ability with its related entities */
-        readonly get: operations["getEntity"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["getEntity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    readonly "/api/health": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    "/api/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
         /** Report whether the dataset is loaded */
-        readonly get: operations["health"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
+        get: operations["health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
 };
 export type webhooks = Record<string, never>;
 export type components = {
     schemas: {
         /** @enum {string} */
-        readonly EntityKind: "pokemon" | "move" | "ability";
-        readonly EntityRef: {
-            readonly kind: components["schemas"]["EntityKind"];
-            readonly name: string;
+        EntityKind: "pokemon" | "move" | "ability";
+        EntityRef: {
+            kind: components["schemas"]["EntityKind"];
+            name: string;
         };
-        readonly SearchResponse: {
+        SearchResponse: {
             /** @description The query after trimming. */
-            readonly query: string;
+            query: string;
             /** @description The query rewritten in the product vocabulary; it is interpreted exactly as the original. Null when no term was recognized. */
-            readonly canonical_query: string | null;
+            canonical_query: string | null;
             /** @enum {string} */
-            readonly outcome: "results" | "empty";
-            readonly interpretation: components["schemas"]["Interpretation"];
+            outcome: "results" | "empty";
+            interpretation: components["schemas"]["Interpretation"];
             /** @description Every term of the query, in order, with the role it was recognized in. */
-            readonly terms: readonly components["schemas"]["Term"][];
+            terms: components["schemas"]["Term"][];
             /** @description Honest caveats, such as ignored terms, an approximate match or a mechanic absent from the dataset. */
-            readonly notices: readonly components["schemas"]["Notice"][];
+            notices: components["schemas"]["Notice"][];
             /** @description Why nothing answers the query. Required when the outcome is empty. */
-            readonly explanation: string | null;
+            explanation: string | null;
             /** @description Names close to the query and example queries, offered when the outcome is empty. */
-            readonly suggestions: readonly components["schemas"]["Suggestion"][];
+            suggestions: components["schemas"]["Suggestion"][];
             /** @description The entity the query names exactly, or the only name it is a prefix of. */
-            readonly best_match: components["schemas"]["EntityRef"] | null;
+            best_match: components["schemas"]["EntityRef"] | null;
             /** @description Ways to adjust each recognized constraint, each with the canonical query that applies it. */
-            readonly refinements: readonly components["schemas"]["Refinement"][];
+            refinements: components["schemas"]["Refinement"][];
             /** @description One section per entity kind with results, most relevant kind first. */
-            readonly sections: readonly components["schemas"]["Section"][];
+            sections: components["schemas"]["Section"][];
         } & unknown;
-        readonly Interpretation: {
+        Interpretation: {
             /** @description Plans the query was read as. Each plan is conjunctive: its results satisfy all of its constraints. Several plans mean the query was ambiguous, such as psychic, a type and a move. */
-            readonly alternatives: readonly components["schemas"]["SearchPlan"][];
+            alternatives: components["schemas"]["SearchPlan"][];
             /** @description Human-readable description of the plans, shown to the user. */
-            readonly summary: string;
+            summary: string;
         };
-        readonly SearchPlan: {
+        SearchPlan: {
             /** @description Kinds the results are restricted to; empty means any kind a constraint applies to. */
-            readonly kinds: readonly components["schemas"]["EntityKind"][];
+            kinds: components["schemas"]["EntityKind"][];
             /** @description Name term matched against entity names. */
-            readonly name: string | null;
-            readonly dex_number: number | null;
-            readonly types: readonly string[];
-            readonly characteristics: readonly components["schemas"]["Characteristic"][];
+            name: string | null;
+            dex_number: number | null;
+            types: string[];
+            characteristics: components["schemas"]["Characteristic"][];
             /** @description Stats to rank by. One stat ranks by its value; several rank by their mean percentile. */
-            readonly stat_sort: readonly components["schemas"]["StatSort"][];
+            stat_sort: components["schemas"]["StatSort"][];
             /** @description Comparisons every result satisfies. */
-            readonly stat_filters: readonly components["schemas"]["StatFilter"][];
+            stat_filters: components["schemas"]["StatFilter"][];
             /** @description Damage classes every move result has. */
-            readonly damage_classes: readonly ("physical" | "special" | "status")[];
-            readonly effect: components["schemas"]["EffectConstraint"] | null;
-            readonly weather: components["schemas"]["WeatherConstraint"] | null;
-            readonly relation: components["schemas"]["RelationConstraint"] | null;
+            damage_classes: ("physical" | "special" | "status")[];
+            effect: components["schemas"]["EffectConstraint"] | null;
+            weather: components["schemas"]["WeatherConstraint"] | null;
+            relation: components["schemas"]["RelationConstraint"] | null;
         };
-        readonly Characteristic: {
+        Characteristic: {
             /** @enum {string} */
-            readonly facet: "genus" | "color" | "habitat" | "legendary" | "mythical" | "description";
+            facet: "genus" | "color" | "habitat" | "legendary" | "mythical" | "description";
             /** @description Normalized value, such as fox, blue or cave; true for legendary and mythical. */
-            readonly value: string;
+            value: string;
         };
         /**
          * @description A Pokémon base stat, a derived Pokémon stat (bulk is hp plus defense plus special defense, offense the higher of attack and special attack), or a move attribute.
          * @enum {string}
          */
-        readonly StatName: "hp" | "attack" | "defense" | "special-attack" | "special-defense" | "speed" | "total" | "bulk" | "offense" | "power" | "accuracy" | "pp" | "priority";
-        readonly StatSort: {
-            readonly stat: components["schemas"]["StatName"];
+        StatName: "hp" | "attack" | "defense" | "special-attack" | "special-defense" | "speed" | "total" | "bulk" | "offense" | "power" | "accuracy" | "pp" | "priority";
+        StatSort: {
+            stat: components["schemas"]["StatName"];
             /** @enum {string} */
-            readonly direction: "asc" | "desc";
+            direction: "asc" | "desc";
         };
-        readonly StatFilter: {
-            readonly stat: components["schemas"]["StatName"];
+        StatFilter: {
+            stat: components["schemas"]["StatName"];
             /** @enum {string} */
-            readonly comparator: "gt" | "gte" | "lt" | "lte";
-            readonly value: number;
+            comparator: "gt" | "gte" | "lt" | "lte";
+            value: number;
         };
-        readonly EffectConstraint: {
+        EffectConstraint: {
             /** @description Effect concept, such as sleep or paralysis. */
-            readonly effect: string;
+            effect: string;
             /** @enum {string} */
-            readonly mode: "causes" | "prevents";
+            mode: "causes" | "prevents";
             /** @enum {string|null} */
-            readonly target: "opponent" | "user" | null;
+            target: "opponent" | "user" | null;
         };
-        readonly WeatherConstraint: {
+        WeatherConstraint: {
             /** @description Weather concept, such as rain or sun. */
-            readonly weather: string;
+            weather: string;
             /** @description Stat the weather effect must raise, as in faster in the rain. */
-            readonly stat: components["schemas"]["StatName"] | null;
+            stat: components["schemas"]["StatName"] | null;
         };
-        readonly RelationConstraint: {
+        RelationConstraint: {
             /**
              * @description learns-move and has-ability return Pokémon; learned-by returns the moves of a Pokémon; carried-by returns the abilities of a Pokémon.
              * @enum {string}
              */
-            readonly predicate: "learns-move" | "has-ability" | "learned-by" | "carried-by";
-            readonly entity: components["schemas"]["EntityRef"];
+            predicate: "learns-move" | "has-ability" | "learned-by" | "carried-by";
+            entity: components["schemas"]["EntityRef"];
         };
-        readonly Term: {
+        Term: {
             /** @description The term as written in the query. */
-            readonly text: string;
+            text: string;
             /** @enum {string} */
-            readonly role: "name" | "dex-number" | "kind" | "type" | "characteristic" | "stat" | "direction" | "comparator" | "number" | "effect" | "mode" | "target" | "weather" | "relation" | "filler" | "ignored";
+            role: "name" | "dex-number" | "kind" | "type" | "characteristic" | "stat" | "direction" | "comparator" | "number" | "effect" | "mode" | "target" | "weather" | "relation" | "filler" | "ignored";
             /** @description The normalized concept, such as electric, speed:desc, desc, gte or 100; null for filler and ignored terms. */
-            readonly value: string | null;
+            value: string | null;
         };
-        readonly Notice: {
+        Notice: {
             /** @description Stable identifier, such as ignored-terms, approximate-match or missing-mechanic. */
-            readonly code: string;
-            readonly message: string;
+            code: string;
+            message: string;
         };
-        readonly Suggestion: {
+        Suggestion: {
             /** @enum {string} */
-            readonly kind: "name" | "example";
-            readonly label: string;
-            readonly query: string;
+            kind: "name" | "example";
+            label: string;
+            query: string;
         };
-        readonly Refinement: {
+        Refinement: {
             /** @description Identifier of the constraint the refinement adjusts, such as type:electric or sort. */
-            readonly constraint: string;
+            constraint: string;
             /** @enum {string} */
-            readonly action: "add" | "remove" | "replace";
-            readonly label: string;
+            action: "add" | "remove" | "replace";
+            label: string;
             /** @description Canonical query that applies the refinement. */
-            readonly query: string;
+            query: string;
         };
-        readonly Section: {
-            readonly kind: components["schemas"]["EntityKind"];
+        Section: {
+            kind: components["schemas"]["EntityKind"];
             /** @description Number of results of this kind across all pages. */
-            readonly total: number;
-            readonly results: readonly components["schemas"]["Result"][];
+            total: number;
+            results: components["schemas"]["Result"][];
             /** @description Cursor for the next page of this section; null on the last page. */
-            readonly next_cursor: string | null;
+            next_cursor: string | null;
         };
-        readonly Result: components["schemas"]["PokemonResult"] | components["schemas"]["MoveResult"] | components["schemas"]["AbilityResult"];
-        readonly ResultBase: {
-            readonly kind: components["schemas"]["EntityKind"];
+        Result: components["schemas"]["PokemonResult"] | components["schemas"]["MoveResult"] | components["schemas"]["AbilityResult"];
+        ResultBase: {
+            kind: components["schemas"]["EntityKind"];
             /** @description Kebab-case dataset name. */
-            readonly name: string;
+            name: string;
             /** @description Position within the section, continuing across pages. */
-            readonly rank: number;
-            readonly reasons: readonly components["schemas"]["Reason"][];
+            rank: number;
+            reasons: components["schemas"]["Reason"][];
         };
-        readonly Reason: {
+        Reason: {
             /** @enum {string} */
-            readonly type: "name-exact" | "name-prefix" | "name-infix" | "name-fuzzy" | "dex-number" | "type-filter" | "characteristic" | "stat-rank" | "stat-filter" | "effect" | "weather" | "learns-move" | "has-ability" | "learned-by" | "carried-by" | "description-match";
+            type: "name-exact" | "name-prefix" | "name-infix" | "name-fuzzy" | "dex-number" | "type-filter" | "characteristic" | "stat-rank" | "stat-filter" | "effect" | "weather" | "learns-move" | "has-ability" | "learned-by" | "carried-by" | "description-match";
             /** @description Human-readable explanation shown to the user. */
-            readonly detail: string;
-            readonly related: components["schemas"]["EntityRef"] | null;
+            detail: string;
+            related: components["schemas"]["EntityRef"] | null;
             /** @description Probability that the effect happens, for effect reasons. */
-            readonly probability: number | null;
+            probability: number | null;
             /** @enum {string|null} */
-            readonly mode: "causes" | "prevents" | "requires" | null;
+            mode: "causes" | "prevents" | "requires" | null;
             /** @enum {string|null} */
-            readonly target: "opponent" | "user" | null;
+            target: "opponent" | "user" | null;
             /** @enum {string|null} */
-            readonly weather_role: "setter" | "benefit" | "protection" | "mixed" | "drawback" | null;
+            weather_role: "setter" | "benefit" | "protection" | "mixed" | "drawback" | null;
         };
-        readonly Stats: {
-            readonly hp: number;
-            readonly attack: number;
-            readonly defense: number;
-            readonly "special-attack": number;
-            readonly "special-defense": number;
-            readonly speed: number;
+        Stats: {
+            hp: number;
+            attack: number;
+            defense: number;
+            "special-attack": number;
+            "special-defense": number;
+            speed: number;
         };
-        readonly PokemonResult: components["schemas"]["ResultBase"] & {
+        PokemonResult: components["schemas"]["ResultBase"] & {
             /** @constant */
-            readonly kind: "pokemon";
-            readonly id: number;
-            readonly types: readonly string[];
-            readonly stats: components["schemas"]["Stats"];
-            readonly abilities: readonly string[];
-            readonly genus: string | null;
-            readonly description: string | null;
+            kind: "pokemon";
+            id: number;
+            types: string[];
+            stats: components["schemas"]["Stats"];
+            abilities: string[];
+            genus: string | null;
+            description: string | null;
             /** Format: uri */
-            readonly sprite_url: string | null;
+            sprite_url: string | null;
             /** Format: uri */
-            readonly artwork_url: string | null;
+            artwork_url: string | null;
         } & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            readonly kind: "pokemon";
+            kind: "pokemon";
         };
-        readonly MoveResult: components["schemas"]["ResultBase"] & {
+        MoveResult: components["schemas"]["ResultBase"] & {
             /** @constant */
-            readonly kind: "move";
-            readonly id: number;
-            readonly type: string;
+            kind: "move";
+            id: number;
+            type: string;
             /** @enum {string} */
-            readonly damage_class: "physical" | "special" | "status";
-            readonly power: number | null;
-            readonly accuracy: number | null;
-            readonly pp: number | null;
-            readonly priority: number;
-            readonly effect_chance: number | null;
-            readonly short_effect: string | null;
+            damage_class: "physical" | "special" | "status";
+            power: number | null;
+            accuracy: number | null;
+            pp: number | null;
+            priority: number;
+            effect_chance: number | null;
+            short_effect: string | null;
         } & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            readonly kind: "move";
+            kind: "move";
         };
-        readonly AbilityResult: components["schemas"]["ResultBase"] & {
+        AbilityResult: components["schemas"]["ResultBase"] & {
             /** @constant */
-            readonly kind: "ability";
-            readonly id: number;
-            readonly short_effect: string | null;
-            readonly generation: string;
+            kind: "ability";
+            id: number;
+            short_effect: string | null;
+            generation: string;
         } & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            readonly kind: "ability";
+            kind: "ability";
         };
-        readonly SuggestResponse: {
-            readonly suggestions: readonly components["schemas"]["SuggestItem"][];
+        SuggestResponse: {
+            suggestions: components["schemas"]["SuggestItem"][];
         };
-        readonly SuggestItem: {
+        SuggestItem: {
             /** @enum {string} */
-            readonly kind: "entity" | "concept";
-            readonly label: string;
+            kind: "entity" | "concept";
+            label: string;
             /** @description Query to run when the suggestion is selected. */
-            readonly query: string;
-            readonly entity: components["schemas"]["EntityRef"] | null;
-            readonly concept: {
+            query: string;
+            entity: components["schemas"]["EntityRef"] | null;
+            concept: {
                 /** @enum {string} */
-                readonly role: "kind" | "type" | "characteristic" | "stat" | "direction" | "comparator" | "effect" | "mode" | "target" | "weather" | "relation";
-                readonly value: string;
+                role: "kind" | "type" | "characteristic" | "stat" | "direction" | "comparator" | "effect" | "mode" | "target" | "weather" | "relation";
+                value: string;
             } | null;
         };
-        readonly EntityDetail: components["schemas"]["PokemonDetail"] | components["schemas"]["MoveDetail"] | components["schemas"]["AbilityDetail"];
-        readonly PokemonDetail: {
+        EntityDetail: components["schemas"]["PokemonDetail"] | components["schemas"]["MoveDetail"] | components["schemas"]["AbilityDetail"];
+        PokemonDetail: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            readonly kind: "pokemon";
-            readonly id: number;
-            readonly name: string;
-            readonly types: readonly string[];
-            readonly stats: components["schemas"]["Stats"];
-            readonly abilities: readonly string[];
-            readonly moves: readonly string[];
-            readonly genus: string | null;
-            readonly description: string | null;
-            readonly height_decimetres: number;
-            readonly weight_hectograms: number;
-            readonly color: string;
-            readonly shape: string | null;
-            readonly habitat: string | null;
-            readonly is_legendary: boolean;
-            readonly is_mythical: boolean;
+            kind: "pokemon";
+            id: number;
+            name: string;
+            types: string[];
+            stats: components["schemas"]["Stats"];
+            abilities: string[];
+            moves: string[];
+            genus: string | null;
+            description: string | null;
+            height_decimetres: number;
+            weight_hectograms: number;
+            color: string;
+            shape: string | null;
+            habitat: string | null;
+            is_legendary: boolean;
+            is_mythical: boolean;
             /** @description Names of the Pokémon sharing its evolution chain, in Pokédex order. */
-            readonly evolution_family: readonly string[];
+            evolution_family: string[];
             /** Format: uri */
-            readonly sprite_url: string | null;
+            sprite_url: string | null;
             /** Format: uri */
-            readonly artwork_url: string | null;
+            artwork_url: string | null;
         };
-        readonly MoveDetail: {
+        MoveDetail: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            readonly kind: "move";
-            readonly id: number;
-            readonly name: string;
-            readonly type: string;
+            kind: "move";
+            id: number;
+            name: string;
+            type: string;
             /** @enum {string} */
-            readonly damage_class: "physical" | "special" | "status";
-            readonly power: number | null;
-            readonly accuracy: number | null;
-            readonly pp: number | null;
-            readonly priority: number;
-            readonly effect_chance: number | null;
-            readonly short_effect: string | null;
-            readonly effect: string | null;
-            readonly learned_by: readonly string[];
+            damage_class: "physical" | "special" | "status";
+            power: number | null;
+            accuracy: number | null;
+            pp: number | null;
+            priority: number;
+            effect_chance: number | null;
+            short_effect: string | null;
+            effect: string | null;
+            learned_by: string[];
         };
-        readonly AbilityDetail: {
+        AbilityDetail: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            readonly kind: "ability";
-            readonly id: number;
-            readonly name: string;
-            readonly short_effect: string | null;
-            readonly effect: string | null;
-            readonly generation: string;
-            readonly pokemon: readonly string[];
+            kind: "ability";
+            id: number;
+            name: string;
+            short_effect: string | null;
+            effect: string | null;
+            generation: string;
+            pokemon: string[];
         };
-        readonly ErrorResponse: {
-            readonly error: {
+        ErrorResponse: {
+            error: {
                 /** @enum {string} */
-                readonly code: "invalid_query" | "invalid_parameter" | "not_found" | "internal_error";
-                readonly message: string;
+                code: "invalid_query" | "invalid_parameter" | "not_found" | "internal_error";
+                message: string;
             };
         };
     };
     responses: {
         /** @description The entity tag in If-None-Match still matches; the stored response is current. */
-        readonly NotModified: {
+        NotModified: {
             headers: {
-                readonly ETag: components["headers"]["ETag"];
-                readonly "Cache-Control": components["headers"]["CacheControl"];
-                readonly [name: string]: unknown;
+                ETag: components["headers"]["ETag"];
+                "Cache-Control": components["headers"]["CacheControl"];
+                [name: string]: unknown;
             };
             content?: never;
         };
         /** @description Unexpected failure. No internal detail is exposed. */
-        readonly InternalError: {
+        InternalError: {
             headers: {
-                readonly [name: string]: unknown;
+                [name: string]: unknown;
             };
             content: {
                 /**
@@ -404,7 +404,7 @@ export type components = {
                  *       }
                  *     }
                  */
-                readonly "application/json": components["schemas"]["ErrorResponse"];
+                "application/json": components["schemas"]["ErrorResponse"];
             };
         };
     };
@@ -412,48 +412,48 @@ export type components = {
     requestBodies: never;
     headers: {
         /** @description Weak entity tag of the response body. Sending it back in If-None-Match yields 304 Not Modified while the response is unchanged. */
-        readonly ETag: string;
+        ETag: string;
         /** @description Always no-cache, so every reuse of a stored response is validated. */
-        readonly CacheControl: "no-cache";
+        CacheControl: "no-cache";
     };
     pathItems: never;
 };
 export type $defs = Record<string, never>;
 export interface operations {
-    readonly search: {
-        readonly parameters: {
-            readonly query: {
+    search: {
+        parameters: {
+            query: {
                 /** @description Free-text query, trimmed, between 2 and 200 characters. */
-                readonly q: string;
+                q: string;
                 /** @description Restrict the response to the section of one entity kind. Required with a cursor. */
-                readonly kind?: components["schemas"]["EntityKind"];
+                kind?: components["schemas"]["EntityKind"];
                 /** @description Maximum number of results per section. */
-                readonly limit?: number;
+                limit?: number;
                 /** @description Opaque next_cursor of a section, sent with the same q and the section's kind. */
-                readonly cursor?: string;
+                cursor?: string;
             };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description The query is valid. The outcome says whether anything answers it. */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly ETag: components["headers"]["ETag"];
-                    readonly "Cache-Control": components["headers"]["CacheControl"];
-                    readonly [name: string]: unknown;
+                    ETag: components["headers"]["ETag"];
+                    "Cache-Control": components["headers"]["CacheControl"];
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SearchResponse"];
+                    "application/json": components["schemas"]["SearchResponse"];
                 };
             };
-            readonly 304: components["responses"]["NotModified"];
+            304: components["responses"]["NotModified"];
             /** @description The query or a parameter breaks the input rules. */
-            readonly 400: {
+            400: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
                     /**
@@ -464,77 +464,77 @@ export interface operations {
                      *       }
                      *     }
                      */
-                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            readonly 500: components["responses"]["InternalError"];
+            500: components["responses"]["InternalError"];
         };
     };
-    readonly suggest: {
-        readonly parameters: {
-            readonly query: {
+    suggest: {
+        parameters: {
+            query: {
                 /** @description Partial query, trimmed, between 2 and 200 characters. */
-                readonly q: string;
+                q: string;
             };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description Suggestions, best first. The list may be empty. */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly ETag: components["headers"]["ETag"];
-                    readonly "Cache-Control": components["headers"]["CacheControl"];
-                    readonly [name: string]: unknown;
+                    ETag: components["headers"]["ETag"];
+                    "Cache-Control": components["headers"]["CacheControl"];
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["SuggestResponse"];
+                    "application/json": components["schemas"]["SuggestResponse"];
                 };
             };
-            readonly 304: components["responses"]["NotModified"];
+            304: components["responses"]["NotModified"];
             /** @description The partial query breaks the input rules. */
-            readonly 400: {
+            400: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            readonly 500: components["responses"]["InternalError"];
+            500: components["responses"]["InternalError"];
         };
     };
-    readonly getEntity: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly kind: components["schemas"]["EntityKind"];
+    getEntity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: components["schemas"]["EntityKind"];
                 /** @description Kebab-case dataset name. */
-                readonly name: string;
+                name: string;
             };
-            readonly cookie?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description The entity and its relations. */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly ETag: components["headers"]["ETag"];
-                    readonly "Cache-Control": components["headers"]["CacheControl"];
-                    readonly [name: string]: unknown;
+                    ETag: components["headers"]["ETag"];
+                    "Cache-Control": components["headers"]["CacheControl"];
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": components["schemas"]["EntityDetail"];
+                    "application/json": components["schemas"]["EntityDetail"];
                 };
             };
-            readonly 304: components["responses"]["NotModified"];
+            304: components["responses"]["NotModified"];
             /** @description No entity of this kind has this name. */
-            readonly 404: {
+            404: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
                     /**
@@ -545,31 +545,31 @@ export interface operations {
                      *       }
                      *     }
                      */
-                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            readonly 500: components["responses"]["InternalError"];
+            500: components["responses"]["InternalError"];
         };
     };
-    readonly health: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
+    health: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        readonly requestBody?: never;
-        readonly responses: {
+        requestBody?: never;
+        responses: {
             /** @description The service is ready. */
-            readonly 200: {
+            200: {
                 headers: {
-                    readonly [name: string]: unknown;
+                    [name: string]: unknown;
                 };
                 content: {
-                    readonly "application/json": {
+                    "application/json": {
                         /** @constant */
-                        readonly status: "ok";
-                        readonly dataset_sha256: string;
+                        status: "ok";
+                        dataset_sha256: string;
                     };
                 };
             };

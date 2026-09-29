@@ -1,6 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "project": ["src/**/*.{ts,tsx,css}"],
+  "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.ts"],
   "ignore": ["src/api/schema.gen.ts"],
-  "ignoreDependencies": ["tailwindcss"]
+  "entry": ["scripts/*.ts"],
+  "ignoreIssues": {
+    "src/api/contract.ts": ["types"],
+    "src/api/ports.ts": ["types"]
+  }
 }

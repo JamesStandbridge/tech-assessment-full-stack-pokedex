@@ -67,6 +67,10 @@ description = "Regenerate the frontend contract types from specs/api/openapi.yam
 dir = "frontend"
 run = "pnpm run api:types"
 
+[tasks.fixtures]
+description = "Record responses of the current API as typed frontend test fixtures"
+run = "scripts/with-api.sh bash -c 'cd frontend && pnpm run fixtures'"
+
 [tasks."lint:backend"]
 description = "Lint and check the formatting of the backend"
 dir = "backend"

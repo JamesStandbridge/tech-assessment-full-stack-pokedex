@@ -63,6 +63,14 @@ export default defineConfig([
     rules: { "max-lines-per-function": "off" },
   },
   {
+    files: ["src/test/recorded/**"],
+    rules: { "max-lines": "off" },
+  },
+  {
+    files: ["scripts/**/*.ts"],
+    languageOptions: { globals: { ...globals.node } },
+  },
+  {
     files: ["*.config.ts", "e2e/playwright.config.ts"],
     languageOptions: { globals: { ...globals.node } },
     rules: { "no-restricted-syntax": "off" },
