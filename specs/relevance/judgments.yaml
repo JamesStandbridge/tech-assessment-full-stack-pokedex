@@ -1,0 +1,273 @@
+# Graded relevance judgments, in the style of TREC qrels.
+# Grades are judged per entity kind, because ranking is compared within a kind.
+# An entity that is not listed has grade 0. A kind that is not listed for a
+# query is not evaluated for that query. Hard negatives live in the Gherkin
+# scenarios, not here.
+
+schema_version: 1
+
+grades:
+  "3": The answer the user is looking for.
+  "2": Relevant and useful.
+  "1": Acceptable, usually with a caveat shown to the user.
+
+queries:
+  - id: Q-NAME-01
+    need: name-recovery
+    query: bulba
+    grading_rule: The matched Pokémon is 3; its evolution family is 1.
+    judgments:
+      pokemon: {bulbasaur: 3, ivysaur: 1, venusaur: 1}
+
+  - id: Q-NAME-02
+    need: name-recovery
+    query: mew
+    grading_rule: The exact name is 3; a longer name sharing the prefix is 2.
+    judgments:
+      pokemon: {mew: 3, mewtwo: 2}
+
+  - id: Q-NAME-03
+    need: name-recovery
+    query: abra
+    grading_rule: The exact name is 3; a name containing the query is 2; its evolution family is 1.
+    judgments:
+      pokemon: {abra: 3, kadabra: 2, alakazam: 1}
+
+  - id: Q-NAME-04
+    need: name-recovery
+    query: char
+    grading_rule: Every name starting with the query is 3.
+    judgments:
+      pokemon: {charmander: 3, charmeleon: 3, charizard: 3}
+
+  - id: Q-NAME-05
+    need: name-recovery
+    query: saur
+    grading_rule: Every name containing the query is 3.
+    judgments:
+      pokemon: {bulbasaur: 3, ivysaur: 3, venusaur: 3}
+
+  - id: Q-NAME-06
+    need: name-recovery
+    query: thunder
+    grading_rule: The exact move is 3; moves whose names contain the query are 2.
+    judgments:
+      move: {thunder: 3, thunderbolt: 2, thunder-shock: 2, thunder-punch: 2, thunder-wave: 2}
+
+  - id: Q-CRIT-01
+    need: criteria-comparison
+    query: fast electric pokemon
+    grading_rule: Electric Pokémon by base speed; 120 or more is 3, 100 to 119 is 2, 70 to 99 is 1.
+    judgments:
+      pokemon:
+        electrode: 3
+        jolteon: 3
+        raichu: 2
+        electabuzz: 2
+        voltorb: 2
+        zapdos: 2
+        pikachu: 1
+        magneton: 1
+
+  - id: Q-CRIT-02
+    need: criteria-comparison
+    query: slow fire pokemon
+    grading_rule: The slowest Fire Pokémon is 3; speed 65 is 2; speed 66 to 89 is 1.
+    judgments:
+      pokemon: {growlithe: 3, charmander: 2, vulpix: 2, flareon: 2, charmeleon: 1}
+
+  - id: Q-CRIT-03
+    need: criteria-comparison
+    query: fastest pokemon
+    grading_rule: Base speed 130 or more is 3, 115 to 129 is 2, 100 to 114 is 1.
+    judgments:
+      pokemon:
+        electrode: 3
+        jolteon: 3
+        aerodactyl: 3
+        mewtwo: 3
+        dugtrio: 2
+        alakazam: 2
+        persian: 2
+        starmie: 2
+        raichu: 1
+        dodrio: 1
+        gengar: 1
+        tauros: 1
+        kadabra: 1
+        rapidash: 1
+        scyther: 1
+        electabuzz: 1
+        pidgeot: 1
+        charizard: 1
+        fearow: 1
+        ninetales: 1
+        tentacruel: 1
+        voltorb: 1
+        zapdos: 1
+        mew: 1
+
+  - id: Q-INTENT-01
+    need: intent-discovery
+    query: put the opponent to sleep
+    grading_rule: >
+      Sleep moves with accuracy of 75 or more are 3, below 75 are 2. An ability
+      with a chance to cause sleep on contact is 1. Pokémon learning a sleep move
+      with accuracy of 75 or more are 2; Pokémon with only a less accurate sleep
+      move are 1.
+    judgments:
+      move: {spore: 3, sleep-powder: 3, lovely-kiss: 3, hypnosis: 2, sing: 2}
+      ability: {effect-spore: 1}
+      pokemon:
+        bulbasaur: 2
+        ivysaur: 2
+        venusaur: 2
+        butterfree: 2
+        oddish: 2
+        gloom: 2
+        vileplume: 2
+        paras: 2
+        parasect: 2
+        venonat: 2
+        venomoth: 2
+        bellsprout: 2
+        weepinbell: 2
+        victreebel: 2
+        exeggcute: 2
+        tangela: 2
+        jynx: 2
+        clefairy: 1
+        clefable: 1
+        jigglypuff: 1
+        wigglytuff: 1
+        poliwag: 1
+        poliwhirl: 1
+        poliwrath: 1
+        gastly: 1
+        haunter: 1
+        gengar: 1
+        drowzee: 1
+        hypno: 1
+        exeggutor: 1
+        chansey: 1
+        lapras: 1
+
+  - id: Q-INTENT-02
+    need: intent-discovery
+    query: paralyze the opponent
+    grading_rule: Guaranteed paralysis is 3, a 30% chance is 2, a 10% or 20% chance is 1.
+    judgments:
+      move:
+        thunder-wave: 3
+        glare: 3
+        stun-spore: 3
+        body-slam: 2
+        lick: 2
+        thunder: 2
+        thunder-punch: 1
+        thunder-shock: 1
+        thunderbolt: 1
+        tri-attack: 1
+      ability: {static: 2, effect-spore: 1, synchronize: 1}
+
+  - id: Q-INTENT-03
+    need: intent-discovery
+    query: confuse the opponent
+    grading_rule: Guaranteed confusion with accuracy of 100 is 3, below 100 is 2; a chance is 1.
+    judgments:
+      move: {confuse-ray: 3, supersonic: 2, dizzy-punch: 1, psybeam: 1, confusion: 1}
+
+  - id: Q-STRAT-01
+    need: strategy-exploration
+    query: rain team
+    grading_rule: >
+      Abilities that only benefit from rain are 3, a mixed ability is 2, an
+      ability that cancels weather is 1. A move that improves in rain is 3, a
+      move weakened by rain is 1. Pokémon with a rain-only ability that also
+      learn thunder are 3, other holders of a rain-only ability are 2, holders
+      of the mixed ability only are 1.
+    judgments:
+      ability: {swift-swim: 3, rain-dish: 3, hydration: 3, dry-skin: 2, cloud-nine: 1}
+      move: {thunder: 3, solar-beam: 1}
+      pokemon: &rain_pokemon
+        lapras: 3
+        squirtle: 2
+        wartortle: 2
+        blastoise: 2
+        psyduck: 2
+        golduck: 2
+        poliwag: 2
+        poliwhirl: 2
+        poliwrath: 2
+        tentacool: 2
+        tentacruel: 2
+        seel: 2
+        dewgong: 2
+        horsea: 2
+        goldeen: 2
+        seaking: 2
+        magikarp: 2
+        vaporeon: 2
+        omanyte: 2
+        omastar: 2
+        kabuto: 2
+        kabutops: 2
+        paras: 1
+        parasect: 1
+        jynx: 1
+
+  - id: Q-STRAT-02
+    need: strategy-exploration
+    query: pokemon that benefit from rain
+    grading_rule: Same Pokémon grades as Q-STRAT-01.
+    judgments:
+      pokemon: *rain_pokemon
+
+  - id: Q-STRAT-03
+    need: strategy-exploration
+    query: sun team
+    grading_rule: >
+      The sun setter and abilities that only benefit from sun are 3, a
+      conditional protection is 2, a mixed ability or weather cancel is 1. Moves
+      improved by sun are 3, a move weakened by sun is 1. Holders of the sun
+      setter are 3, holders of another sun ability are 2.
+    judgments:
+      ability: {drought: 3, chlorophyll: 3, solar-power: 3, leaf-guard: 2, dry-skin: 1, cloud-nine: 1}
+      move: {solar-beam: 3, growth: 3, thunder: 1}
+      pokemon:
+        vulpix: 3
+        ninetales: 3
+        bulbasaur: 2
+        ivysaur: 2
+        venusaur: 2
+        charmander: 2
+        charmeleon: 2
+        charizard: 2
+        oddish: 2
+        gloom: 2
+        vileplume: 2
+        bellsprout: 2
+        weepinbell: 2
+        victreebel: 2
+        exeggcute: 2
+        exeggutor: 2
+        tangela: 2
+
+  - id: Q-STRAT-04
+    need: strategy-exploration
+    query: sandstorm team
+    grading_rule: >
+      Abilities that benefit from sandstorm are 3, weather protection or cancel
+      is 1. A move weakened by sandstorm is 1. Pokémon with two sandstorm
+      abilities are 3, with one are 2.
+    judgments:
+      ability: {sand-veil: 3, sand-rush: 3, sand-force: 3, overcoat: 1, cloud-nine: 1}
+      move: {solar-beam: 1}
+      pokemon:
+        sandshrew: 3
+        sandslash: 3
+        diglett: 3
+        dugtrio: 3
+        geodude: 2
+        graveler: 2
+        golem: 2

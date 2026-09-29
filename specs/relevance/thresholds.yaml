@@ -1,0 +1,16 @@
+# Relevance targets checked by the evaluation run. Metrics are computed per
+# query and per judged kind, on the results of that kind in ranked order.
+
+schema_version: 1
+
+cutoff: 10
+
+metrics:
+  ndcg:
+    description: Normalized discounted cumulative gain at the cutoff, with gain 2^grade - 1.
+    per_query_minimum: 0.80
+    mean_minimum: 0.90
+  reciprocal_rank:
+    description: Inverse rank of the first result with the highest judged grade.
+    per_query_minimum: 1.0
+    applies_to_needs: [name-recovery]
