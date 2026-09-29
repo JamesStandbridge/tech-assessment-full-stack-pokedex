@@ -4,6 +4,7 @@ import type { PokemonResult } from "../../api/contract";
 import { displayName } from "../../domain/entities";
 import { comparedStats } from "../../domain/stats";
 import { Checkbox } from "../../ui/Checkbox";
+import { AddToTeam } from "../team/TeamTray";
 import { comparisonBars, type Decoration } from "./decorations";
 import { type ResultsViewProps, Sections } from "./Sections";
 
@@ -30,14 +31,17 @@ export function CriteriaView(props: ResultsViewProps): JSX.Element {
     return (
       <>
         {bars(result, shown)}
-        <Checkbox
-          label={`Compare ${displayName(result.name)}`}
-          checked={checked}
-          disabled={!checked && selected.length >= MAX_COMPARED}
-          onChange={(value) => {
-            toggle(result, value);
-          }}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Checkbox
+            label={`Compare ${displayName(result.name)}`}
+            checked={checked}
+            disabled={!checked && selected.length >= MAX_COMPARED}
+            onChange={(value) => {
+              toggle(result, value);
+            }}
+          />
+          <AddToTeam pokemon={result} weather={null} />
+        </div>
       </>
     );
   };

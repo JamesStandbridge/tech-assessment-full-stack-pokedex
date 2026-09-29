@@ -1,8 +1,10 @@
-import { expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 import { displayName } from "../../src/domain/entities";
 import { Given, Then, When } from "../fixtures";
 import { parseRef } from "../world";
+
+const MAX_PAGES = 5;
 
 interface Entry {
   readonly genus: string | null;
@@ -65,9 +67,23 @@ When("I select {string} in the relation graph", async ({ page }, text: string) =
   await graph.getByRole("button", { name: nodeLabel(text), exact: true }).click();
 });
 
+/** Add a Pokémon, showing more results first when it is not on the pages shown yet. */
+async function addToTeam(page: Page, text: string): Promise<void> {
+  const button = page.getByRole("button", { name: `Add ${nodeLabel(text)} to the team` });
+  const more = page.getByRole("button", { name: "Show more Pokémon" });
+  const articles = page.getByRole("region", { name: "Pokémon", exact: true }).getByRole("article");
+  await expect(articles.first()).toBeVisible();
+  for (let loaded = 0; loaded < MAX_PAGES && !(await button.isVisible()); loaded += 1) {
+    const shown = await articles.count();
+    await more.click();
+    await expect.poll(() => articles.count()).toBeGreaterThan(shown);
+  }
+  await button.click();
+}
+
 When(/^I add (.+) to the team$/, async ({ page }, list: string) => {
   for (const [, text] of list.matchAll(/"([^"]+)"/g)) {
-    await page.getByRole("button", { name: `Add ${nodeLabel(text ?? "")} to the team` }).click();
+    await addToTeam(page, text ?? "");
   }
 });
 

@@ -4,6 +4,8 @@ import { ApiError } from "../../api/errors";
 import type { EntityRef } from "../../api/contract";
 import { Spinner } from "../../ui/Spinner";
 import { Home } from "../states/Home";
+import { TeamProvider } from "../team/TeamContext";
+import { TeamTray } from "../team/TeamTray";
 import { EmptyOutcome, FailedSearch, InvalidQuery } from "../states/Outcomes";
 import { useSearchResults } from "./queries";
 import { SearchBox } from "./SearchBox";
@@ -75,27 +77,30 @@ export function SearchPage(): JSX.Element {
     if (hasQuery) void loadResultsRegion();
   }, [hasQuery]);
   return (
-    <div data-ambience={ambience} className="ambience min-h-dvh">
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10">
-        <header className="space-y-5">
-          <h1 className="text-3xl font-bold tracking-tight">
-            <span className="text-accent">Pokédex</span> Search
-          </h1>
-          <SearchBox controller={controller} />
-        </header>
-        <Outcome controller={controller} onOpen={setOpened} />
-        {opened === null ? null : (
-          <Suspense fallback={<Spinner label="Loading the entry…" />}>
-            <EntityDialog
-              entity={opened}
-              onOpen={setOpened}
-              onClose={() => {
-                setOpened(null);
-              }}
-            />
-          </Suspense>
-        )}
-      </main>
-    </div>
+    <TeamProvider>
+      <div data-ambience={ambience} className="ambience min-h-dvh">
+        <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10">
+          <header className="space-y-5">
+            <h1 className="text-3xl font-bold tracking-tight">
+              <span className="text-accent">Pokédex</span> Search
+            </h1>
+            <SearchBox controller={controller} />
+            <TeamTray />
+          </header>
+          <Outcome controller={controller} onOpen={setOpened} />
+          {opened === null ? null : (
+            <Suspense fallback={<Spinner label="Loading the entry…" />}>
+              <EntityDialog
+                entity={opened}
+                onOpen={setOpened}
+                onClose={() => {
+                  setOpened(null);
+                }}
+              />
+            </Suspense>
+          )}
+        </main>
+      </div>
+    </TeamProvider>
   );
 }

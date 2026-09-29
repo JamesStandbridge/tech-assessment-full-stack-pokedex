@@ -3,7 +3,8 @@ import { type ComponentType, type JSX, lazy, Suspense } from "react";
 import { linkLabel, type RelationGraph as Graph, weatherGraph } from "../../domain/graph";
 import type { Reading } from "../../domain/reading";
 import { CriteriaView } from "./CriteriaView";
-import { chanceBadge, roleBadge } from "./decorations";
+import { AddToTeam } from "../team/TeamTray";
+import { chanceBadge, type Decoration, roleBadge } from "./decorations";
 import { NameView } from "./NameView";
 import { type ResultsViewProps, Sections } from "./Sections";
 
@@ -39,6 +40,13 @@ function RelationList({ graph }: { readonly graph: Graph }): JSX.Element {
 
 function WeatherView(props: ResultsViewProps): JSX.Element {
   const graph = weatherGraph(props.response);
+  const weather = props.response.interpretation.alternatives[0]?.weather?.weather ?? null;
+  const decorate: Decoration = (result) => (
+    <div className="flex flex-wrap items-center gap-2">
+      {roleBadge(result)}
+      {result.kind === "pokemon" ? <AddToTeam pokemon={result} weather={weather} /> : null}
+    </div>
+  );
   return (
     <>
       {graph === null ? null : (
@@ -49,7 +57,7 @@ function WeatherView(props: ResultsViewProps): JSX.Element {
           <RelationList graph={graph} />
         </div>
       )}
-      <Sections {...props} decorate={roleBadge} />
+      <Sections {...props} decorate={decorate} />
     </>
   );
 }

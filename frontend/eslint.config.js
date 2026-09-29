@@ -56,6 +56,8 @@ export default defineConfig([
       "max-depth": ["error", 3],
       "no-console": "error",
       eqeqeq: "error",
+      // The React Compiler memoizes context values; manual useMemo needs a measured reason.
+      "@eslint-react/no-unstable-context-value": "off",
     },
   },
   {
