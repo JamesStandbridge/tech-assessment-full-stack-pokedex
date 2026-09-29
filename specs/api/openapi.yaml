@@ -1,10 +1,12 @@
 openapi: 3.1.0
 info:
   title: Pokédex Search API
-  version: 0.1.0
+  version: 0.2.0
   description: >
     Searches the published pokedex.json snapshot for Pokémon, moves and
-    abilities. Results form one ranked list; every result says why it matched.
+    abilities. Results come in one ranked section per entity kind, every result
+    says why it matched, and the response describes how the query was
+    understood.
 paths:
   /api/search:
     get:
@@ -17,6 +19,27 @@ paths:
           description: Free-text query, trimmed, between 2 and 200 characters.
           schema:
             type: string
+        - name: kind
+          in: query
+          required: false
+          description: Restrict the response to the section of one entity kind. Required with a cursor.
+          schema:
+            $ref: "#/components/schemas/EntityKind"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results per section.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          required: false
+          description: Opaque next_cursor of a section, sent with the same q and the section's kind.
+          schema:
+            type: string
       responses:
         "200":
           description: The query is valid. The outcome says whether anything answers it.
@@ -25,7 +48,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SearchResponse"
         "400":
-          description: The query breaks the input rules.
+          description: The query or a parameter breaks the input rules.
           content:
             application/json:
               schema:
@@ -35,15 +58,68 @@ paths:
                   code: invalid_query
                   message: The query must contain between 2 and 200 characters.
         "500":
-          description: Unexpected failure. No internal detail is exposed.
+          $ref: "#/components/responses/InternalError"
+  /api/suggest:
+    get:
+      operationId: suggest
+      summary: Suggest entity names and vocabulary concepts while the user types
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Partial query, trimmed, between 2 and 200 characters.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Suggestions, best first. The list may be empty.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuggestResponse"
+        "400":
+          description: The partial query breaks the input rules.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/entities/{kind}/{name}:
+    get:
+      operationId: getEntity
+      summary: Get one Pokémon, move or ability with its related entities
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/EntityKind"
+        - name: name
+          in: path
+          required: true
+          description: Kebab-case dataset name.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The entity and its relations.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityDetail"
+        "404":
+          description: No entity of this kind has this name.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 error:
-                  code: internal_error
-                  message: The search failed unexpectedly.
+                  code: not_found
+                  message: No move is named 'rain-dance'.
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/health:
     get:
       operationId: health
@@ -63,31 +139,90 @@ paths:
                   dataset_sha256:
                     type: string
 components:
+  responses:
+    InternalError:
+      description: Unexpected failure. No internal detail is exposed.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: internal_error
+              message: The search failed unexpectedly.
   schemas:
+    EntityKind:
+      type: string
+      enum: [pokemon, move, ability]
+    EntityRef:
+      type: object
+      required: [kind, name]
+      properties:
+        kind:
+          $ref: "#/components/schemas/EntityKind"
+        name:
+          type: string
     SearchResponse:
       type: object
-      required: [query, outcome, interpretation, explanation, notices, results]
+      required:
+        - query
+        - canonical_query
+        - outcome
+        - interpretation
+        - terms
+        - notices
+        - explanation
+        - suggestions
+        - best_match
+        - refinements
+        - sections
       properties:
         query:
           type: string
           description: The query after trimming.
+        canonical_query:
+          type: [string, "null"]
+          description: >
+            The query rewritten in the product vocabulary; it is interpreted
+            exactly as the original. Null when no term was recognized.
         outcome:
           type: string
           enum: [results, empty]
         interpretation:
           $ref: "#/components/schemas/Interpretation"
+        terms:
+          type: array
+          description: Every term of the query, in order, with the role it was recognized in.
+          items:
+            $ref: "#/components/schemas/Term"
+        notices:
+          type: array
+          description: Honest caveats, such as ignored terms, an approximate match or a mechanic absent from the dataset.
+          items:
+            $ref: "#/components/schemas/Notice"
         explanation:
           type: [string, "null"]
           description: Why nothing answers the query. Required when the outcome is empty.
-        notices:
+        suggestions:
           type: array
-          description: Honest caveats about the dataset, such as a mechanic it does not contain.
+          description: Names close to the query and example queries, offered when the outcome is empty.
           items:
-            type: string
-        results:
+            $ref: "#/components/schemas/Suggestion"
+        best_match:
+          description: The entity the query names exactly, or the only name it is a prefix of.
+          oneOf:
+            - $ref: "#/components/schemas/EntityRef"
+            - type: "null"
+        refinements:
           type: array
+          description: Ways to adjust each recognized constraint, each with the canonical query that applies it.
           items:
-            $ref: "#/components/schemas/Result"
+            $ref: "#/components/schemas/Refinement"
+        sections:
+          type: array
+          description: One section per entity kind with results, most relevant kind first.
+          items:
+            $ref: "#/components/schemas/Section"
       allOf:
         - if:
             properties:
@@ -97,8 +232,12 @@ components:
             properties:
               explanation:
                 type: string
-              results:
+              sections:
                 maxItems: 0
+          else:
+            properties:
+              sections:
+                minItems: 1
     Interpretation:
       type: object
       required: [readings, summary]
@@ -107,11 +246,156 @@ components:
           type: array
           description: How the query was read. Several readings mean the query was ambiguous.
           items:
-            type: string
-            enum: [name, criteria, effect, weather]
+            $ref: "#/components/schemas/Reading"
         summary:
           type: string
-          description: Human-readable description of the reading, shown to the user.
+          description: Human-readable description of the readings, shown to the user.
+    Reading:
+      oneOf:
+        - $ref: "#/components/schemas/NameReading"
+        - $ref: "#/components/schemas/DexNumberReading"
+        - $ref: "#/components/schemas/CriteriaReading"
+        - $ref: "#/components/schemas/EffectReading"
+        - $ref: "#/components/schemas/WeatherReading"
+      discriminator:
+        propertyName: reading
+        mapping:
+          name: "#/components/schemas/NameReading"
+          dex-number: "#/components/schemas/DexNumberReading"
+          criteria: "#/components/schemas/CriteriaReading"
+          effect: "#/components/schemas/EffectReading"
+          weather: "#/components/schemas/WeatherReading"
+    NameReading:
+      type: object
+      required: [reading, term]
+      properties:
+        reading:
+          const: name
+        term:
+          type: string
+    DexNumberReading:
+      type: object
+      required: [reading, number]
+      properties:
+        reading:
+          const: dex-number
+        number:
+          type: integer
+          minimum: 1
+    CriteriaReading:
+      type: object
+      required: [reading, types, sort]
+      properties:
+        reading:
+          const: criteria
+        types:
+          type: array
+          items:
+            type: string
+        sort:
+          oneOf:
+            - $ref: "#/components/schemas/StatSort"
+            - type: "null"
+    StatSort:
+      type: object
+      required: [stat, direction]
+      properties:
+        stat:
+          type: string
+          enum: [hp, attack, defense, special-attack, special-defense, speed]
+        direction:
+          type: string
+          enum: [asc, desc]
+    EffectReading:
+      type: object
+      required: [reading, effect, mode, target]
+      properties:
+        reading:
+          const: effect
+        effect:
+          type: string
+          description: Effect concept, such as sleep or paralysis.
+        mode:
+          type: string
+          enum: [causes, prevents]
+        target:
+          type: [string, "null"]
+          enum: [opponent, user, null]
+    WeatherReading:
+      type: object
+      required: [reading, weather]
+      properties:
+        reading:
+          const: weather
+        weather:
+          type: string
+          description: Weather concept, such as rain or sun.
+    Term:
+      type: object
+      required: [text, role, value]
+      properties:
+        text:
+          type: string
+          description: The term as written in the query.
+        role:
+          type: string
+          enum: [name, dex-number, type, stat, effect, mode, target, weather, filler, ignored]
+        value:
+          type: [string, "null"]
+          description: The normalized concept, such as electric or speed:desc; null for filler and ignored terms.
+    Notice:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Stable identifier, such as ignored-terms, approximate-match or missing-mechanic.
+        message:
+          type: string
+    Suggestion:
+      type: object
+      required: [kind, label, query]
+      properties:
+        kind:
+          type: string
+          enum: [name, example]
+        label:
+          type: string
+        query:
+          type: string
+    Refinement:
+      type: object
+      required: [constraint, action, label, query]
+      properties:
+        constraint:
+          type: string
+          description: Identifier of the constraint the refinement adjusts, such as type:electric or sort.
+        action:
+          type: string
+          enum: [add, remove, replace]
+        label:
+          type: string
+        query:
+          type: string
+          description: Canonical query that applies the refinement.
+    Section:
+      type: object
+      required: [kind, total, results, next_cursor]
+      properties:
+        kind:
+          $ref: "#/components/schemas/EntityKind"
+        total:
+          type: integer
+          minimum: 1
+          description: Number of results of this kind across all pages.
+        results:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/Result"
+        next_cursor:
+          type: [string, "null"]
+          description: Cursor for the next page of this section; null on the last page.
     Result:
       oneOf:
         - $ref: "#/components/schemas/PokemonResult"
@@ -125,22 +409,17 @@ components:
           ability: "#/components/schemas/AbilityResult"
     ResultBase:
       type: object
-      required: [kind, name, rank, role, reasons]
+      required: [kind, name, rank, reasons]
       properties:
         kind:
-          type: string
-          enum: [pokemon, move, ability]
+          $ref: "#/components/schemas/EntityKind"
         name:
           type: string
           description: Kebab-case dataset name.
         rank:
           type: integer
           minimum: 1
-          description: Position in the overall result list.
-        role:
-          type: [string, "null"]
-          enum: [benefit, drawback, null]
-          description: Set for weather results; null otherwise.
+          description: Position within the section, continuing across pages.
         reasons:
           type: array
           minItems: 1
@@ -148,7 +427,7 @@ components:
             $ref: "#/components/schemas/Reason"
     Reason:
       type: object
-      required: [type, detail, related]
+      required: [type, detail, related, probability, mode, target, weather_role]
       properties:
         type:
           type: string
@@ -171,20 +450,35 @@ components:
           oneOf:
             - $ref: "#/components/schemas/EntityRef"
             - type: "null"
-    EntityRef:
+        probability:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 1
+          description: Probability that the effect happens, for effect reasons.
+        mode:
+          type: [string, "null"]
+          enum: [causes, prevents, requires, null]
+        target:
+          type: [string, "null"]
+          enum: [opponent, user, null]
+        weather_role:
+          type: [string, "null"]
+          enum: [setter, benefit, mixed, drawback, null]
+    Stats:
       type: object
-      required: [kind, name]
+      required: [hp, attack, defense, special-attack, special-defense, speed]
       properties:
-        kind:
-          type: string
-          enum: [pokemon, move, ability]
-        name:
-          type: string
+        hp: {type: integer}
+        attack: {type: integer}
+        defense: {type: integer}
+        special-attack: {type: integer}
+        special-defense: {type: integer}
+        speed: {type: integer}
     PokemonResult:
       allOf:
         - $ref: "#/components/schemas/ResultBase"
         - type: object
-          required: [kind, id, types, stats, abilities, genus, description, sprite_url]
+          required: [kind, id, types, stats, abilities, genus, description, sprite_url, artwork_url]
           properties:
             kind:
               const: pokemon
@@ -209,16 +503,9 @@ components:
             sprite_url:
               type: [string, "null"]
               format: uri
-    Stats:
-      type: object
-      required: [hp, attack, defense, special-attack, special-defense, speed]
-      properties:
-        hp: {type: integer}
-        attack: {type: integer}
-        defense: {type: integer}
-        special-attack: {type: integer}
-        special-defense: {type: integer}
-        speed: {type: integer}
+            artwork_url:
+              type: [string, "null"]
+              format: uri
     MoveResult:
       allOf:
         - $ref: "#/components/schemas/ResultBase"
@@ -239,13 +526,13 @@ components:
             accuracy:
               type: [integer, "null"]
             pp:
-              type: integer
+              type: [integer, "null"]
             priority:
               type: integer
             effect_chance:
               type: [integer, "null"]
             short_effect:
-              type: string
+              type: [string, "null"]
     AbilityResult:
       allOf:
         - $ref: "#/components/schemas/ResultBase"
@@ -257,9 +544,193 @@ components:
             id:
               type: integer
             short_effect:
-              type: string
+              type: [string, "null"]
             generation:
               type: string
+    SuggestResponse:
+      type: object
+      required: [suggestions]
+      properties:
+        suggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SuggestItem"
+    SuggestItem:
+      type: object
+      required: [kind, label, query, entity, concept]
+      properties:
+        kind:
+          type: string
+          enum: [entity, concept]
+        label:
+          type: string
+        query:
+          type: string
+          description: Query to run when the suggestion is selected.
+        entity:
+          oneOf:
+            - $ref: "#/components/schemas/EntityRef"
+            - type: "null"
+        concept:
+          oneOf:
+            - type: object
+              required: [role, value]
+              properties:
+                role:
+                  type: string
+                  enum: [type, stat, effect, weather]
+                value:
+                  type: string
+            - type: "null"
+    EntityDetail:
+      oneOf:
+        - $ref: "#/components/schemas/PokemonDetail"
+        - $ref: "#/components/schemas/MoveDetail"
+        - $ref: "#/components/schemas/AbilityDetail"
+      discriminator:
+        propertyName: kind
+        mapping:
+          pokemon: "#/components/schemas/PokemonDetail"
+          move: "#/components/schemas/MoveDetail"
+          ability: "#/components/schemas/AbilityDetail"
+    PokemonDetail:
+      type: object
+      required:
+        - kind
+        - id
+        - name
+        - types
+        - stats
+        - abilities
+        - moves
+        - genus
+        - description
+        - height_decimetres
+        - weight_hectograms
+        - color
+        - shape
+        - habitat
+        - is_legendary
+        - is_mythical
+        - evolution_family
+        - sprite_url
+        - artwork_url
+      properties:
+        kind:
+          const: pokemon
+        id:
+          type: integer
+        name:
+          type: string
+        types:
+          type: array
+          items:
+            type: string
+        stats:
+          $ref: "#/components/schemas/Stats"
+        abilities:
+          type: array
+          items:
+            type: string
+        moves:
+          type: array
+          items:
+            type: string
+        genus:
+          type: [string, "null"]
+        description:
+          type: [string, "null"]
+        height_decimetres:
+          type: integer
+        weight_hectograms:
+          type: integer
+        color:
+          type: string
+        shape:
+          type: [string, "null"]
+        habitat:
+          type: [string, "null"]
+        is_legendary:
+          type: boolean
+        is_mythical:
+          type: boolean
+        evolution_family:
+          type: array
+          description: Names of the Pokémon sharing its evolution chain, in Pokédex order.
+          items:
+            type: string
+        sprite_url:
+          type: [string, "null"]
+          format: uri
+        artwork_url:
+          type: [string, "null"]
+          format: uri
+    MoveDetail:
+      type: object
+      required:
+        - kind
+        - id
+        - name
+        - type
+        - damage_class
+        - power
+        - accuracy
+        - pp
+        - priority
+        - effect_chance
+        - short_effect
+        - effect
+        - learned_by
+      properties:
+        kind:
+          const: move
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        damage_class:
+          type: string
+          enum: [physical, special, status]
+        power:
+          type: [integer, "null"]
+        accuracy:
+          type: [integer, "null"]
+        pp:
+          type: [integer, "null"]
+        priority:
+          type: integer
+        effect_chance:
+          type: [integer, "null"]
+        short_effect:
+          type: [string, "null"]
+        effect:
+          type: [string, "null"]
+        learned_by:
+          type: array
+          items:
+            type: string
+    AbilityDetail:
+      type: object
+      required: [kind, id, name, short_effect, effect, generation, pokemon]
+      properties:
+        kind:
+          const: ability
+        id:
+          type: integer
+        name:
+          type: string
+        short_effect:
+          type: [string, "null"]
+        effect:
+          type: [string, "null"]
+        generation:
+          type: string
+        pokemon:
+          type: array
+          items:
+            type: string
     ErrorResponse:
       type: object
       required: [error]
@@ -270,6 +741,6 @@ components:
           properties:
             code:
               type: string
-              enum: [invalid_query, internal_error]
+              enum: [invalid_query, invalid_parameter, not_found, internal_error]
             message:
               type: string

@@ -69,14 +69,14 @@ def assert_excludes(outcome: SearchOutcome, refs: Sequence[EntityRef]) -> None:
 def assert_ranks_before(outcome: SearchOutcome, first: EntityRef, second: EntityRef) -> None:
     """Assert that the first entity appears and, if the second appears, ranks before it.
 
-    Entities of the same kind are compared within their kind; otherwise the
-    overall rank is compared.
+    Entities of the same kind are compared within their kind; otherwise their
+    positions in section order are compared.
     """
     if first.kind == second.kind:
         first_position = rank_within_kind(outcome, first)
         second_position = rank_within_kind(outcome, second)
     else:
-        overall = {result.ref: result.rank for result in outcome.results}
+        overall = {result.ref: position for position, result in enumerate(outcome.results)}
         first_position = overall.get(first)
         second_position = overall.get(second)
     _require(first_position is not None, f"Expected {first} in the results", outcome)
