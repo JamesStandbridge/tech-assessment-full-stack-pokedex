@@ -29,6 +29,8 @@ from pokedex_tooling.specs import (
     load_thresholds,
 )
 
+DISAGREEMENT_GAP = 2
+
 
 class KindScore(BaseModel):
     """Metrics for the results of one kind, for one judged query."""
@@ -204,6 +206,15 @@ class AssessorScore(BaseModel):
     ndcg: float
 
 
+class Disagreement(BaseModel):
+    """A candidate whose assessor and rule grades differ widely."""
+
+    query_id: str
+    ref: str
+    rule: int
+    assessor: int
+
+
 class AssessorReport(BaseModel):
     """Scores against assessor grades, and agreement with the rule grades."""
 
@@ -212,6 +223,7 @@ class AssessorReport(BaseModel):
     scores: list[AssessorScore]
     mean_ndcg: float | None
     kappa: float | None
+    disagreements: list[Disagreement]
     minimum: float
 
     @property
@@ -280,6 +292,7 @@ def score_against_assessments(
     pending = [query.id for query in assessments.queries if query not in complete]
     scores: list[AssessorScore] = []
     pairs: list[GradePair] = []
+    disagreements: list[Disagreement] = []
     for query in complete:
         graded: dict[EntityKind, dict[str, int]] = {}
         for candidate in query.candidates:
@@ -288,8 +301,13 @@ def score_against_assessments(
             if grade > 0:
                 graded.setdefault(ref.kind, {})[ref.name] = grade
             rule = _rule_grade(by_id, query.id, ref)
-            if rule is not None:
-                pairs.append(GradePair(rule=rule, assessor=grade))
+            if rule is None:
+                continue
+            pairs.append(GradePair(rule=rule, assessor=grade))
+            if abs(rule - grade) >= DISAGREEMENT_GAP:
+                disagreements.append(
+                    Disagreement(query_id=query.id, ref=candidate.ref, rule=rule, assessor=grade)
+                )
         outcome = outcomes[query.id]
         scores.extend(
             AssessorScore(
@@ -313,6 +331,7 @@ def score_against_assessments(
         scores=scores,
         mean_ndcg=fmean(score.ndcg for score in scores) if scores else None,
         kappa=quadratic_weighted_kappa(pairs),
+        disagreements=disagreements,
         minimum=thresholds.assessor.ndcg_mean_minimum,
     )
 
@@ -350,6 +369,12 @@ def format_assessor_report(report: AssessorReport) -> str:
         f"mean nDCG against assessor: {mean} (pre-registered minimum {report.minimum:.2f})"
     )
     lines.append(f"agreement with rule grades, quadratic-weighted kappa: {kappa}")
+    if report.disagreements:
+        lines.append(f"to adjudicate, grades {DISAGREEMENT_GAP} or more apart (rule -> assessor):")
+        lines.extend(
+            f"  {item.query_id:<12} {item.ref:<24} {item.rule} -> {item.assessor}"
+            for item in report.disagreements
+        )
     if report.pending_queries:
         lines.append(f"not yet fully graded: {', '.join(report.pending_queries)}")
     return "\n".join(lines)

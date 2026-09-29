@@ -134,6 +134,18 @@ def test_report_scores_the_live_ranking_against_the_assessor() -> None:
         assessments, JUDGMENTS, load_thresholds(), {"Q-NAME-02": pokemon_outcome("abra", "mewtwo")}
     )
     assert not bad.passed
+    assert good.disagreements == []
+
+
+def test_wide_disagreements_are_listed_for_adjudication() -> None:
+    assessments = sheet({"pokemon:mew": 1, "pokemon:mewtwo": 2, "pokemon:abra": 3})
+    report = score_against_assessments(
+        assessments, JUDGMENTS, load_thresholds(), {"Q-NAME-02": pokemon_outcome("mew")}
+    )
+    assert [(item.ref, item.rule, item.assessor) for item in report.disagreements] == [
+        ("pokemon:mew", 3, 1),
+        ("pokemon:abra", 0, 3),
+    ]
 
 
 def test_assessment_sheet_problems_are_reported() -> None:
