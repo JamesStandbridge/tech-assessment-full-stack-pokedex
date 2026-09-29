@@ -17,7 +17,7 @@
       "MISE_YES": "1"
     },
     "hook": {
-      "on-activate": "export MISE_TRUSTED_CONFIG_PATHS=\"$FLOX_ENV_PROJECT\"\nmise install --quiet\n"
+      "on-activate": "export MISE_TRUSTED_CONFIG_PATHS=\"$FLOX_ENV_PROJECT\"\n# Release signatures are checked against a throwaway keyring, so the state of\n# the user's own GnuPG keyring cannot break the installation.\ngnupg_home=\"$(mktemp -d)\"\nchmod 700 \"$gnupg_home\"\nGNUPGHOME=\"$gnupg_home\" mise install --quiet\nrm -rf \"$gnupg_home\"\n"
     },
     "profile": {
       "bash": "eval \"$(mise activate bash)\"\n",
