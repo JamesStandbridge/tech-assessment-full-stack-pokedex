@@ -34,6 +34,42 @@ needs:
     brief_situation: null
 
 requirements:
+  # Brief: delivery (R4 to R7)
+
+  - id: SYS-DATA-001
+    need: null
+    template: event-driven
+    statement: When the dataset is prepared, the preparation script shall verify the published SHA-256 checksum and fail on mismatch.
+    source: brief/R4
+    priority: must
+    verification: unit-test
+
+  - id: SYS-TEST-001
+    need: null
+    template: ubiquitous
+    statement: The automated tests shall cover a successful retrieval, invalid or empty input, a no-result or fallback case, and at least one relevance behaviour claimed by the product.
+    source: brief/R5
+    priority: must
+    verification: inspection
+
+  - id: SYS-RUN-001
+    need: null
+    template: ubiquitous
+    statement: The repository shall document the commands that prepare the data, run the application and run the tests locally, include an .env.example when environment variables are required, and contain no secrets or dependency directories.
+    source: brief/R6
+    priority: must
+    verification: inspection
+
+  - id: SYS-DOC-001
+    need: null
+    template: ubiquitous
+    statement: The README shall describe setup, architecture and data flow, the supported needs, decisions and trade-offs, limitations and next steps, time spent, five representative queries with their results, how relevance was validated, and the use of AI tools.
+    source: brief/R7
+    priority: must
+    verification: inspection
+
+  # Brief: frontend and backend (R1, R2)
+
   - id: SYS-UI-001
     need: null
     template: state-driven
@@ -47,6 +83,14 @@ requirements:
     template: event-driven
     statement: When a search outcome is empty or invalid, or the request fails, the web interface shall show a distinct message for that case.
     source: brief/R1
+    priority: must
+    verification: ui-test
+
+  - id: SYS-UI-003
+    need: null
+    template: unwanted
+    statement: If an entity image cannot be loaded, then the web interface shall show a placeholder and remain fully usable.
+    source: candidate-resources/README
     priority: must
     verification: ui-test
 
@@ -66,13 +110,7 @@ requirements:
     priority: must
     verification: api-test
 
-  - id: SYS-DATA-001
-    need: null
-    template: event-driven
-    statement: When the dataset is prepared, the preparation script shall verify the published SHA-256 checksum and fail on mismatch.
-    source: brief/R4
-    priority: must
-    verification: unit-test
+  # Result quality: input handling
 
   - id: SRCH-INPUT-001
     need: input-handling
@@ -130,6 +168,16 @@ requirements:
     priority: must
     verification: api-test
 
+  - id: SRCH-EXPL-002
+    need: null
+    template: ubiquitous
+    statement: The search API shall express in every reason, as structured fields, the probability of an effect, whether it causes, prevents or requires it, whom it affects, and whether a weather relation is a benefit or a drawback.
+    source: brief/product-expectations
+    priority: must
+    verification: api-test
+
+  # Result quality: name recovery
+
   - id: SRCH-NAME-001
     need: name-recovery
     template: ubiquitous
@@ -165,7 +213,7 @@ requirements:
   - id: SRCH-NAME-005
     need: name-recovery
     template: event-driven
-    statement: When no entity name contains the query, the search service shall return names within a bounded edit distance of the query.
+    statement: When no entity name contains the query, the search service shall return names within a Damerau-Levenshtein distance of 1 for queries of up to 5 characters and 2 for longer queries.
     source: product
     priority: must
     verification: acceptance
@@ -177,6 +225,8 @@ requirements:
     source: product
     priority: should
     verification: acceptance
+
+  # Result quality: criteria comparison
 
   - id: SRCH-CRIT-001
     need: criteria-comparison
@@ -217,6 +267,8 @@ requirements:
     source: brief/R3
     priority: must
     verification: acceptance
+
+  # Result quality: intent discovery
 
   - id: SRCH-INTENT-001
     need: intent-discovery
@@ -261,7 +313,7 @@ requirements:
   - id: SRCH-INTENT-006
     need: intent-discovery
     template: ubiquitous
-    statement: The search service shall rank guaranteed effects before chance-based effects, and more accurate moves before less accurate ones.
+    statement: The search service shall rank moves for an effect query by the probability that they cause the effect, computed as accuracy times effect chance, where a missing value counts as certain.
     source: product
     priority: must
     verification: acceptance
@@ -273,6 +325,16 @@ requirements:
     source: product
     priority: should
     verification: acceptance
+
+  - id: SRCH-INTENT-008
+    need: intent-discovery
+    template: event-driven
+    statement: When Pokémon are returned for an effect query, the search service shall rank them by the highest probability among the moves and abilities through which they can cause the effect.
+    source: product
+    priority: must
+    verification: relevance-evaluation
+
+  # Result quality: strategy exploration
 
   - id: SRCH-STRAT-001
     need: strategy-exploration
@@ -301,7 +363,7 @@ requirements:
   - id: SRCH-STRAT-004
     need: strategy-exploration
     template: ubiquitous
-    statement: The search service shall label every weather result as a benefit or a drawback, and shall not return entities tied only to a different weather.
+    statement: The search service shall label every weather result as a setter, a benefit, a mixed effect or a drawback, and shall not return entities tied only to a different weather.
     source: product
     priority: must
     verification: acceptance
@@ -321,6 +383,16 @@ requirements:
     source: product
     priority: should
     verification: acceptance
+
+  - id: SRCH-STRAT-007
+    need: strategy-exploration
+    template: event-driven
+    statement: When Pokémon are returned for a weather query, the search service shall rank first those that set the weather, then by the sum over their weather effects of 1 for a benefit, 0.5 for a mixed effect and -0.5 for a drawback, halved for effects that come from a move, and shall not return Pokémon whose sum is not positive unless they set the weather.
+    source: product
+    priority: must
+    verification: acceptance
+
+  # Result quality: evaluation
 
   - id: SRCH-REL-001
     need: null

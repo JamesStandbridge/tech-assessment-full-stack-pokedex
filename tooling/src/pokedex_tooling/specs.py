@@ -32,7 +32,9 @@ class Requirement(BaseModel):
     statement: str
     source: str
     priority: Priority
-    verification: Literal["acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation"]
+    verification: Literal[
+        "acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation", "inspection"
+    ]
 
 
 class RequirementsDocument(BaseModel):

@@ -16,7 +16,7 @@ Feature: Explore a strategy spanning connected information
   - The dataset never says rain boosts Water moves.
   - sand-attack has nothing to do with sandstorms.
 
-  @SRCH-STRAT-001 @SRCH-STRAT-002 @SRCH-STRAT-004
+  @SRCH-STRAT-001 @SRCH-STRAT-002 @SRCH-STRAT-004 @SRCH-STRAT-007
   Scenario: A rain team
     When I search for "rain team"
     Then the outcome is "results"

@@ -35,7 +35,9 @@
           "statement": { "type": "string", "pattern": "\\bshall\\b" },
           "source": { "type": "string", "minLength": 1 },
           "priority": { "enum": ["must", "should", "could"] },
-          "verification": { "enum": ["acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation"] }
+          "verification": {
+            "enum": ["acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation", "inspection"]
+          }
         }
       }
     }
