@@ -8,6 +8,8 @@ Feature: Explore a strategy spanning connected information
 
   Pitfalls in the dataset:
   - "rain" is a substring of drain, brain, rainbow and trainers.
+  - starmie mentions a rainbow, but it belongs in rain results anyway, because
+    it learns thunder.
   - No rain setter exists: rain-dance, drizzle and weather-ball are absent.
     drought, a sun setter, is the only weather setter.
   - thunder gains 100% accuracy in rain only in its long effect.
@@ -55,7 +57,6 @@ Feature: Explore a strategy spanning connected information
       | ability:chlorophyll  |
       | pokemon:alakazam     |
       | pokemon:dodrio       |
-      | pokemon:starmie      |
       | pokemon:machop       |
       | pokemon:golbat       |
       | pokemon:charmander   |
@@ -80,7 +81,6 @@ Feature: Explore a strategy spanning connected information
     And the results exclude:
       | result               |
       | pokemon:charmander   |
-      | pokemon:starmie      |
       | pokemon:alakazam     |
       | ability:mold-breaker |
 
