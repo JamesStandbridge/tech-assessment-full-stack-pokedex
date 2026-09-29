@@ -1,0 +1,137 @@
+import pytest
+
+from pokedex_tooling.entities import EntityKind, EntityRef
+from pokedex_tooling.specs import (
+    Need,
+    RenderedStep,
+    Requirement,
+    RequirementsDocument,
+    ScenarioRun,
+)
+from pokedex_tooling.validate_specs import DatasetIndex, check_scenarios, validate_all
+
+INDEX = DatasetIndex(
+    refs=frozenset(
+        {
+            EntityRef(kind=EntityKind.POKEMON, name="mew"),
+            EntityRef(kind=EntityKind.POKEMON, name="mewtwo"),
+        }
+    ),
+    types=frozenset({"psychic"}),
+)
+REQUIREMENTS = RequirementsDocument(
+    schema_version=1,
+    needs=[Need(id="name-recovery", title="Names", brief_situation=1)],
+    requirements=[
+        Requirement(
+            id="SRCH-NAME-002",
+            need="name-recovery",
+            template="event-driven",
+            statement="When a query matches, the service shall rank it first.",
+            source="product",
+            priority="core",
+            verification="acceptance",
+        ),
+        Requirement(
+            id="SRCH-NAME-006",
+            need="name-recovery",
+            template="optional",
+            statement="Where a query is a number, the service shall find it.",
+            source="product",
+            priority="stretch",
+            verification="acceptance",
+        ),
+    ],
+)
+
+
+def step(text: str, values: list[str] | None = None) -> RenderedStep:
+    return RenderedStep(
+        text=text, table_header="result" if values else None, table_values=values or []
+    )
+
+
+def run(tags: list[str], *steps: RenderedStep) -> ScenarioRun:
+    return ScenarioRun(feature_file="test.feature", scenario="case", tags=tags, steps=list(steps))
+
+
+def messages(*runs: ScenarioRun) -> list[str]:
+    return [
+        problem.message for problem in check_scenarios(list(runs), REQUIREMENTS, INDEX).problems
+    ]
+
+
+VALID_RUNS = (
+    run(["SRCH-NAME-002"], step('I search for "mew"'), step('the first result is "pokemon:mew"')),
+    run(
+        ["SRCH-NAME-006", "stretch"], step('I search for "#151"'), step('the outcome is "results"')
+    ),
+)
+
+
+def test_the_repository_specifications_are_consistent() -> None:
+    problems = validate_all()
+    assert not problems, "\n".join(map(str, problems))
+
+
+def test_valid_runs_raise_no_problem() -> None:
+    assert messages(*VALID_RUNS) == []
+
+
+@pytest.mark.parametrize(
+    ("broken", "expected"),
+    [
+        (run(["SRCH-NAME-999"], step('I search for "mew"')), "Unknown requirement tag"),
+        (run([], step('I search for "mew"')), "No requirement tag"),
+        (run(["SRCH-NAME-006"], step('I search for "#151"')), "@stretch"),
+        (run(["SRCH-NAME-002", "stretch"], step('I search for "mew"')), "@stretch"),
+        (
+            run(["SRCH-NAME-002"], step('I search for "mew"'), step("the moon is full")),
+            "Unknown step",
+        ),
+        (run(["SRCH-NAME-002"], step('the first result is "pokemon:mew"')), "before any search"),
+        (
+            run(
+                ["SRCH-NAME-002"],
+                step('I search for "mew"'),
+                step('the first result is "pokemon:missingno"'),
+            ),
+            "not in the dataset",
+        ),
+        (
+            run(["SRCH-NAME-002"], step('I search for "mew"'), step('the first result is "mew"')),
+            "kind:name",
+        ),
+        (
+            run(["SRCH-NAME-002"], step('I search for "a"'), step('the outcome is "results"')),
+            "input rules",
+        ),
+        (
+            run(
+                ["SRCH-NAME-002"],
+                step('I search for "mew"'),
+                step('every pokemon result has the type "dark"'),
+            ),
+            "Unknown type",
+        ),
+        (
+            run(["SRCH-NAME-002"], step('I search for "mew"'), step("the results include:")),
+            "table",
+        ),
+        (
+            run(
+                ["SRCH-NAME-002"],
+                step('I search for "mew"'),
+                step("the results include:", ["pokemon:mewtwo"]),
+                step("the results exclude:", ["pokemon:mewtwo"]),
+            ),
+            "Both required and forbidden",
+        ),
+    ],
+)
+def test_broken_runs_are_reported(broken: ScenarioRun, expected: str) -> None:
+    assert any(expected in message for message in messages(*VALID_RUNS, broken))
+
+
+def test_uncovered_acceptance_requirements_are_reported() -> None:
+    assert "No scenario verifies this requirement." in messages(VALID_RUNS[0])
