@@ -79,6 +79,10 @@ lighthouse:
 audit:
     mise run audit
 
+# Measure the backend timing budgets alone, since parallel tasks skew them
+perf:
+    mise run perf
+
 # Check that the specifications are consistent
 specs:
     mise run specs

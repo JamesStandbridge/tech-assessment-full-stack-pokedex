@@ -38,12 +38,14 @@ def client(use_cases: UseCases) -> TestClient:
     return TestClient(create_app(use_cases, []))
 
 
+@pytest.mark.performance
 def test_the_index_builds_within_budget() -> None:
     started = time.perf_counter()
     build_use_cases(Settings())
     assert time.perf_counter() - started < BUILD_BUDGET_SECONDS
 
 
+@pytest.mark.performance
 def test_searches_stay_within_the_latency_budget(client: TestClient) -> None:
     durations: list[float] = []
     for query in QUERIES * 5:

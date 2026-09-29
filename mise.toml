@@ -132,9 +132,14 @@ description = "Check the layer rules of every project"
 depends = ["layers:backend", "layers:frontend"]
 
 [tasks."test:backend"]
-description = "Run the backend tests"
+description = "Run the backend tests, except the timing budgets"
 dir = "backend"
-run = "uv run pytest -q"
+run = "uv run pytest -q -m 'not performance'"
+
+[tasks.perf]
+description = "Measure the backend timing budgets alone, since parallel tasks skew them"
+dir = "backend"
+run = "uv run pytest -q -m performance"
 
 [tasks."test:tooling"]
 description = "Run the tooling unit tests"
@@ -202,6 +207,7 @@ run = "../scripts/with-api.sh uv run evaluate-relevance"
 description = "Run every check, then the acceptance, relevance, interface and Lighthouse suites"
 run = [
   "mise run check",
+  "mise run perf",
   "mise run acceptance",
   "mise run relevance",
   "mise run ui",
