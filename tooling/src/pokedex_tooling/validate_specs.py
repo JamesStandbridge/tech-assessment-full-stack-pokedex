@@ -145,18 +145,21 @@ def check_openapi() -> list[Problem]:
 
 
 def check_requirements(requirements: RequirementsDocument) -> list[Problem]:
-    """Check identifiers and need references in the requirements."""
+    """Check identifiers and need references in the requirements and exclusions."""
     problems: list[Problem] = []
     need_ids = {need.id for need in requirements.needs}
     seen: set[str] = set()
-    for requirement in requirements.requirements:
-        if requirement.id in seen:
-            problems.append(Problem(location=requirement.id, message="Duplicate identifier."))
-        seen.add(requirement.id)
-        if requirement.need is not None and requirement.need not in need_ids:
-            problems.append(
-                Problem(location=requirement.id, message=f"Unknown need {requirement.need!r}.")
-            )
+    for identifier in [requirement.id for requirement in requirements.requirements] + [
+        exclusion.id for exclusion in requirements.out_of_scope
+    ]:
+        if identifier in seen:
+            problems.append(Problem(location=identifier, message="Duplicate identifier."))
+        seen.add(identifier)
+    problems.extend(
+        Problem(location=requirement.id, message=f"Unknown need {requirement.need!r}.")
+        for requirement in requirements.requirements
+        if requirement.need is not None and requirement.need not in need_ids
+    )
     return problems
 
 

@@ -37,12 +37,21 @@ class Requirement(BaseModel):
     ]
 
 
+class Exclusion(BaseModel):
+    """Something the product deliberately does not do, and why."""
+
+    id: str
+    statement: str
+    reason: str
+
+
 class RequirementsDocument(BaseModel):
     """Content of specs/requirements.yaml."""
 
     schema_version: Literal[1]
     needs: list[Need]
     requirements: list[Requirement]
+    out_of_scope: list[Exclusion]
 
 
 class JudgedQuery(BaseModel):

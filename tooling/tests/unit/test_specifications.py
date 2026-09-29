@@ -2,13 +2,19 @@ import pytest
 
 from pokedex_tooling.entities import EntityKind, EntityRef
 from pokedex_tooling.specs import (
+    Exclusion,
     Need,
     RenderedStep,
     Requirement,
     RequirementsDocument,
     ScenarioRun,
 )
-from pokedex_tooling.validate_specs import DatasetIndex, check_scenarios, validate_all
+from pokedex_tooling.validate_specs import (
+    DatasetIndex,
+    check_requirements,
+    check_scenarios,
+    validate_all,
+)
 
 INDEX = DatasetIndex(
     refs=frozenset(
@@ -51,6 +57,7 @@ REQUIREMENTS = RequirementsDocument(
             verification="acceptance",
         ),
     ],
+    out_of_scope=[Exclusion(id="OUT-001", statement="Accounts.", reason="Excluded by the brief.")],
 )
 
 
@@ -145,6 +152,21 @@ def test_valid_runs_raise_no_problem() -> None:
 )
 def test_broken_runs_are_reported(broken: ScenarioRun, expected: str) -> None:
     assert any(expected in message for message in messages(*VALID_RUNS, broken))
+
+
+def test_identifiers_are_unique_across_requirements_and_exclusions() -> None:
+    assert check_requirements(REQUIREMENTS) == []
+    clashing = REQUIREMENTS.model_copy(
+        update={
+            "out_of_scope": [
+                *REQUIREMENTS.out_of_scope,
+                Exclusion(id="OUT-001", statement="Again.", reason="Duplicate."),
+            ]
+        }
+    )
+    assert [problem.message for problem in check_requirements(clashing)] == [
+        "Duplicate identifier."
+    ]
 
 
 def test_uncovered_acceptance_requirements_are_reported() -> None:

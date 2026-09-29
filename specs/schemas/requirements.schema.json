@@ -3,7 +3,7 @@
   "$id": "requirements.schema.json",
   "title": "Search requirements",
   "type": "object",
-  "required": ["schema_version", "needs", "requirements"],
+  "required": ["schema_version", "needs", "requirements", "out_of_scope"],
   "additionalProperties": false,
   "properties": {
     "schema_version": { "const": 1 },
@@ -29,7 +29,7 @@
         "required": ["id", "need", "template", "statement", "source", "priority", "verification"],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string", "pattern": "^(SYS|SRCH)-[A-Z]+-[0-9]{3}$" },
+          "id": { "type": "string", "pattern": "^(SYS|SRCH)-[A-Z][A-Z0-9]*-[0-9]{3}$" },
           "need": { "type": ["string", "null"] },
           "template": { "enum": ["ubiquitous", "event-driven", "state-driven", "unwanted", "optional"] },
           "statement": { "type": "string", "pattern": "\\bshall\\b" },
@@ -38,6 +38,19 @@
           "verification": {
             "enum": ["acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation", "inspection"]
           }
+        }
+      }
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^OUT-[0-9]{3}$" },
+          "statement": { "type": "string", "minLength": 1 },
+          "reason": { "type": "string", "minLength": 1 }
         }
       }
     }

@@ -9,6 +9,7 @@
 #   must    The brief's minimum and the quality of results. Never traded away.
 #   should  How users understand and steer the search. Built once every must holds.
 #   could   Visual extras. Built only if time remains, never at the expense of a must.
+# Deliberate omissions are listed under out_of_scope.
 #
 # Every requirement verified by "acceptance" must be referenced by at least one
 # scenario tag in specs/features. A scenario whose most critical verified
@@ -31,6 +32,12 @@ needs:
     brief_situation: 4
   - id: input-handling
     title: Handle invalid, unsupported and ambiguous queries
+    brief_situation: null
+  - id: query-understanding
+    title: Know what can be searched and see how a query was understood
+    brief_situation: null
+  - id: visual-exploration
+    title: Explore results through views suited to each kind of question
     brief_situation: null
 
 requirements:
@@ -401,3 +408,221 @@ requirements:
     source: brief/R5
     priority: must
     verification: relevance-evaluation
+
+  # Query understanding and interaction
+
+  - id: SRCH-TERM-001
+    need: query-understanding
+    template: ubiquitous
+    statement: The search API shall return every term of the query with the role it was recognized in, or mark it as ignored, and shall add a notice when a term is ignored.
+    source: brief/product-expectations
+    priority: must
+    verification: api-test
+
+  - id: SRCH-PAGE-001
+    need: query-understanding
+    template: ubiquitous
+    statement: The search API shall group results into one section per entity kind, each holding at most the requested limit of results, 20 by default and 100 at most, with the total count and a cursor to the next page.
+    source: product
+    priority: must
+    verification: api-test
+
+  - id: SRCH-PAGE-002
+    need: query-understanding
+    template: ubiquitous
+    statement: The search service shall break every ranking tie by dataset identifier, so that pages are stable across requests.
+    source: product
+    priority: must
+    verification: api-test
+
+  - id: SRCH-CANON-001
+    need: query-understanding
+    template: ubiquitous
+    statement: The search API shall return the canonical form of the query, which the search service shall interpret exactly as the original query.
+    source: product
+    priority: should
+    verification: unit-test
+
+  - id: SRCH-REFINE-001
+    need: query-understanding
+    template: ubiquitous
+    statement: The search API shall return, for each recognized constraint, the refinements available to the user, each with a label and the canonical query that applies it.
+    source: product
+    priority: should
+    verification: api-test
+
+  - id: SRCH-BEST-001
+    need: query-understanding
+    template: event-driven
+    statement: When a query exactly matches one entity name, or is the prefix of exactly one name, the search API shall identify that entity as the best match.
+    source: brief/situation-1
+    priority: should
+    verification: api-test
+
+  - id: SRCH-SUGGEST-001
+    need: query-understanding
+    template: event-driven
+    statement: When the outcome is empty, the search API shall suggest names close to the query beyond the typo bound, if any, and example queries for each supported need.
+    source: brief/product-expectations
+    priority: should
+    verification: api-test
+
+  - id: SRCH-SUGGEST-002
+    need: query-understanding
+    template: optional
+    statement: Where the query is being typed, the suggestion API shall return matching entity names and vocabulary concepts within 100 milliseconds.
+    source: product
+    priority: could
+    verification: api-test
+
+  - id: SRCH-ENTITY-001
+    need: strategy-exploration
+    template: ubiquitous
+    statement: The entity API shall return any Pokémon, move or ability by kind and name, with its related entities.
+    source: brief/situation-4
+    priority: should
+    verification: api-test
+
+  - id: SYS-UI-004
+    need: query-understanding
+    template: state-driven
+    statement: While no query has been submitted, the web interface shall present the four supported kinds of question, each with an example query that runs when selected.
+    source: brief/product-expectations
+    priority: must
+    verification: ui-test
+
+  - id: SYS-UI-005
+    need: query-understanding
+    template: event-driven
+    statement: When the user pauses typing, the web interface shall show how each term is understood, displaying ignored terms distinctly.
+    source: product
+    priority: should
+    verification: ui-test
+
+  - id: SYS-UI-006
+    need: query-understanding
+    template: event-driven
+    statement: When the user applies a refinement, the web interface shall replace the query text with the refinement's canonical query and run it.
+    source: product
+    priority: should
+    verification: ui-test
+
+  - id: SYS-UI-007
+    need: query-understanding
+    template: ubiquitous
+    statement: The web interface shall keep the query in the page URL, so that reloading, sharing and navigating back restore the search.
+    source: product
+    priority: should
+    verification: ui-test
+
+  - id: SYS-UI-008
+    need: visual-exploration
+    template: ubiquitous
+    statement: The web interface shall adapt the results view to the reading of the query, highlighting the best match for a name, comparing the ranking stat for criteria, showing probability and relation chains for an effect, and showing benefits and drawbacks for a weather.
+    source: product
+    priority: should
+    verification: ui-test
+
+  # Visual extras
+
+  - id: SYS-UI-009
+    need: visual-exploration
+    template: optional
+    statement: Where the best match is a Pokémon, the web interface shall present it as a collectible card showing its artwork, genus and description.
+    source: product
+    priority: could
+    verification: ui-test
+
+  - id: SYS-UI-010
+    need: visual-exploration
+    template: optional
+    statement: Where the query reads as a weather strategy, the web interface shall show a matching background ambience.
+    source: product
+    priority: could
+    verification: ui-test
+
+  - id: SYS-UI-011
+    need: visual-exploration
+    template: optional
+    statement: Where results are ranked by a stat, the web interface shall animate the comparison and let the user overlay the stat profiles of selected Pokémon.
+    source: product
+    priority: could
+    verification: ui-test
+
+  - id: SYS-UI-012
+    need: visual-exploration
+    template: optional
+    statement: Where the query reads as a weather strategy, the web interface shall show the weather, abilities, moves and Pokémon as a navigable graph of their relations.
+    source: product
+    priority: could
+    verification: ui-test
+
+  - id: SYS-UI-013
+    need: visual-exploration
+    template: optional
+    statement: Where the team tray is used, the web interface shall hold up to six Pokémon and show the weather effects they share.
+    source: brief/situation-2
+    priority: could
+    verification: ui-test
+
+  - id: SYS-UI-014
+    need: visual-exploration
+    template: optional
+    statement: Where the browser supports speech, the web interface shall accept spoken queries and read a Pokédex entry aloud on request.
+    source: product
+    priority: could
+    verification: ui-test
+
+  # Guardrails for every visual feature that ships
+
+  - id: SYS-A11Y-001
+    need: visual-exploration
+    template: optional
+    statement: Where results are shown as a graph, chart or animation, the web interface shall offer the same results as an accessible list.
+    source: product
+    priority: must
+    verification: ui-test
+
+  - id: SYS-A11Y-002
+    need: null
+    template: ubiquitous
+    statement: The web interface shall be fully operable with the keyboard.
+    source: brief/product-expectations
+    priority: should
+    verification: ui-test
+
+  - id: SYS-A11Y-003
+    need: null
+    template: state-driven
+    statement: While the user prefers reduced motion, the web interface shall show no animation beyond simple fades.
+    source: product
+    priority: must
+    verification: ui-test
+
+  - id: SYS-A11Y-004
+    need: null
+    template: ubiquitous
+    statement: The web interface shall not play sound without a user action.
+    source: product
+    priority: must
+    verification: ui-test
+
+out_of_scope:
+  - id: OUT-001
+    statement: Authentication, user accounts, administration, data editing and synchronisation with PokéAPI.
+    reason: Excluded by the brief.
+  - id: OUT-002
+    statement: Localized queries and interface; queries are in English.
+    reason: Excluded by the brief, and the dataset is English only.
+  - id: OUT-003
+    statement: Type effectiveness and team coverage advice.
+    reason: The snapshot contains no type chart, and the product does not present facts absent from the dataset.
+  - id: OUT-004
+    statement: Dense embeddings as the primary retrieval method.
+    reason: Similarity of meaning does not separate causing an effect from preventing it or suffering it, which the result quality requirements depend on.
+  - id: OUT-005
+    statement: A language model parsing queries into search plans.
+    reason: A natural next step behind the same search plan contract, but not needed for the supported needs.
+  - id: OUT-006
+    statement: An external search engine or database.
+    reason: An in-memory index serves 429 entities; the index interface allows another adapter when volume requires it.
