@@ -5,6 +5,7 @@ from pathlib import Path
 REPO_ROOT: Path = Path(__file__).resolve().parents[3]
 SPECS_DIR: Path = REPO_ROOT / "specs"
 FEATURES_DIR: Path = SPECS_DIR / "features"
+UI_FEATURES_DIR: Path = SPECS_DIR / "ui"
 REQUIREMENTS_PATH: Path = SPECS_DIR / "requirements.yaml"
 JUDGMENTS_PATH: Path = SPECS_DIR / "relevance" / "judgments.yaml"
 THRESHOLDS_PATH: Path = SPECS_DIR / "relevance" / "thresholds.yaml"

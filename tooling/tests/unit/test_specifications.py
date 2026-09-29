@@ -13,6 +13,7 @@ from pokedex_tooling.validate_specs import (
     DatasetIndex,
     check_requirements,
     check_scenarios,
+    check_ui_scenarios,
     validate_all,
 )
 
@@ -198,3 +199,36 @@ def test_identifiers_are_unique_across_requirements_and_exclusions() -> None:
 
 def test_uncovered_acceptance_requirements_are_reported() -> None:
     assert "No scenario verifies this requirement." in messages(VALID_RUNS[0])
+
+
+UI_REQUIREMENTS = REQUIREMENTS.model_copy(
+    update={
+        "requirements": [
+            *REQUIREMENTS.requirements,
+            Requirement(
+                id="SYS-UI-001",
+                need=None,
+                template="state-driven",
+                statement="While a search runs, the web interface shall show a loading state.",
+                source="brief/R1",
+                priority="must",
+                verification="ui-test",
+            ),
+        ]
+    }
+)
+
+
+def ui_messages(*runs: ScenarioRun) -> list[str]:
+    return [problem.message for problem in check_ui_scenarios(list(runs), UI_REQUIREMENTS)]
+
+
+def test_every_ui_requirement_needs_an_interface_scenario() -> None:
+    assert ui_messages() == ["No interface scenario verifies this requirement."]
+    assert ui_messages(run(["SYS-UI-001"], step("I open the Pokédex"))) == []
+
+
+def test_interface_scenarios_verify_only_ui_requirements() -> None:
+    assert ui_messages(run(["SYS-UI-001", "SRCH-NAME-002"], step("I open the Pokédex"))) == [
+        "SRCH-NAME-002 is not verified by ui-test."
+    ]

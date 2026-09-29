@@ -23,6 +23,7 @@ from pokedex_tooling.paths import (
     OPENAPI_PATH,
     REQUIREMENTS_PATH,
     SCHEMAS_DIR,
+    UI_FEATURES_DIR,
 )
 from pokedex_tooling.specs import (
     PRIORITIES_BY_CRITICALITY,
@@ -342,6 +343,40 @@ def check_scenarios(
     return ScenarioCheck(problems=problems, expectations=expectations)
 
 
+def check_ui_scenarios(
+    runs: list[ScenarioRun], requirements: RequirementsDocument
+) -> list[Problem]:
+    """Check the tags of the interface scenarios and their coverage of ui-test requirements.
+
+    Their steps are checked by the frontend test runner, which fails on any step
+    without a definition.
+
+    Args:
+        runs: Scenario runs expanded from the interface feature files.
+        requirements: The requirements the tags refer to.
+
+    Returns:
+        The problems found.
+    """
+    by_id = {requirement.id: requirement for requirement in requirements.requirements}
+    problems: list[Problem] = []
+    tagged: set[str] = set()
+    for run in runs:
+        tags = _check_tags(run, requirements, problems)
+        tagged.update(tags)
+        problems.extend(
+            Problem(location=run.location, message=f"{tag} is not verified by ui-test.")
+            for tag in tags
+            if tag in by_id and by_id[tag].verification != "ui-test"
+        )
+    problems.extend(
+        Problem(location=requirement.id, message="No interface scenario verifies this requirement.")
+        for requirement in requirements.requirements
+        if requirement.verification == "ui-test" and requirement.id not in tagged
+    )
+    return problems
+
+
 def check_judgments(
     judgments: JudgmentsDocument,
     requirements: RequirementsDocument,
@@ -491,9 +526,11 @@ def validate_all() -> list[Problem]:
         thresholds = load_thresholds()
         assessments = load_assessments()
         runs = load_scenario_runs(FEATURES_DIR)
+        ui_runs = load_scenario_runs(UI_FEATURES_DIR)
     except (ValidationError, GherkinParseError) as error:
         return [*problems, Problem(location="specs", message=str(error).splitlines()[0])]
     problems += check_requirements(requirements) + check_thresholds(thresholds, requirements)
+    problems += check_ui_scenarios(ui_runs, requirements)
     if not dataset_available:
         return problems
     index = load_dataset_index()
@@ -514,8 +551,10 @@ def main() -> None:
         sys.exit(1)
     requirements = load_requirements()
     runs = load_scenario_runs(FEATURES_DIR)
+    ui_runs = load_scenario_runs(UI_FEATURES_DIR)
     judgments = load_judgments()
     print(
         f"Specifications are consistent: {len(requirements.requirements)} requirements, "
-        f"{len(runs)} scenario runs, {len(judgments.queries)} judged queries."
+        f"{len(runs)} scenario runs, {len(ui_runs)} interface scenario runs, "
+        f"{len(judgments.queries)} judged queries."
     )
