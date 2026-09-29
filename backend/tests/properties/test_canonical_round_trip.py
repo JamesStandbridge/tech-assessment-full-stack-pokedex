@@ -50,6 +50,7 @@ EFFECTS = [
     "healing",
     "forced-switch",
 ]
+AMBIGUOUS_WORDS = frozenset({"psychic", "confusion"})
 RELATIONS = [
     RelationConstraint(
         predicate=RelationPredicate.LEARNS_MOVE,
@@ -133,5 +134,6 @@ def test_a_canonical_query_parses_back_to_its_plan(
 ) -> None:
     assume(_parser_can_produce(plan))
     alternatives = parser.parse(ValidQuery(text=writer.serialize(plan))).alternatives
-    assume(len(alternatives) == 1 or plan.types != ("psychic",))
+    constraint = writer.serialize(plan.model_copy(update={"kinds": ()}))
+    assume(len(alternatives) == 1 or constraint not in AMBIGUOUS_WORDS)
     assert alternatives == (plan,)
