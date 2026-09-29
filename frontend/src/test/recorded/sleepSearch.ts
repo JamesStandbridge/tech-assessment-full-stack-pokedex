@@ -1,0 +1,422 @@
+import type { SearchResponse } from "../../api/contract";
+
+export const sleepSearch = {
+  query: "put the opponent to sleep",
+  canonical_query: "sleep",
+  outcome: "results",
+  interpretation: {
+    alternatives: [
+      {
+        kinds: [],
+        name: null,
+        dex_number: null,
+        types: [],
+        characteristics: [],
+        stat_sort: [],
+        stat_filters: [],
+        damage_classes: [],
+        effect: {
+          effect: "sleep",
+          mode: "causes",
+          target: "opponent",
+        },
+        weather: null,
+        relation: null,
+      },
+    ],
+    summary: "that cause sleep on the opponent",
+  },
+  terms: [
+    {
+      text: "put",
+      role: "filler",
+      value: null,
+    },
+    {
+      text: "the",
+      role: "filler",
+      value: null,
+    },
+    {
+      text: "opponent",
+      role: "target",
+      value: "opponent",
+    },
+    {
+      text: "to",
+      role: "filler",
+      value: null,
+    },
+    {
+      text: "sleep",
+      role: "effect",
+      value: "sleep",
+    },
+  ],
+  notices: [],
+  explanation: null,
+  suggestions: [],
+  best_match: null,
+  refinements: [
+    {
+      constraint: "effect",
+      action: "replace",
+      label: "Prevent sleep instead",
+      query: "prevent sleep",
+    },
+  ],
+  sections: [
+    {
+      kind: "move",
+      total: 5,
+      results: [
+        {
+          name: "spore",
+          rank: 1,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 100% chance",
+              related: null,
+              probability: 1,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "move",
+          id: 147,
+          type: "grass",
+          damage_class: "status",
+          power: null,
+          accuracy: 100,
+          pp: 15,
+          priority: 0,
+          effect_chance: null,
+          short_effect: "Puts the target to sleep.",
+        },
+        {
+          name: "sleep-powder",
+          rank: 2,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 75% chance",
+              related: null,
+              probability: 0.75,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "move",
+          id: 79,
+          type: "grass",
+          damage_class: "status",
+          power: null,
+          accuracy: 75,
+          pp: 15,
+          priority: 0,
+          effect_chance: null,
+          short_effect: "Puts the target to sleep.",
+        },
+        {
+          name: "lovely-kiss",
+          rank: 3,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 75% chance",
+              related: null,
+              probability: 0.75,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "move",
+          id: 142,
+          type: "normal",
+          damage_class: "status",
+          power: null,
+          accuracy: 75,
+          pp: 10,
+          priority: 0,
+          effect_chance: null,
+          short_effect: "Puts the target to sleep.",
+        },
+        {
+          name: "hypnosis",
+          rank: 4,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 60% chance",
+              related: null,
+              probability: 0.6,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "move",
+          id: 95,
+          type: "psychic",
+          damage_class: "status",
+          power: null,
+          accuracy: 60,
+          pp: 20,
+          priority: 0,
+          effect_chance: null,
+          short_effect: "Puts the target to sleep.",
+        },
+        {
+          name: "sing",
+          rank: 5,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 55% chance",
+              related: null,
+              probability: 0.55,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "move",
+          id: 47,
+          type: "normal",
+          damage_class: "status",
+          power: null,
+          accuracy: 55,
+          pp: 15,
+          priority: 0,
+          effect_chance: null,
+          short_effect: "Puts the target to sleep.",
+        },
+      ],
+      next_cursor: null,
+    },
+    {
+      kind: "ability",
+      total: 1,
+      results: [
+        {
+          name: "effect-spore",
+          rank: 1,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 10% chance",
+              related: null,
+              probability: 0.1,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "ability",
+          id: 27,
+          short_effect:
+            "Has a 30% chance of inflcting either paralysis, poison, or sleep on attacking Pokémon on contact.",
+          generation: "generation-iii",
+        },
+      ],
+      next_cursor: null,
+    },
+    {
+      kind: "pokemon",
+      total: 32,
+      results: [
+        {
+          name: "paras",
+          rank: 1,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 100% chance through spore",
+              related: {
+                kind: "move",
+                name: "spore",
+              },
+              probability: 1,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "pokemon",
+          id: 46,
+          types: ["bug", "grass"],
+          stats: {
+            hp: 35,
+            attack: 70,
+            defense: 55,
+            "special-attack": 45,
+            "special-defense": 55,
+            speed: 25,
+          },
+          abilities: ["damp", "dry-skin", "effect-spore"],
+          genus: "Mushroom Pokémon",
+          description:
+            "Burrows to suck tree roots. The mushrooms on its back grow by draw ing nutrients from the bug host.",
+          sprite_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/46.png",
+          artwork_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/46.png",
+        },
+        {
+          name: "parasect",
+          rank: 2,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 100% chance through spore",
+              related: {
+                kind: "move",
+                name: "spore",
+              },
+              probability: 1,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "pokemon",
+          id: 47,
+          types: ["bug", "grass"],
+          stats: {
+            hp: 60,
+            attack: 95,
+            defense: 80,
+            "special-attack": 60,
+            "special-defense": 80,
+            speed: 30,
+          },
+          abilities: ["damp", "dry-skin", "effect-spore"],
+          genus: "Mushroom Pokémon",
+          description:
+            "It stays mostly in dark, damp places, the preference not of the bug, but of the big mush rooms on its back.",
+          sprite_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/47.png",
+          artwork_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/47.png",
+        },
+        {
+          name: "vileplume",
+          rank: 3,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 75% chance through sleep-powder",
+              related: {
+                kind: "move",
+                name: "sleep-powder",
+              },
+              probability: 0.75,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "pokemon",
+          id: 45,
+          types: ["grass", "poison"],
+          stats: {
+            hp: 75,
+            attack: 80,
+            defense: 85,
+            "special-attack": 110,
+            "special-defense": 90,
+            speed: 50,
+          },
+          abilities: ["chlorophyll", "effect-spore"],
+          genus: "Flower Pokémon",
+          description:
+            "The larger its petals, the more toxic pollen it contains. Its big head is heavy and hard to hold up.",
+          sprite_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/45.png",
+          artwork_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/45.png",
+        },
+        {
+          name: "exeggcute",
+          rank: 4,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 75% chance through sleep-powder",
+              related: {
+                kind: "move",
+                name: "sleep-powder",
+              },
+              probability: 0.75,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "pokemon",
+          id: 102,
+          types: ["grass", "psychic"],
+          stats: {
+            hp: 60,
+            attack: 40,
+            defense: 80,
+            "special-attack": 60,
+            "special-defense": 45,
+            speed: 40,
+          },
+          abilities: ["chlorophyll", "harvest"],
+          genus: "Egg Pokémon",
+          description:
+            "Using telepathy only they can receive, they always form a cluster of six EXEGGCUTE.",
+          sprite_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/102.png",
+          artwork_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/102.png",
+        },
+        {
+          name: "bulbasaur",
+          rank: 5,
+          reasons: [
+            {
+              type: "effect",
+              detail: "Causes sleep, 75% chance through sleep-powder",
+              related: {
+                kind: "move",
+                name: "sleep-powder",
+              },
+              probability: 0.75,
+              mode: "causes",
+              target: "opponent",
+              weather_role: null,
+            },
+          ],
+          kind: "pokemon",
+          id: 1,
+          types: ["grass", "poison"],
+          stats: {
+            hp: 45,
+            attack: 49,
+            defense: 49,
+            "special-attack": 65,
+            "special-defense": 65,
+            speed: 45,
+          },
+          abilities: ["chlorophyll", "overgrow"],
+          genus: "Seed Pokémon",
+          description:
+            "A strange seed was planted on its back at birth. The plant sprouts and grows with this POKéMON.",
+          sprite_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+          artwork_url:
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+        },
+      ],
+      next_cursor:
+        "eyJraW5kIjoicG9rZW1vbiIsIm9mZnNldCI6NSwiZmluZ2VycHJpbnQiOiI1YzkxMTg4NTAyZDc5OWI1In0",
+    },
+  ],
+} satisfies SearchResponse;
