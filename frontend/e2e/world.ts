@@ -1,4 +1,4 @@
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 import type { EntityKind, EntityRef } from "../src/api/contract";
 import { displayName, kindLabel } from "../src/domain/entities";
@@ -66,8 +66,10 @@ export class PokedexWorld {
     return this.page.getByRole("dialog", { name: displayName(ref.name) });
   }
 
+  /** Type a query and press Enter; the search is done once the URL holds it. */
   async search(query: string): Promise<void> {
     await this.searchBox().fill(query);
     await this.searchBox().press("Enter");
+    await expect.poll(() => new URL(this.page.url()).searchParams.get("q")).toBe(query.trim());
   }
 }

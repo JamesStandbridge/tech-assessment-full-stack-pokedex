@@ -1,6 +1,7 @@
-import type { JSX, KeyboardEvent } from "react";
+import { type JSX, type KeyboardEvent, use, useEffect, useRef } from "react";
 import {
   ComboBox as AriaComboBox,
+  ComboBoxStateContext,
   Input,
   Label,
   ListBox,
@@ -43,13 +44,53 @@ function OptionList(): JSX.Element {
   );
 }
 
-/** A text field that offers options while typing; Enter submits the text itself. */
-export function ComboBox(props: ComboBoxProps): JSX.Element {
-  const { label, placeholder, inputValue, options, onInputChange, onChoose, onSubmit } = props;
+/**
+ * Options that arrive after the keystroke that asked for them do not open the
+ * list by themselves; open it once for every new set of options while focused.
+ */
+function OpenOnNewOptions({ options }: { readonly options: readonly ComboOption[] }): null {
+  const state = use(ComboBoxStateContext);
+  const openedForRef = useRef("");
+  const signature = options.map((option) => option.id).join("|");
+  useEffect(() => {
+    if (state === null || signature === "" || signature === openedForRef.current) return;
+    if (state.isFocused && !state.isOpen) {
+      openedForRef.current = signature;
+      state.open(null, "input");
+    }
+  }, [state, signature]);
+  return null;
+}
+
+interface Choice {
+  readonly choose: (key: Key | null) => void;
+  readonly changeInput: (value: string) => void;
+}
+
+/** React Aria writes the chosen label into the field; that write is dropped. */
+function useChoice(props: ComboBoxProps): Choice {
+  const chosenRef = useRef<string | null>(null);
   const choose = (key: Key | null): void => {
-    const option = options.find((candidate) => candidate.id === key);
-    if (option !== undefined) onChoose(option);
+    const option = props.options.find((candidate) => candidate.id === key);
+    if (option === undefined) return;
+    chosenRef.current = option.label;
+    props.onChoose(option);
   };
+  const changeInput = (value: string): void => {
+    const chosen = chosenRef.current;
+    chosenRef.current = null;
+    if (value !== chosen) props.onInputChange(value);
+  };
+  return { choose, changeInput };
+}
+
+/**
+ * A text field that offers options while typing; Enter submits the text itself.
+ * Choosing an option leaves the text to the caller instead of the option label.
+ */
+export function ComboBox(props: ComboBoxProps): JSX.Element {
+  const { label, placeholder, inputValue, options, onSubmit } = props;
+  const { choose, changeInput } = useChoice(props);
   const submitOnEnter = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter" && !event.currentTarget.hasAttribute("aria-activedescendant")) {
       onSubmit();
@@ -58,10 +99,9 @@ export function ComboBox(props: ComboBoxProps): JSX.Element {
   return (
     <AriaComboBox
       allowsCustomValue
-      allowsEmptyCollection
       menuTrigger="input"
       inputValue={inputValue}
-      onInputChange={onInputChange}
+      onInputChange={changeInput}
       onChange={choose}
       items={options}
       className="relative w-full"
@@ -73,6 +113,7 @@ export function ComboBox(props: ComboBoxProps): JSX.Element {
         className="border-line bg-panel text-text placeholder:text-muted data-[focused]:border-accent w-full rounded-full border px-6 py-4 text-lg outline-none"
       />
       <OptionList />
+      <OpenOnNewOptions options={options} />
     </AriaComboBox>
   );
 }

@@ -74,3 +74,9 @@
     linear-gradient(180deg, #121c26 0%, #0b0f1a 70%);
   color-scheme: dark;
 }
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
