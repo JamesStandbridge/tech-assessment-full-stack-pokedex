@@ -14,12 +14,21 @@ effects:
   flinch: [flinch, flinching]
   healing: [heal the user, heals, healing, stealing HP]
   forced-switch: [switch]
+  ground: [Evades Ground moves]
+  electric: [Absorbs Electric moves]
+  water: [Absorbs Water moves]
+  fire: [Protects against Fire moves]
 
 # A text naming several effects this way causes only one of them, so they share
 # its probability, as in "a chance to burn, freeze, or paralyze".
 exclusive_effects: "\\bor\\b"
 
 effect_rules:
+  - pattern: "(?:Evades|[Aa]bsorbs|Protects against) \\w+ moves"
+    effects: [ground, electric, water, fire]
+    mode: prevents
+    target: null
+    probability: none
   - pattern: "heal the user|\\bHeals\\b|\\bhealing\\b|stealing HP"
     effects: [healing]
     mode: causes

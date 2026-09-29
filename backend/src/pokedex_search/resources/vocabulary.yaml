@@ -106,6 +106,10 @@ effects:
             restore, restores, restoring, drain, drains, draining]
   forced-switch: [forced switch, force switch, forces switch, force a switch, switch, switches,
                   switching, switch out, force out, forces out, phaze, phazes, phazing]
+  ground: [ground]
+  electric: [electric]
+  water: [water]
+  fire: [fire]
 
 # Effects that apply to the user when a query names no target.
 self_effects: [healing]

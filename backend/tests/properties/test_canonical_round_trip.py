@@ -49,6 +49,8 @@ EFFECTS = [
     "flinch",
     "healing",
     "forced-switch",
+    "ground",
+    "electric",
 ]
 AMBIGUOUS_WORDS = frozenset({"psychic", "confusion"})
 RELATIONS = [

@@ -88,6 +88,26 @@ PLANS: list[tuple[str, dict[str, object]]] = [
     ),
     ("the opponent", {}),
     (
+        "pokemon immune to ground moves",
+        {"kinds": ["pokemon"], "effect": {"effect": "ground", "mode": "prevents", "target": None}},
+    ),
+    (
+        "strongest ground moves",
+        {
+            "kinds": ["move"],
+            "types": ["ground"],
+            "stat_sort": [{"stat": "power", "direction": "desc"}],
+        },
+    ),
+    (
+        "fire pokemon immune to sleep",
+        {
+            "kinds": ["pokemon"],
+            "types": ["fire"],
+            "effect": {"effect": "sleep", "mode": "prevents", "target": None},
+        },
+    ),
+    (
         "moves that go first",
         {
             "kinds": ["move"],

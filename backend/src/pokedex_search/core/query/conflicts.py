@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 from pokedex_search.core.query.concepts import Concept, ResolvedSpan, Span
 from pokedex_search.core.query.phrases import DESCRIPTION_PREFIX
+from pokedex_search.domain.entities import EntityKind
 from pokedex_search.domain.terms import TermRole
 
 _EFFECT_CONTEXT = frozenset({TermRole.TARGET, TermRole.MODE})
@@ -11,25 +12,39 @@ _STRUCTURAL = frozenset({TermRole.FILLER, TermRole.KIND})
 MIN_DESCRIPTION_WORDS = 2
 
 
-def _has_effect_context(spans: Sequence[Span]) -> bool:
+def _is_type_and_effect(span: Span) -> bool:
+    return span.first(TermRole.EFFECT) is not None and span.first(TermRole.TYPE) is not None
+
+
+def _type_effect_index(spans: Sequence[Span]) -> int | None:
+    """Return the span read as the effect among those that are both a type and an effect."""
     other_effect = any(
         span.first(TermRole.EFFECT) is not None and span.first(TermRole.TYPE) is None
         for span in spans
     )
-    context = any(concept.role in _EFFECT_CONTEXT for span in spans for concept in span.concepts)
-    return context and not other_effect
+    contexts = [
+        index
+        for index, span in enumerate(spans)
+        if any(concept.role in _EFFECT_CONTEXT for concept in span.concepts)
+    ]
+    candidates = [index for index, span in enumerate(spans) if _is_type_and_effect(span)]
+    if other_effect or not contexts or not candidates:
+        return None
+    return min(
+        candidates,
+        key=lambda index: (min(abs(index - context) for context in contexts), -index),
+    )
 
 
 def _has_mention(spans: Sequence[Span]) -> bool:
     return any(span.first(TermRole.NAME) is not None and len(span.concepts) == 1 for span in spans)
 
 
-def _choose(span: Span, effect_context: bool, mention: bool) -> Concept | None:
+def _choose(span: Span, as_effect: bool, mention: bool) -> Concept | None:
     if not span.concepts:
         return None
-    effect = span.first(TermRole.EFFECT)
-    if effect is not None and span.first(TermRole.TYPE) is not None:
-        return effect if effect_context else span.first(TermRole.TYPE)
+    if _is_type_and_effect(span):
+        return span.first(TermRole.EFFECT) if as_effect else span.first(TermRole.TYPE)
     chosen = span.concepts[0]
     if chosen.role is TermRole.RELATION and not mention:
         return Concept(role=TermRole.FILLER, value=chosen.value)
@@ -40,8 +55,10 @@ def resolve(spans: Sequence[Span]) -> tuple[ResolvedSpan, ...]:
     """Choose one meaning for every span.
 
     A phrase that is both a type and an effect, such as poison, is the effect only
-    when the query also names a target or a mode and no other effect. Vocabulary
-    meanings come before
+    when the query also names a target or a mode and no other effect, and only the
+    one closest to that target or mode; a move kind word right after it then
+    qualifies it and is filler, as in immune to ground moves. Vocabulary meanings
+    come before
     entity names and genus words. A relation word without an entity mention is
     filler. Description words count only beside another constraint or in pairs.
 
@@ -51,13 +68,40 @@ def resolve(spans: Sequence[Span]) -> tuple[ResolvedSpan, ...]:
     Returns:
         The spans with their retained meaning.
     """
-    effect_context = _has_effect_context(spans)
+    effect_index = _type_effect_index(spans)
     mention = _has_mention(spans)
     resolved = tuple(
-        ResolvedSpan(start=span.start, end=span.end, concept=_choose(span, effect_context, mention))
-        for span in spans
+        ResolvedSpan(
+            start=span.start,
+            end=span.end,
+            concept=_choose(span, index == effect_index, mention),
+        )
+        for index, span in enumerate(spans)
     )
-    return _without_lone_descriptions(resolved)
+    return _without_lone_descriptions(_without_type_qualifiers(spans, resolved))
+
+
+def _is_type_effect(span: Span, resolved: ResolvedSpan) -> bool:
+    return (
+        resolved.concept is not None
+        and resolved.concept.role is TermRole.EFFECT
+        and span.first(TermRole.TYPE) is not None
+    )
+
+
+def _without_type_qualifiers(
+    spans: Sequence[Span], resolved: tuple[ResolvedSpan, ...]
+) -> tuple[ResolvedSpan, ...]:
+    """Turn a move kind word that follows a type read as an effect into filler."""
+    kept = list(resolved)
+    for index in range(1, len(kept)):
+        concept = kept[index].concept
+        if concept is None or concept.role is not TermRole.KIND:
+            continue
+        if concept.value == EntityKind.MOVE and _is_type_effect(spans[index - 1], kept[index - 1]):
+            filler = Concept(role=TermRole.FILLER, value=concept.value)
+            kept[index] = kept[index].model_copy(update={"concept": filler})
+    return tuple(kept)
 
 
 def _is_description(span: ResolvedSpan) -> bool:

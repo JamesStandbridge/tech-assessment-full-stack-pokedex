@@ -52,8 +52,10 @@ class CanonicalWriter:
         parts += [self._characteristic(item) for item in plan.characteristics]
         parts += [words.damage_classes[item][0] for item in plan.damage_classes]
         parts += [self._effect(plan), self._weather(plan.weather), self._relation(plan)]
-        parts += [words.kinds[kind][0] for kind in plan.kinds]
-        return parts
+        kinds = [words.kinds[kind][0] for kind in plan.kinds]
+        if plan.effect is not None and plan.effect.effect in words.types:
+            return kinds + parts
+        return parts + kinds
 
     def _characteristic(self, item: Characteristic) -> str:
         words = self._vocabulary
