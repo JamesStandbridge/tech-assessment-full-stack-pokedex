@@ -63,6 +63,11 @@ def test_name_matches_rank_by_tier_and_flag_typos() -> None:
     assert typo.approximate
 
 
+def test_a_plan_without_constraint_matches_nothing() -> None:
+    assert EVALUATOR.evaluate(SearchPlan()).by_kind == {}
+    assert EVALUATOR.evaluate(SearchPlan(kinds=(EntityKind.POKEMON,))).by_kind == {}
+
+
 def test_every_result_carries_its_reasons() -> None:
     ranking = EVALUATOR.evaluate(SearchPlan(types=("electric",), stat_sort=FASTEST))
     reasons = ranking.by_kind[EntityKind.POKEMON][0].reasons

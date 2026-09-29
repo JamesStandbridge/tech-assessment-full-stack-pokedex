@@ -96,5 +96,5 @@ def derive_refinements(plan: SearchPlan, write: Writer) -> tuple[Refinement, ...
         Refinement(constraint=constraint, action=action, label=label, query=write(adjusted))
         for action, items in groups
         for constraint, label, adjusted in items
-        if not adjusted.is_empty or adjusted.kinds
+        if not adjusted.is_empty
     )

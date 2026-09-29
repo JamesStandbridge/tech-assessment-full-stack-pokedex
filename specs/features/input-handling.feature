@@ -34,6 +34,7 @@ Feature: Handle invalid, unsupported and ambiguous queries
       | case                         | query     |
       | gibberish                    | xyzzy     |
       | Pokémon outside the snapshot | chikorita |
+      | a kind and nothing to search | pokemon   |
       | item, not in the snapshot    | potion    |
       | other language               | dormir    |
 

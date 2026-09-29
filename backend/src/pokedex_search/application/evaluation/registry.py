@@ -45,8 +45,11 @@ class PlanEvaluator:
             plan: One conjunctive plan.
 
         Returns:
-            The ranked results, and whether any match is approximate.
+            The ranked results, and whether any match is approximate. A plan without
+            constraint matches nothing, since no result could say why it matched.
         """
+        if plan.is_empty:
+            return PlanRanking(by_kind={}, approximate=False)
         active = [evaluator for evaluator in self._evaluators if evaluator.applies(plan)]
         kinds = set(plan.kinds or ALL_KINDS)
         for evaluator in active:

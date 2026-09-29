@@ -60,6 +60,11 @@ class NoticeBuilder:
         if not plans:
             return "No term of the query was recognized, so there is nothing to search for."
         plan = plans[0]
+        if plan.is_empty:
+            return (
+                "The query names nothing to search on, such as a name, a type, a stat, "
+                "an effect or a weather."
+            )
         if plan.name is not None:
             return f"No Pokémon, move or ability in this dataset is named like '{plan.name}'."
         kinds = set(plan.kinds)
