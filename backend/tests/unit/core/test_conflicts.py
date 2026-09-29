@@ -48,3 +48,21 @@ def test_a_relation_word_needs_an_entity_mention() -> None:
 
 def test_unknown_spans_stay_unknown() -> None:
     assert _roles([Span(start=0, end=1, concepts=())]) == [None]
+
+
+def _description(start: int, word: str) -> Span:
+    concept = Concept(role=TermRole.CHARACTERISTIC, value=f"description:{word}")
+    return Span(start=start, end=start + 1, concepts=(concept,))
+
+
+def test_a_lone_description_word_is_left_to_the_name_search() -> None:
+    assert _roles([_description(0, "back")]) == [None]
+
+
+def test_description_words_count_in_pairs_or_beside_a_constraint() -> None:
+    pair = [_description(0, "seed"), _description(1, "back")]
+    assert _roles(pair) == [TermRole.CHARACTERISTIC, TermRole.CHARACTERISTIC]
+    assert _roles([OPPONENT, _description(1, "back")]) == [
+        TermRole.TARGET,
+        TermRole.CHARACTERISTIC,
+    ]

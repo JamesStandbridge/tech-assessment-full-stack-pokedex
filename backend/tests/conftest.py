@@ -1,9 +1,9 @@
 import pytest
 
 from pokedex_search.core.query.canonical import CanonicalWriter
-from pokedex_search.core.query.genus import genus_words
 from pokedex_search.core.query.parser import VocabularyQueryParser
 from pokedex_search.core.query.phrases import PhraseTable, build_phrase_table
+from pokedex_search.core.query.species_words import description_words, genus_words
 from pokedex_search.core.query.vocabulary import Vocabulary
 from pokedex_search.domain.entities import Entity, Snapshot
 from pokedex_search.infrastructure.dataset_loader import load_snapshot
@@ -26,7 +26,10 @@ def vocabulary() -> Vocabulary:
 def table(vocabulary: Vocabulary, snapshot: Snapshot) -> PhraseTable:
     entities: tuple[Entity, ...] = (*snapshot.pokemon, *snapshot.moves, *snapshot.abilities)
     return build_phrase_table(
-        vocabulary, [entity.ref for entity in entities], genus_words(snapshot.pokemon)
+        vocabulary,
+        [entity.ref for entity in entities],
+        genus_words(snapshot.pokemon),
+        description_words(snapshot.pokemon),
     )
 
 

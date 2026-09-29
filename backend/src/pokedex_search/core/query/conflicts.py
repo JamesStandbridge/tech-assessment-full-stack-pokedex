@@ -3,9 +3,12 @@
 from collections.abc import Sequence
 
 from pokedex_search.core.query.concepts import Concept, ResolvedSpan, Span
+from pokedex_search.core.query.phrases import DESCRIPTION_PREFIX
 from pokedex_search.domain.terms import TermRole
 
 _EFFECT_CONTEXT = frozenset({TermRole.TARGET, TermRole.MODE})
+_STRUCTURAL = frozenset({TermRole.FILLER, TermRole.KIND})
+MIN_DESCRIPTION_WORDS = 2
 
 
 def _has_effect_context(spans: Sequence[Span]) -> bool:
@@ -40,7 +43,7 @@ def resolve(spans: Sequence[Span]) -> tuple[ResolvedSpan, ...]:
     when the query also names a target or a mode and no other effect. Vocabulary
     meanings come before
     entity names and genus words. A relation word without an entity mention is
-    filler.
+    filler. Description words count only beside another constraint or in pairs.
 
     Args:
         spans: Matched spans with every meaning they can carry.
@@ -50,7 +53,32 @@ def resolve(spans: Sequence[Span]) -> tuple[ResolvedSpan, ...]:
     """
     effect_context = _has_effect_context(spans)
     mention = _has_mention(spans)
-    return tuple(
+    resolved = tuple(
         ResolvedSpan(start=span.start, end=span.end, concept=_choose(span, effect_context, mention))
+        for span in spans
+    )
+    return _without_lone_descriptions(resolved)
+
+
+def _is_description(span: ResolvedSpan) -> bool:
+    return span.concept is not None and span.concept.value.startswith(DESCRIPTION_PREFIX)
+
+
+def _without_lone_descriptions(spans: tuple[ResolvedSpan, ...]) -> tuple[ResolvedSpan, ...]:
+    """Drop description meanings unless the query has another constraint or two such words."""
+    descriptions = [span for span in spans if _is_description(span)]
+    others = [
+        span
+        for span in spans
+        if span.concept is not None
+        and not _is_description(span)
+        and span.concept.role not in _STRUCTURAL
+    ]
+    if others or len(descriptions) >= MIN_DESCRIPTION_WORDS:
+        return spans
+    return tuple(
+        ResolvedSpan(start=span.start, end=span.end, concept=None)
+        if _is_description(span)
+        else span
         for span in spans
     )

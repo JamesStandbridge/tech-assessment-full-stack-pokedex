@@ -9,6 +9,7 @@ from pokedex_search.domain.entities import EntityRef, Frozen
 from pokedex_search.domain.terms import TermRole
 
 MAX_NUMBER_LENGTH = 4
+DESCRIPTION_PREFIX = "description:"
 
 
 class PhraseTable(Frozen):
@@ -71,14 +72,18 @@ def _characteristics(vocabulary: Vocabulary) -> Iterable[tuple[str, Concept]]:
 
 
 def build_phrase_table(
-    vocabulary: Vocabulary, names: Iterable[EntityRef], genus_words: Iterable[str]
+    vocabulary: Vocabulary,
+    names: Iterable[EntityRef],
+    genus_words: Iterable[str],
+    description_words: Iterable[str] = (),
 ) -> PhraseTable:
-    """Index every phrase: vocabulary first, then entity names, then genus words.
+    """Index every phrase: vocabulary, then entity names, genus words and description words.
 
     Args:
         vocabulary: The curated vocabulary.
         names: Every entity of the dataset.
         genus_words: Words of species genera, which name characteristics.
+        description_words: Words of species descriptions, the weakest meaning.
 
     Returns:
         The phrase table.
@@ -91,6 +96,9 @@ def build_phrase_table(
         entries.setdefault(tuple(ref.name.split("-")), []).append(concept)
     for word in genus_words:
         concept = Concept(role=TermRole.CHARACTERISTIC, value=f"genus:{word}")
+        entries.setdefault((word,), []).append(concept)
+    for word in description_words:
+        concept = Concept(role=TermRole.CHARACTERISTIC, value=f"{DESCRIPTION_PREFIX}{word}")
         entries.setdefault((word,), []).append(concept)
     longest = max(len(words) for words in entries)
     return PhraseTable(

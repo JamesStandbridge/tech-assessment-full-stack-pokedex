@@ -7,6 +7,7 @@ from pokedex_search.api.app import create_app
 from pokedex_search.api.dependencies import UseCases
 from pokedex_search.application.composer import ResponseComposer
 from pokedex_search.application.entity_service import EntityService
+from pokedex_search.application.evaluation.description import DescriptionEvaluator
 from pokedex_search.application.evaluation.effects import EffectEvaluator
 from pokedex_search.application.evaluation.facets import (
     CharacteristicEvaluator,
@@ -33,13 +34,14 @@ from pokedex_search.core.enrichment.profiles import build_profiles, extract_fact
 from pokedex_search.core.enrichment.weather_classifier import WeatherClassifier
 from pokedex_search.core.query.canonical import CanonicalWriter
 from pokedex_search.core.query.completion import ConceptCompleter
-from pokedex_search.core.query.genus import genus_words
 from pokedex_search.core.query.parser import VocabularyQueryParser
 from pokedex_search.core.query.phrases import build_phrase_table
+from pokedex_search.core.query.species_words import description_words, genus_words
 from pokedex_search.core.query.vocabulary import Vocabulary
 from pokedex_search.domain.entities import Entity, Snapshot
 from pokedex_search.infrastructure.cursor_codec import Base64CursorCodec
 from pokedex_search.infrastructure.dataset_loader import load_snapshot
+from pokedex_search.infrastructure.description_index import Bm25DescriptionIndex
 from pokedex_search.infrastructure.index_builder import build_index_data
 from pokedex_search.infrastructure.memory_index import InMemoryIndex
 from pokedex_search.infrastructure.resources import load_resource
@@ -53,7 +55,7 @@ def build_index(snapshot: Snapshot) -> InMemoryIndex:
     return InMemoryIndex(build_index_data(snapshot, build_profiles(snapshot, facts)))
 
 
-def build_evaluator(index: InMemoryIndex) -> PlanEvaluator:
+def build_evaluator(index: InMemoryIndex, descriptions: Bm25DescriptionIndex) -> PlanEvaluator:
     """Wire the constraint evaluators, in ranking priority."""
     return PlanEvaluator(
         index,
@@ -67,6 +69,7 @@ def build_evaluator(index: InMemoryIndex) -> PlanEvaluator:
             StatEvaluator(index, index),
             EffectEvaluator(index, index),
             WeatherEvaluator(index, index),
+            DescriptionEvaluator(descriptions),
         ],
     )
 
@@ -77,7 +80,10 @@ def build_search(
     """Wire the search use case."""
     entities: tuple[Entity, ...] = (*snapshot.pokemon, *snapshot.moves, *snapshot.abilities)
     table = build_phrase_table(
-        vocabulary, [entity.ref for entity in entities], genus_words(snapshot.pokemon)
+        vocabulary,
+        [entity.ref for entity in entities],
+        genus_words(snapshot.pokemon),
+        description_words(snapshot.pokemon),
     )
     codec = Base64CursorCodec()
     composer = ResponseComposer(
@@ -86,9 +92,8 @@ def build_search(
         BestMatchFinder(index),
         CanonicalWriter(vocabulary),
     )
-    ranker = RankingService(
-        build_evaluator(index), index, RankingCache(settings.ranking_cache_size)
-    )
+    evaluator = build_evaluator(index, Bm25DescriptionIndex(snapshot.pokemon))
+    ranker = RankingService(evaluator, index, RankingCache(settings.ranking_cache_size))
     return SearchService(
         QueryValidator(),
         VocabularyQueryParser(table),
