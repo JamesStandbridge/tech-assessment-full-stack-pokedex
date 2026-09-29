@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "requirements.schema.json",
+  "title": "Search requirements",
+  "type": "object",
+  "required": ["schema_version", "needs", "requirements"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "needs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "brief_situation"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z]+(-[a-z]+)*$" },
+          "title": { "type": "string", "minLength": 1 },
+          "brief_situation": { "type": ["integer", "null"], "minimum": 1, "maximum": 4 }
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "need", "template", "statement", "source", "priority", "verification"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^(SYS|SRCH)-[A-Z]+-[0-9]{3}$" },
+          "need": { "type": ["string", "null"] },
+          "template": { "enum": ["ubiquitous", "event-driven", "state-driven", "unwanted", "optional"] },
+          "statement": { "type": "string", "pattern": "\\bshall\\b" },
+          "source": { "type": "string", "minLength": 1 },
+          "priority": { "enum": ["core", "stretch"] },
+          "verification": { "enum": ["acceptance", "api-test", "ui-test", "unit-test", "relevance-evaluation"] }
+        }
+      }
+    }
+  }
+}
