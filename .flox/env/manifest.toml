@@ -1,0 +1,32 @@
+schema-version = "1.15.0"
+
+# System tools of the development environment. Language runtimes are pinned
+# in mise.toml, and tasks are defined there and exposed by the justfile.
+
+[install]
+just.pkg-path = "just"
+process-compose.pkg-path = "process-compose"
+mise.pkg-path = "mise"
+
+[vars]
+MISE_YES = "1"
+
+[hook]
+on-activate = """
+export MISE_TRUSTED_CONFIG_PATHS="$FLOX_ENV_PROJECT"
+mise install --quiet
+"""
+
+[profile]
+bash = """
+eval "$(mise activate bash)"
+"""
+zsh = """
+eval "$(mise activate zsh)"
+"""
+fish = """
+mise activate fish | source
+"""
+
+[options]
+systems = ["aarch64-darwin", "x86_64-darwin", "aarch64-linux", "x86_64-linux"]

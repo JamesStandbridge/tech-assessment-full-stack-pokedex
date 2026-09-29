@@ -1,0 +1,129 @@
+# Language runtimes and tasks of the project. The justfile exposes every task
+# under the same name; flox provides mise, just and process-compose.
+
+[tools]
+python = "3.14.7"
+uv = "0.10.12"
+
+[env]
+UV_PYTHON = "3.14"
+UV_PYTHON_PREFERENCE = "only-system"
+POKEDEX_API_URL = "http://127.0.0.1:8000"
+
+[tasks."install:backend"]
+description = "Install the backend dependencies from the lock file"
+dir = "backend"
+run = "uv sync --locked"
+
+[tasks."install:tooling"]
+description = "Install the tooling dependencies from the lock file"
+dir = "tooling"
+run = "uv sync --locked"
+
+[tasks.install]
+description = "Install every dependency"
+depends = ["install:backend", "install:tooling"]
+
+[tasks.data]
+description = "Download the published snapshot and verify its checksum"
+dir = "tooling"
+depends = ["install:tooling"]
+run = "uv run prepare-data"
+
+[tasks.setup]
+description = "Prepare a fresh clone: runtimes, dependencies and dataset"
+depends = ["install", "data"]
+run = "echo 'Setup complete. Run just dev to start the search API.'"
+
+[tasks.serve]
+description = "Run the search API"
+dir = "backend"
+run = "uv run serve"
+
+[tasks."lint:backend"]
+description = "Lint and check the formatting of the backend"
+dir = "backend"
+run = ["uv run ruff check", "uv run ruff format --check"]
+
+[tasks."lint:tooling"]
+description = "Lint and check the formatting of the tooling"
+dir = "tooling"
+run = ["uv run ruff check", "uv run ruff format --check"]
+
+[tasks.lint]
+description = "Lint every Python project"
+depends = ["lint:backend", "lint:tooling"]
+
+[tasks."format"]
+description = "Format and autofix every Python project"
+run = [
+  "cd backend && uv run ruff format && uv run ruff check --fix",
+  "cd tooling && uv run ruff format && uv run ruff check --fix",
+]
+
+[tasks."typecheck:backend"]
+description = "Type check the backend with mypy strict"
+dir = "backend"
+run = "uv run mypy"
+
+[tasks."typecheck:tooling"]
+description = "Type check the tooling with mypy strict"
+dir = "tooling"
+run = "uv run mypy"
+
+[tasks.typecheck]
+description = "Type check every Python project"
+depends = ["typecheck:backend", "typecheck:tooling"]
+
+[tasks.layers]
+description = "Check the backend layer contracts"
+dir = "backend"
+run = "uv run lint-imports"
+
+[tasks."test:backend"]
+description = "Run the backend tests"
+dir = "backend"
+run = "uv run pytest -q"
+
+[tasks."test:tooling"]
+description = "Run the tooling unit tests"
+dir = "tooling"
+run = "uv run pytest -q"
+
+[tasks.test]
+description = "Run every unit test suite"
+depends = ["test:backend", "test:tooling"]
+
+[tasks.specs]
+description = "Check that the specifications are consistent"
+dir = "tooling"
+run = "uv run validate-specs"
+
+[tasks.check]
+description = "Run every check that needs no running API"
+depends = ["lint", "typecheck", "layers", "test", "specs"]
+
+[tasks.acceptance]
+description = "Run the Gherkin acceptance scenarios against the search API"
+dir = "tooling"
+run = "../scripts/with-api.sh uv run pytest tests/acceptance -q"
+
+[tasks.relevance]
+description = "Evaluate relevance against the judgments and the assessor grades"
+dir = "tooling"
+run = "../scripts/with-api.sh uv run evaluate-relevance"
+
+[tasks.verify]
+description = "Run every check, then the acceptance and relevance suites"
+run = ["mise run check", "mise run acceptance", "mise run relevance"]
+
+[tasks.doctor]
+description = "Report the versions of the tools and whether the dataset is ready"
+run = "scripts/doctor.sh"
+
+[tasks.clean]
+description = "Remove caches and virtual environments"
+run = """
+find backend tooling -type d \\( -name .venv -o -name __pycache__ -o -name .pytest_cache \
+  -o -name .mypy_cache -o -name .ruff_cache -o -name .hypothesis \\) -prune -exec rm -rf {} +
+"""
