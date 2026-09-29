@@ -29,7 +29,7 @@ Option 3.
 | Kind, type, characteristic, damage class | Boolean filters | None |
 | Stat | Attribute filter and sort | Value of a base, derived or move stat; mean percentile rank for several stats |
 | Effect | Match on extracted facts (effect, target, mode) | Probability of success: accuracy times effect chance; a Pokémon takes its best source |
-| Weather | Weighted relation graph | Setters first, then the sum of 1 per benefit, 0.5 per mixed effect and -0.5 per drawback, halved for moves |
+| Weather | Weighted relation graph | Setters first, then the sum of 1 per benefit, 0.5 per protection or mixed effect and -0.5 per drawback, halved for moves; roles are judged for the weather queried |
 | Relation | Graph lookup (learns, has) | None |
 | Description words | BM25 over species descriptions, as an approximate fallback | BM25 score |
 

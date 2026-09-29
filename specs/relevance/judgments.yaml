@@ -237,13 +237,13 @@ queries:
     need: strategy-exploration
     query: rain team
     grading_rule: >
-      Abilities that only benefit from rain are 3, a mixed ability is 2, an
-      ability that cancels weather is 1. A move that improves in rain is 3, a
-      move weakened by rain is 1. Pokémon with a rain-only ability that also
-      learn thunder are 3, other holders of a rain-only ability are 2, holders
-      of the mixed ability only are 1.
+      Roles are judged for rain only: what an effect does in another weather
+      does not count. Abilities that benefit from rain are 3, an ability that
+      cancels weather is 1. A move that improves in rain is 3, a move weakened
+      by rain is 1. Pokémon with a rain ability that also learn thunder are 3,
+      other holders of a rain ability are 2.
     judgments:
-      ability: {swift-swim: 3, rain-dish: 3, hydration: 3, dry-skin: 2, cloud-nine: 1}
+      ability: {swift-swim: 3, rain-dish: 3, hydration: 3, dry-skin: 3, cloud-nine: 1}
       move: {thunder: 3, solar-beam: 1}
       pokemon: &rain_pokemon
         lapras: 3
@@ -268,9 +268,9 @@ queries:
         omastar: 2
         kabuto: 2
         kabutops: 2
-        paras: 1
-        parasect: 1
-        jynx: 1
+        paras: 2
+        parasect: 2
+        jynx: 2
 
   - id: Q-STRAT-02
     need: strategy-exploration
@@ -283,12 +283,20 @@ queries:
     need: strategy-exploration
     query: sun team
     grading_rule: >
-      The sun setter and abilities that only benefit from sun are 3, a
-      conditional protection is 2, a mixed ability or weather cancel is 1. Moves
-      improved by sun are 3, a move weakened by sun is 1. Holders of the sun
-      setter are 3, holders of another sun ability are 2.
+      Roles are judged for sun only. The sun setter and abilities that benefit
+      from sun are 3, a conditional effect is 2, an ability hurt by sun or
+      cancelling weather is 1. Moves improved by sun are 3, a move weakened by
+      sun is 1. Holders of the sun setter are 3, holders of another sun ability
+      are 2.
     judgments:
-      ability: {drought: 3, chlorophyll: 3, solar-power: 3, leaf-guard: 2, dry-skin: 1, cloud-nine: 1}
+      ability:
+        drought: 3
+        chlorophyll: 3
+        solar-power: 3
+        leaf-guard: 2
+        harvest: 2
+        dry-skin: 1
+        cloud-nine: 1
       move: {solar-beam: 3, growth: 3, thunder: 1}
       pokemon:
         vulpix: 3
@@ -317,7 +325,7 @@ queries:
       is 1. A move weakened by sandstorm is 1. Pokémon with two sandstorm
       abilities are 3, with one are 2.
     judgments:
-      ability: {sand-veil: 3, sand-rush: 3, sand-force: 3, overcoat: 1, cloud-nine: 1}
+      ability: {sand-veil: 3, sand-rush: 3, sand-force: 3, overcoat: 1, magic-guard: 1, cloud-nine: 1}
       move: {solar-beam: 1}
       pokemon:
         sandshrew: 3

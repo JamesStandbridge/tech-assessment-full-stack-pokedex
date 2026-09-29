@@ -558,7 +558,7 @@ components:
           enum: [opponent, user, null]
         weather_role:
           type: [string, "null"]
-          enum: [setter, benefit, mixed, drawback, null]
+          enum: [setter, benefit, protection, mixed, drawback, null]
     Stats:
       type: object
       required: [hp, attack, defense, special-attack, special-defense, speed]

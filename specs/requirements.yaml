@@ -452,7 +452,7 @@ requirements:
   - id: SRCH-STRAT-004
     need: strategy-exploration
     template: ubiquitous
-    statement: The search service shall label every weather result as a setter, a benefit, a mixed effect or a drawback, and shall not return entities tied only to a different weather.
+    statement: The search service shall label every weather result as a setter, a benefit, a protection against weather damage, a mixed effect or a drawback under the weather queried, disregarding what the effect does under other weathers, and shall not return entities tied only to a different weather.
     source: product
     priority: must
     verification: acceptance
@@ -476,7 +476,7 @@ requirements:
   - id: SRCH-STRAT-007
     need: strategy-exploration
     template: event-driven
-    statement: When Pokémon are returned for a weather query, the search service shall rank first those that set the weather, then by the sum over their weather effects of 1 for a benefit, 0.5 for a mixed effect and -0.5 for a drawback, halved for effects that come from a move, and shall not return Pokémon whose sum is not positive unless they set the weather.
+    statement: When Pokémon are returned for a weather query, the search service shall rank first those that set the weather, then by the sum over their weather effects of 1 for a benefit, 0.5 for a protection or a mixed effect and -0.5 for a drawback, halved for effects that come from a move, and shall not return Pokémon whose sum is not positive unless they set the weather.
     source: product
     priority: must
     verification: acceptance
@@ -502,7 +502,7 @@ requirements:
   - id: SRCH-REL-002
     need: null
     template: ubiquitous
-    statement: The relevance evaluation shall score the search service against grades given blind by a human assessor to candidates pooled from several rankers, meet the pre-registered assessor threshold, and report the agreement between assessor and rule grades as quadratic-weighted Cohen's kappa.
+    statement: The relevance evaluation shall score the search service against grades given blind, by a human or a disclosed model, to candidates pooled from several rankers, meet the pre-registered assessor threshold, report the agreement between assessor and rule grades as quadratic-weighted Cohen's kappa, and list the candidates graded two or more apart for human adjudication.
     source: brief/R5, brief/what-we-assess
     priority: must
     verification: relevance-evaluation

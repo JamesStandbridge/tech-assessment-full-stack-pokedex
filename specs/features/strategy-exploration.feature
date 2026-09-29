@@ -12,6 +12,9 @@ Feature: Explore a strategy spanning connected information
     drought, a sun setter, is the only weather setter.
   - thunder gains 100% accuracy in rain only in its long effect.
   - solar-beam is halved in rain; cloud-nine negates weather.
+  - Roles depend on the weather queried: dry-skin heals in rain, a benefit for
+    a rain team, and hurts in sun, a drawback for a sun team.
+  - harvest depends on sun only in its long effect.
   - Effects say "strong sunlight" and "Sunny Day", never "sun".
   - The dataset never says rain boosts Water moves.
   - sand-attack has nothing to do with sandstorms.
@@ -114,6 +117,7 @@ Feature: Explore a strategy spanning connected information
       | ability:solar-power |
       | ability:drought     |
       | ability:leaf-guard  |
+      | ability:harvest     |
       | move:solar-beam     |
       | move:growth         |
       | pokemon:ninetales   |

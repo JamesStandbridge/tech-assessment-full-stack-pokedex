@@ -8,7 +8,7 @@
 #   best result moved to rank 5     0.90        79%
 #   one irrelevant first result     0.73        0%
 #   naive substring full-text       0.55        32%
-#   naive whole-word full-text      0.42        29%
+#   naive whole-word full-text      0.41        29%
 # The per-query minimum rejects any irrelevant first result; the mean minimum
 # tolerates occasional ordering slips but rejects systematic ones.
 
