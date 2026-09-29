@@ -499,6 +499,14 @@ requirements:
     priority: must
     verification: relevance-evaluation
 
+  - id: SRCH-REL-002
+    need: null
+    template: ubiquitous
+    statement: The relevance evaluation shall score the search service against grades given blind by a human assessor to candidates pooled from several rankers, meet the pre-registered assessor threshold, and report the agreement between assessor and rule grades as quadratic-weighted Cohen's kappa.
+    source: brief/R5, brief/what-we-assess
+    priority: must
+    verification: relevance-evaluation
+
   # Query understanding and interaction
 
   - id: SRCH-TERM-001

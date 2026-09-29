@@ -25,3 +25,9 @@ metrics:
     description: Inverse rank of the first result with the highest judged grade.
     per_query_minimum: 1.0
     applies_to_needs: [name-recovery]
+
+# Pre-registered on 2026-09-29, before any assessor grading and before any
+# implementation of the search service. Do not change after seeing results.
+assessor:
+  ndcg_mean_minimum: 0.80
+
