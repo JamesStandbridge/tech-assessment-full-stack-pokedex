@@ -71,6 +71,14 @@ size:
 ui:
     mise run ui
 
+# Check the Lighthouse budgets of the production build against a fresh API
+lighthouse:
+    mise run lighthouse
+
+# Fail on a high vulnerability shipped to users, or a critical one anywhere
+audit:
+    mise run audit
+
 # Check that the specifications are consistent
 specs:
     mise run specs
@@ -87,7 +95,7 @@ acceptance:
 relevance:
     mise run relevance
 
-# Run every check, then the acceptance and relevance suites
+# Run every check, then the acceptance, relevance, interface and Lighthouse suites
 verify:
     mise run verify
 

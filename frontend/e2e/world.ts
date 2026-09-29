@@ -31,7 +31,12 @@ export class PokedexWorld {
         Object.assign(window, { __pokedexSounds: played + 1 });
         if (spoken !== undefined) Object.assign(window, { __pokedexSpoken: spoken });
       };
-      Object.assign(window, { __pokedexSounds: 0 });
+      Object.assign(window, { __pokedexSounds: 0, __pokedexViolations: "" });
+      document.addEventListener("securitypolicyviolation", (event) => {
+        const seen = String(Reflect.get(window, "__pokedexViolations"));
+        const violation = `${event.effectiveDirective} ${event.blockedURI}`;
+        Object.assign(window, { __pokedexViolations: `${seen}${violation}\n` });
+      });
       document.addEventListener(
         "play",
         () => {

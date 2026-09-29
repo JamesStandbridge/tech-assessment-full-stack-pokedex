@@ -44,7 +44,7 @@ Libraries:
 | URL state | `nuqs` |
 | Styling | Tailwind CSS v4, design tokens as CSS variables |
 | Accessible widgets | React Aria Components |
-| Animation | Motion, with `MotionConfig reducedMotion="user"` |
+| Animation | CSS transitions and keyframes, off under `prefers-reduced-motion` |
 | Relation graph | `d3-force`, rendered as SVG by React |
 | Unit and component tests | Vitest, Testing Library, MSW |
 | End-to-end and accessibility tests | Playwright, `@axe-core/playwright` |
@@ -67,4 +67,5 @@ Quality gates: `tsc --noEmit`, ESLint with `max-lines` of 200 and
 - Biome would be faster, but lacks part of the `react-hooks` and `jsx-a11y`
   rules the guardrails rely on.
 - Stat bars, the holographic card and weather ambiences are CSS and SVG, with
-  no chart library.
+  no chart library. Motion, chosen first, weighed 40 kB gzip for effects CSS
+  covers, and was dropped to hold the bundle budget of ADR 11.

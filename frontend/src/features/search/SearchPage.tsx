@@ -1,4 +1,4 @@
-import { type JSX, lazy, Suspense, useState } from "react";
+import { type JSX, lazy, Suspense, useEffect, useState } from "react";
 
 import { ApiError } from "../../api/errors";
 import type { EntityRef } from "../../api/contract";
@@ -10,8 +10,10 @@ import { SearchBox } from "./SearchBox";
 import { Understanding } from "./Understanding";
 import { type SearchController, useSearchController } from "./useSearchController";
 
+const loadResultsRegion = () => import("../results/ResultsRegion");
+
 const ResultsRegion = lazy(async () => {
-  const module = await import("../results/ResultsRegion");
+  const module = await loadResultsRegion();
   return { default: module.ResultsRegion };
 });
 
@@ -68,6 +70,10 @@ export function SearchPage(): JSX.Element {
   const controller = useSearchController();
   const [opened, setOpened] = useState<EntityRef | null>(null);
   const ambience = useAmbience(controller.query);
+  const hasQuery = controller.query !== "";
+  useEffect(() => {
+    if (hasQuery) void loadResultsRegion();
+  }, [hasQuery]);
   return (
     <div data-ambience={ambience} className="ambience min-h-dvh">
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10">

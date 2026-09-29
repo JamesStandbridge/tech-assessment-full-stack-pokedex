@@ -8,13 +8,8 @@ import {
 } from "d3-force";
 import type { JSX, KeyboardEvent } from "react";
 
-import type { EntityRef, SearchResponse } from "../../api/contract";
-import {
-  type GraphNode,
-  linkLabel,
-  type RelationGraph as Graph,
-  weatherGraph,
-} from "../../domain/graph";
+import type { EntityRef } from "../../api/contract";
+import type { GraphNode, RelationGraph as Graph } from "../../domain/graph";
 
 const WIDTH = 760;
 const HEIGHT = 440;
@@ -99,53 +94,36 @@ function Node(props: {
   );
 }
 
-function RelationList({ graph }: { readonly graph: Graph }): JSX.Element {
-  return (
-    <ul
-      aria-label="Relations"
-      className="text-muted columns-1 gap-6 text-sm sm:columns-2 lg:columns-3"
-    >
-      {graph.links.map((link) => (
-        <li key={`${link.source}>${link.target}`}>{linkLabel(graph, link)}</li>
-      ))}
-    </ul>
-  );
-}
-
-/** The weather, abilities, moves and Pokémon of a strategy as a navigable graph, with its list. */
+/** The weather, abilities, moves and Pokémon of a strategy as a navigable graph. */
 export function RelationGraph(props: {
-  readonly response: SearchResponse;
+  readonly graph: Graph;
   readonly onOpen: (ref: EntityRef) => void;
-}): JSX.Element | null {
-  const graph = weatherGraph(props.response);
-  if (graph === null) return null;
+}): JSX.Element {
+  const { graph } = props;
   const positions = layout(graph);
   const at = (id: string): { readonly x: number; readonly y: number } =>
     positions.get(id) ?? { x: 0, y: 0 };
   return (
-    <div className="space-y-3">
-      <figure
-        aria-label="Relation graph"
-        className="rounded-card border-line bg-panel/70 overflow-hidden border"
-      >
-        <svg viewBox={`0 0 ${String(WIDTH)} ${String(HEIGHT)}`} className="h-auto w-full">
-          <g aria-hidden="true" className="stroke-line">
-            {graph.links.map((link) => (
-              <line
-                key={`${link.source}>${link.target}`}
-                x1={at(link.source).x}
-                y1={at(link.source).y}
-                x2={at(link.target).x}
-                y2={at(link.target).y}
-              />
-            ))}
-          </g>
-          {graph.nodes.map((node) => (
-            <Node key={node.id} node={node} at={at(node.id)} onOpen={props.onOpen} />
+    <figure
+      aria-label="Relation graph"
+      className="rounded-card border-line bg-panel/70 overflow-hidden border"
+    >
+      <svg viewBox={`0 0 ${String(WIDTH)} ${String(HEIGHT)}`} className="h-auto w-full">
+        <g aria-hidden="true" className="stroke-line">
+          {graph.links.map((link) => (
+            <line
+              key={`${link.source}>${link.target}`}
+              x1={at(link.source).x}
+              y1={at(link.source).y}
+              x2={at(link.target).x}
+              y2={at(link.target).y}
+            />
           ))}
-        </svg>
-      </figure>
-      <RelationList graph={graph} />
-    </div>
+        </g>
+        {graph.nodes.map((node) => (
+          <Node key={node.id} node={node} at={at(node.id)} onOpen={props.onOpen} />
+        ))}
+      </svg>
+    </figure>
   );
 }

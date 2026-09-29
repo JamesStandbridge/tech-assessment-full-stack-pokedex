@@ -1,0 +1,10 @@
+# tmp before 0.2.6 allows path traversal; it is only reached through @lhci/cli.
+overrides:
+  tmp: ">=0.2.6"
+
+# jsx-a11y works with ESLint 10 though it declares 9, and the MSW integration of
+# Vitest's mocker is not used, so MSW 3 is safe beside it.
+peerDependencyRules:
+  allowedVersions:
+    eslint-plugin-jsx-a11y>eslint: "10"
+    "@vitest/mocker>msw": "3"

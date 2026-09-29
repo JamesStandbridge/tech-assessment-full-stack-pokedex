@@ -74,8 +74,8 @@ When the query has several readings, every one is named from
 Design tokens, as CSS variables, give each of the 18 types a colour, each term
 role a colour shared by the term chips and the reasons, and each weather an
 ambience. Charts and graphs are SVG with an equivalent list (SYS-A11Y-001),
-and every movement goes through Motion, which the reduced motion preference
-turns into fades (SYS-A11Y-003).
+and every movement is a CSS transition or keyframe that the reduced motion
+preference turns off, leaving only fades (SYS-A11Y-003).
 
 ## Consequences
 

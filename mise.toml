@@ -165,7 +165,19 @@ run = "pnpm run size"
 description = "Run the interface scenarios of specs/ui against the production build and a fresh API"
 dir = "frontend"
 depends = ["build:frontend"]
+env = { POKEDEX_UI_TAGS = "not @SYS-UI-013 and not @SYS-UI-014" }
 run = "pnpm run ui"
+
+[tasks.lighthouse]
+description = "Check the Lighthouse budgets of the production build against a fresh API"
+dir = "frontend"
+depends = ["build:frontend"]
+run = "../scripts/with-api.sh pnpm run lighthouse"
+
+[tasks.audit]
+description = "Fail on a high vulnerability shipped to users, or a critical one anywhere"
+dir = "frontend"
+run = ["pnpm audit --prod --audit-level high", "pnpm audit --audit-level critical"]
 
 [tasks.specs]
 description = "Check that the specifications are consistent"
@@ -187,8 +199,15 @@ dir = "tooling"
 run = "../scripts/with-api.sh uv run evaluate-relevance"
 
 [tasks.verify]
-description = "Run every check, then the acceptance and relevance suites"
-run = ["mise run check", "mise run acceptance", "mise run relevance"]
+description = "Run every check, then the acceptance, relevance, interface and Lighthouse suites"
+run = [
+  "mise run check",
+  "mise run acceptance",
+  "mise run relevance",
+  "mise run ui",
+  "mise run lighthouse",
+  "mise run audit",
+]
 
 [tasks.doctor]
 description = "Report the versions of the tools and whether the dataset is ready"

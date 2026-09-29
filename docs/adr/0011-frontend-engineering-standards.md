@@ -66,8 +66,8 @@ rules of ESLint, and review.
 - Every widget is operable with the keyboard, with a visible focus; the
   details dialog traps and restores focus (React Aria).
 - Colour is never the only carrier of meaning; contrast meets WCAG 2.2 AA.
-- Motion respects `prefers-reduced-motion` (SYS-A11Y-003); no sound without a
-  user action (SYS-A11Y-004).
+- Movement respects `prefers-reduced-motion` (SYS-A11Y-003); no sound without
+  a user action (SYS-A11Y-004).
 - Images declare their size, load lazily below the fold, and fall back to a
   placeholder (SYS-UI-003).
 
@@ -84,7 +84,11 @@ interface scenarios, and the scenarios of `specs/ui/accessibility.feature`.
 | Total Blocking Time | 200 ms | Lighthouse CI |
 | Searches per pause of typing | 1 | the SYS-UI-022 scenario |
 
-- `d3-force` and the graph view are split out of the initial bundle.
+- The results region, the details, the stat overlay and the graph are split
+  out of the initial bundle and loaded on demand; the results region is
+  fetched as soon as the URL holds a query. The initial JavaScript is 120 kB
+  gzip, and the mobile Largest Contentful Paint of a weather search sits just
+  under its budget, at 2.49 s.
 - Lists of more than a page render incrementally through section cursors,
   never all at once.
 
@@ -111,13 +115,19 @@ The API must provide those validators and meet the same standard:
 ### Security
 
 - No `dangerouslySetInnerHTML`; dataset text is rendered as text.
-- A Content Security Policy on the production build: scripts and styles from
-  the same origin, images from the same origin and the artwork host,
-  connections to the API origin only.
+- A Content Security Policy on the production build, as a header of the
+  preview server and a meta tag for static hosts: scripts and styles from the
+  same origin, plus the SHA-256 of the one stylesheet React Aria's usePress
+  injects, images from the same origin and the artwork host, connections to
+  the origin only. Every interface scenario fails on a policy violation.
 - Links opening a new tab use `rel="noopener noreferrer"`.
 - No secret in the client; configuration comes from `import.meta.env` with
   typed, validated values.
-- `pnpm audit` has no high or critical finding; the lock file is committed.
+- `pnpm audit` finds no high vulnerability in production dependencies and no
+  critical one anywhere; the lock file is committed. Development tools may
+  carry a high finding without a fix, such as extract-zip under Lighthouse,
+  which is only reached when a browser archive is downloaded and never runs
+  here since Lighthouse uses Playwright's Chromium.
 
 ### Tests
 
