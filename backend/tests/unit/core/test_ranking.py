@@ -1,12 +1,23 @@
 import pytest
 
+from pokedex_search.core.ranking.effects import best_effect, effect_key, matching_effects
 from pokedex_search.core.ranking.names import NamedEntity, NameMatcher, NameTier
 from pokedex_search.core.ranking.stats import Percentiles, satisfies, sort_key
 from pokedex_search.core.ranking.weather import pokemon_key, score
 from pokedex_search.domain.entities import EntityKind, EntityRef
-from pokedex_search.domain.facts import SearchProfile, SourcedWeather, WeatherFact, WeatherRole
+from pokedex_search.domain.facts import (
+    EffectFact,
+    EffectMode,
+    EffectTarget,
+    SearchProfile,
+    SourcedEffect,
+    SourcedWeather,
+    WeatherFact,
+    WeatherRole,
+)
 from pokedex_search.domain.plan import (
     Comparator,
+    EffectConstraint,
     SortDirection,
     StatFilter,
     StatSort,
@@ -100,3 +111,33 @@ def test_weather_score_halves_moves_and_puts_setters_first() -> None:
         ref=profile.ref, effects=(), weathers=(_weather(ability, WeatherRole.SETTER),)
     )
     assert pokemon_key(score(setter, rain)) < pokemon_key(score(profile, rain))
+
+
+def _poisoning(source: str, probability: float) -> SourcedEffect:
+    fact = EffectFact(
+        effect="poison",
+        mode=EffectMode.CAUSES,
+        target=EffectTarget.OPPONENT,
+        probability=probability,
+    )
+    return SourcedEffect(fact=fact, source=EntityRef(kind=EntityKind.MOVE, name=source))
+
+
+def _poison_key(*effects: SourcedEffect) -> tuple[float, ...]:
+    profile = SearchProfile(
+        ref=EntityRef(kind=EntityKind.POKEMON, name="ekans"), effects=effects, weathers=()
+    )
+    constraint = EffectConstraint(
+        effect="poison", mode=EffectMode.CAUSES, target=EffectTarget.OPPONENT
+    )
+    matches = matching_effects(profile, constraint)
+    best = best_effect(matches)
+    assert best is not None
+    return effect_key(best, matches)
+
+
+def test_effects_rank_by_best_probability_then_by_number_of_sources() -> None:
+    toxic = _poisoning("toxic", 0.9)
+    sting = _poisoning("poison-sting", 0.3)
+    powder = _poisoning("poison-powder", 0.75)
+    assert _poison_key(toxic, sting) < _poison_key(toxic) < _poison_key(powder, sting)

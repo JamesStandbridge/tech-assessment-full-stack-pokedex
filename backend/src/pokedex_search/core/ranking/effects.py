@@ -1,5 +1,7 @@
 """Rank entities by how reliably they achieve an effect."""
 
+from collections.abc import Sequence
+
 from pokedex_search.domain.facts import SearchProfile, SourcedEffect
 from pokedex_search.domain.plan import EffectConstraint
 
@@ -17,12 +19,11 @@ def matching_effects(
     )
 
 
-def best_effect(profile: SearchProfile, constraint: EffectConstraint) -> SourcedEffect | None:
-    """Return the most reliable source of the effect, or None when there is none.
+def best_effect(effects: Sequence[SourcedEffect]) -> SourcedEffect | None:
+    """Return the most reliable of the matching effects, or None when there is none.
 
     A missing probability, as for a prevention, ranks after any known one.
     """
-    effects = matching_effects(profile, constraint)
     if not effects:
         return None
     return max(
@@ -31,7 +32,12 @@ def best_effect(profile: SearchProfile, constraint: EffectConstraint) -> Sourced
     )
 
 
-def effect_key(effect: SourcedEffect) -> tuple[float, ...]:
-    """Return the ascending sort key of an entity's best source of an effect."""
-    probability = effect.fact.probability
-    return (1.0 if probability is None else -probability,)
+def effect_key(best: SourcedEffect, effects: Sequence[SourcedEffect]) -> tuple[float, ...]:
+    """Return the ascending sort key of an entity for an effect.
+
+    The best probability ranks first, then the number of distinct sources, since
+    more moves and abilities give more ways to achieve the effect.
+    """
+    probability = best.fact.probability
+    sources = len({item.source for item in effects})
+    return (1.0 if probability is None else -probability, -sources)

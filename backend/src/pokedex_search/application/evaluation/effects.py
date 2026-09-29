@@ -3,7 +3,7 @@
 from pokedex_search.application.evaluation.base import ALL_KINDS, Evaluation
 from pokedex_search.application.facets import effect_facet
 from pokedex_search.application.ports import FacetIndex, ProfileStore
-from pokedex_search.core.ranking.effects import best_effect, effect_key
+from pokedex_search.core.ranking.effects import best_effect, effect_key, matching_effects
 from pokedex_search.core.ranking.reasons import effect_reason
 from pokedex_search.domain.entities import EntityKind, EntityRef
 from pokedex_search.domain.plan import SearchPlan
@@ -41,8 +41,9 @@ class EffectEvaluator:
         keys: dict[EntityRef, tuple[float, ...]] = {}
         reasons: dict[EntityRef, tuple[Reason, ...]] = {}
         for ref in refs:
-            best = best_effect(self._profiles.profile(ref), constraint)
+            matches = matching_effects(self._profiles.profile(ref), constraint)
+            best = best_effect(matches)
             if best is not None:
-                keys[ref] = effect_key(best)
+                keys[ref] = effect_key(best, matches)
                 reasons[ref] = (effect_reason(best, ref),)
         return Evaluation(refs=frozenset(keys), keys=keys, reasons=reasons)
