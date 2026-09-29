@@ -10,7 +10,7 @@ about spelling, a criteria search about attribute values, an intent search
 about what an effect does to whom, and a strategy search about relations
 between entities. The calibration in
 `tooling/tests/unit/test_threshold_calibration.py` measured a naive full-text
-search at a mean nDCG@10 of 0.60, against a threshold of 0.90.
+search at a mean nDCG@10 of 0.55, against a threshold of 0.90.
 
 ## Considered options
 
@@ -25,7 +25,7 @@ Option 3.
 | Reading | Model | Ranking |
 |---|---|---|
 | Name | Tiered string similarity | Exact, then prefix, then infix, then Damerau-Levenshtein distance within 1 (up to 5 characters) or 2 |
-| Criteria | Boolean filter and attribute sort | Stat value, ties broken by dataset id |
+| Criteria | Boolean filters and attribute sort | Value of a base or derived stat (total, bulk, offense); mean percentile rank for several stats; ties broken by dataset id |
 | Effect | Match on extracted facts (effect, target, mode) | Probability of success: accuracy times effect chance; a Pokémon takes its best source |
 | Weather | Weighted relation graph | Setters first, then the sum of 1 per benefit, 0.5 per mixed effect and -0.5 per drawback, halved for moves |
 

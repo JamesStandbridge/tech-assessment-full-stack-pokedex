@@ -2,7 +2,8 @@ Feature: Know what can be searched and see how a query was understood
   A user must be able to tell which words the search understood and how, so
   that a partly understood query never looks fully answered.
 
-  Every term is reported with the role it was recognized in, or as ignored.
+  Every term is reported with the role it was recognized in, or as ignored. A
+  term may span several words, such as "sp atk" or "at least".
   A query that names one entity identifies it as the best match.
 
   Pitfalls:
@@ -20,16 +21,19 @@ Feature: Know what can be searched and see how a query was understood
     Then the term "<term>" is recognized as <role>
 
     Examples:
-      | query                     | term     | role    |
-      | bulba                     | bulba    | name    |
-      | fast electric pokemon     | fast     | stat    |
-      | fast electric pokemon     | electric | type    |
-      | fast electric pokemon     | pokemon  | filler  |
-      | put the opponent to sleep | sleep    | effect  |
-      | put the opponent to sleep | opponent | target  |
-      | prevent sleep             | prevent  | mode    |
-      | rain team                 | rain     | weather |
-      | rain team                 | team     | filler  |
+      | query                     | term     | role      |
+      | bulba                     | bulba    | name      |
+      | fast electric pokemon     | fast     | stat      |
+      | fast electric pokemon     | electric | type      |
+      | fast electric pokemon     | pokemon  | filler    |
+      | high attack pokemon       | high     | direction |
+      | high attack pokemon       | attack   | stat      |
+      | highest sp atk pokemon    | sp atk   | stat      |
+      | put the opponent to sleep | sleep    | effect    |
+      | put the opponent to sleep | opponent | target    |
+      | prevent sleep             | prevent  | mode      |
+      | rain team                 | rain     | weather   |
+      | rain team                 | team     | filler    |
 
   @SRCH-TERM-001
   Scenario: Terms outside the vocabulary are reported as ignored

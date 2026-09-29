@@ -107,6 +107,62 @@ queries:
         zapdos: 1
         mew: 1
 
+  - id: Q-CRIT-04
+    need: criteria-comparison
+    query: high attack fighting pokemon
+    grading_rule: Fighting Pokémon by base attack; 120 or more is 3, 100 to 119 is 2, 80 to 99 is 1.
+    judgments:
+      pokemon:
+        machamp: 3
+        hitmonlee: 3
+        primeape: 2
+        hitmonchan: 2
+        machoke: 2
+        poliwrath: 1
+        mankey: 1
+        machop: 1
+
+  - id: Q-CRIT-05
+    need: criteria-comparison
+    query: highest special attack psychic pokemon
+    grading_rule: Psychic Pokémon by base special attack; 130 or more is 3, 115 to 129 is 2, 100 to 114 is 1.
+    judgments:
+      pokemon:
+        mewtwo: 3
+        alakazam: 3
+        exeggutor: 2
+        kadabra: 2
+        jynx: 2
+        abra: 1
+        slowbro: 1
+        starmie: 1
+        mr-mime: 1
+        mew: 1
+
+  - id: Q-CRIT-06
+    need: criteria-comparison
+    query: bulkiest pokemon
+    grading_rule: Bulk is hp plus defense plus special defense; 330 or more is 3, 300 to 329 is 2, 270 to 299 is 1.
+    judgments:
+      pokemon:
+        chansey: 3
+        snorlax: 3
+        articuno: 2
+        lapras: 2
+        mew: 2
+        dragonite: 1
+        mewtwo: 1
+        slowbro: 1
+        vaporeon: 1
+        blastoise: 1
+        muk: 1
+        poliwrath: 1
+        golem: 1
+        cloyster: 1
+        gyarados: 1
+        hypno: 1
+        rhydon: 1
+
   - id: Q-INTENT-01
     need: intent-discovery
     query: put the opponent to sleep

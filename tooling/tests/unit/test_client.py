@@ -82,7 +82,14 @@ def response_body(sections: list[dict[str, object]]) -> dict[str, object]:
         "canonical_query": "electric pokemon",
         "outcome": "results" if sections else "empty",
         "interpretation": {
-            "readings": [{"reading": "criteria", "types": ["electric"], "sort": None}],
+            "readings": [
+                {
+                    "reading": "criteria",
+                    "types": ["electric"],
+                    "sort": [{"stat": "speed", "direction": "desc"}],
+                    "filters": [{"stat": "speed", "comparator": "gt", "value": 100}],
+                }
+            ],
             "summary": "Electric Pokémon",
         },
         "terms": [

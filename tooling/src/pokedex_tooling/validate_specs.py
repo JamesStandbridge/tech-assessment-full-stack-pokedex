@@ -189,7 +189,7 @@ def _check_term(match: re.Match[str], query: str, location: str, problems: list[
     if "term" not in match.re.groupindex:
         return
     term = match.group("term")
-    if term.casefold() not in query.casefold().split():
+    if re.search(rf"(?<!\w){re.escape(term)}(?!\w)", query, re.IGNORECASE) is None:
         problems.append(
             Problem(location=location, message=f"The term {term!r} is not a word of {query!r}.")
         )

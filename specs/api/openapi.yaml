@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pokédex Search API
-  version: 0.2.0
+  version: 0.3.0
   description: >
     Searches the published pokedex.json snapshot for Pokémon, moves and
     abilities. Results come in one ranked section per entity kind, every result
@@ -284,7 +284,7 @@ components:
           minimum: 1
     CriteriaReading:
       type: object
-      required: [reading, types, sort]
+      required: [reading, types, sort, filters]
       properties:
         reading:
           const: criteria
@@ -293,19 +293,39 @@ components:
           items:
             type: string
         sort:
-          oneOf:
-            - $ref: "#/components/schemas/StatSort"
-            - type: "null"
+          type: array
+          description: Stats to rank by. One stat ranks by its value; several rank by their mean percentile.
+          items:
+            $ref: "#/components/schemas/StatSort"
+        filters:
+          type: array
+          description: Comparisons every Pokémon result satisfies.
+          items:
+            $ref: "#/components/schemas/StatFilter"
+    StatName:
+      type: string
+      description: A base stat, or a derived stat; bulk is hp plus defense plus special defense, offense the higher of attack and special attack.
+      enum: [hp, attack, defense, special-attack, special-defense, speed, total, bulk, offense]
     StatSort:
       type: object
       required: [stat, direction]
       properties:
         stat:
-          type: string
-          enum: [hp, attack, defense, special-attack, special-defense, speed]
+          $ref: "#/components/schemas/StatName"
         direction:
           type: string
           enum: [asc, desc]
+    StatFilter:
+      type: object
+      required: [stat, comparator, value]
+      properties:
+        stat:
+          $ref: "#/components/schemas/StatName"
+        comparator:
+          type: string
+          enum: [gt, gte, lt, lte]
+        value:
+          type: integer
     EffectReading:
       type: object
       required: [reading, effect, mode, target]
@@ -339,10 +359,25 @@ components:
           description: The term as written in the query.
         role:
           type: string
-          enum: [name, dex-number, type, stat, effect, mode, target, weather, filler, ignored]
+          enum:
+            - name
+            - dex-number
+            - type
+            - stat
+            - direction
+            - comparator
+            - number
+            - effect
+            - mode
+            - target
+            - weather
+            - filler
+            - ignored
         value:
           type: [string, "null"]
-          description: The normalized concept, such as electric or speed:desc; null for filler and ignored terms.
+          description: >
+            The normalized concept, such as electric, speed:desc, desc, gte or
+            100; null for filler and ignored terms.
     Notice:
       type: object
       required: [code, message]
@@ -439,6 +474,7 @@ components:
             - dex-number
             - type-filter
             - stat-rank
+            - stat-filter
             - effect
             - weather
             - learns-move
@@ -578,7 +614,7 @@ components:
               properties:
                 role:
                   type: string
-                  enum: [type, stat, effect, weather]
+                  enum: [type, stat, direction, comparator, effect, mode, target, weather]
                 value:
                   type: string
             - type: "null"

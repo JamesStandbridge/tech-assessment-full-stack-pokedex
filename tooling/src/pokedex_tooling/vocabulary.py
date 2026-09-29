@@ -20,7 +20,20 @@ BEST_MATCH = r'the best match is "(?P<ref>[^"]+)"'
 NO_BEST_MATCH = r"there is no best match"
 
 RECOGNIZED_TERM_ROLES: frozenset[str] = frozenset(
-    {"name", "dex-number", "type", "stat", "effect", "mode", "target", "weather", "filler"}
+    {
+        "name",
+        "dex-number",
+        "type",
+        "stat",
+        "direction",
+        "comparator",
+        "number",
+        "effect",
+        "mode",
+        "target",
+        "weather",
+        "filler",
+    }
 )
 IGNORED_ROLE = "ignored"
 IGNORED_TERMS_NOTICE_CODE = "ignored-terms"

@@ -82,6 +82,11 @@ VALID_RUNS = (
     run(["SRCH-NAME-006", "should"], step('I search for "#151"'), step('the outcome is "results"')),
     run(["SRCH-NAME-007", "could"], step('I search for "mew"')),
     run(["SRCH-NAME-002", "SRCH-NAME-006"], step('I search for "mew"')),
+    run(
+        ["SRCH-NAME-002"],
+        step('I search for "highest sp atk pokemon"'),
+        step('the term "sp atk" is recognized as stat'),
+    ),
 )
 
 

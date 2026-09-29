@@ -246,7 +246,7 @@ requirements:
   - id: SRCH-CRIT-002
     need: criteria-comparison
     template: event-driven
-    statement: When a query contains a speed adjective, the search service shall rank Pokémon by base speed, descending for fast, quick and fastest, and ascending for slow and slowest.
+    statement: When a query asks for a stat, the search service shall rank Pokémon by that stat, where the stat is hp, attack, defense, special attack, special defense, speed, base stat total, bulk (hp plus defense plus special defense) or offense (the higher of attack and special attack), descending by default and for words such as high, highest, most, best, fast, strong and bulky, and ascending for words such as low, lowest, least and slow.
     source: brief/situation-2
     priority: must
     verification: acceptance
@@ -254,7 +254,7 @@ requirements:
   - id: SRCH-CRIT-003
     need: criteria-comparison
     template: ubiquitous
-    statement: The search service shall not match criteria words such as fast, slow, quick, type or pokemon against entity names or descriptions.
+    statement: The search service shall not match criteria words such as fast, strong, attack, defense, high, low, quick, type or pokemon against entity names or descriptions.
     source: product
     priority: must
     verification: acceptance
@@ -273,6 +273,30 @@ requirements:
     statement: If a query's criteria match no Pokémon, then the search API shall return an empty outcome that names the unmatched criteria.
     source: brief/R3
     priority: must
+    verification: acceptance
+
+  - id: SRCH-CRIT-006
+    need: criteria-comparison
+    template: ubiquitous
+    statement: The search service shall recognize stat names in their common spellings and abbreviations, including hp, atk, special attack, sp atk, spatk, special defense, sp def, stats and base stat total, and superlatives such as fastest, strongest and bulkiest.
+    source: brief/situation-2
+    priority: must
+    verification: acceptance
+
+  - id: SRCH-CRIT-007
+    need: criteria-comparison
+    template: event-driven
+    statement: When a query asks for several stats, the search service shall rank Pokémon by the mean of their percentile ranks among all Pokémon for those stats, each in its requested direction.
+    source: brief/situation-2
+    priority: should
+    verification: acceptance
+
+  - id: SRCH-CRIT-008
+    need: criteria-comparison
+    template: event-driven
+    statement: When a query compares a stat with a number, the search service shall return only Pokémon that satisfy the comparison, strictly for over, above, more than, under, below and less than, and inclusively for at least and at most.
+    source: brief/situation-2
+    priority: should
     verification: acceptance
 
   # Result quality: intent discovery
