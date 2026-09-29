@@ -1458,13 +1458,13 @@ queries:
     summary: Move, normal, special, power 80, accuracy 100, effect chance 20, priority 0. Has a chance
       to burn, freeze, or paralyze the target.
     grade: 2
+  - ref: pokemon:nidorino
+    summary: 'Pokémon #33, poison, Poison Pin Pokémon, purple, habitat grassland. HP 61, Atk 72, Def 57,
+      SpA 55, SpD 55, Spe 65, total 365. Abilities: hustle, poison-point, rivalry.'
+    grade: null
   - ref: move:mist
     summary: Move, ice, status, power None, accuracy None, effect chance None, priority 0. Protects the
       user’s stats from being changed by enemy moves.
-    grade: 0
-  - ref: pokemon:slowbro
-    summary: 'Pokémon #80, water/psychic, Hermit Crab Pokémon, pink, habitat waters-edge. HP 95, Atk 75,
-      Def 110, SpA 100, SpD 80, Spe 30, total 490. Abilities: oblivious, own-tempo, regenerator.'
     grade: 0
   - ref: move:pay-day
     summary: Move, normal, physical, power 40, accuracy 100, effect chance None, priority 0. Scatters
@@ -1474,6 +1474,10 @@ queries:
     summary: Ability. Raises the attack stat corresponding to the opponents' weaker defense one stage
       upon entering battle.
     grade: 0
+  - ref: pokemon:nidoking
+    summary: 'Pokémon #34, poison/ground, Drill Pokémon, purple, habitat grassland. HP 81, Atk 102, Def
+      77, SpA 85, SpD 75, Spe 85, total 505. Abilities: poison-point, rivalry, sheer-force.'
+    grade: null
   - ref: move:ice-beam
     summary: Move, ice, special, power 90, accuracy 100, effect chance 10, priority 0. Has a chance to
       freeze the target.
@@ -1502,33 +1506,25 @@ queries:
   - ref: ability:forewarn
     summary: Ability. Reveals the opponents' strongest move upon entering battle.
     grade: 0
-  - ref: pokemon:alakazam
-    summary: 'Pokémon #65, psychic, Psi Pokémon, brown, habitat urban. HP 55, Atk 50, Def 45, SpA 135,
-      SpD 95, Spe 120, total 500. Abilities: inner-focus, magic-guard, synchronize.'
-    grade: 0
   - ref: pokemon:bulbasaur
     summary: 'Pokémon #1, grass/poison, Seed Pokémon, green, habitat grassland. HP 45, Atk 49, Def 49,
       SpA 65, SpD 65, Spe 45, total 318. Abilities: chlorophyll, overgrow.'
     grade: 0
-  - ref: pokemon:doduo
-    summary: 'Pokémon #84, normal/flying, Twin Bird Pokémon, brown, habitat grassland. HP 35, Atk 85,
-      Def 45, SpA 35, SpD 35, Spe 75, total 310. Abilities: early-bird, run-away, tangled-feet.'
-    grade: 0
+  - ref: pokemon:nidorina
+    summary: 'Pokémon #30, poison, Poison Pin Pokémon, blue, habitat grassland. HP 70, Atk 62, Def 67,
+      SpA 55, SpD 55, Spe 56, total 365. Abilities: hustle, poison-point, rivalry.'
+    grade: null
   - ref: pokemon:clefairy
     summary: 'Pokémon #35, fairy, Fairy Pokémon, pink, habitat mountain. HP 70, Atk 45, Def 48, SpA 60,
       SpD 65, Spe 35, total 323. Abilities: cute-charm, friend-guard, magic-guard.'
     grade: 0
-  - ref: pokemon:abra
-    summary: 'Pokémon #63, psychic, Psi Pokémon, brown, habitat urban. HP 25, Atk 20, Def 15, SpA 105,
-      SpD 55, Spe 90, total 310. Abilities: inner-focus, magic-guard, synchronize.'
-    grade: 0
-  - ref: pokemon:jigglypuff
-    summary: 'Pokémon #39, normal/fairy, Balloon Pokémon, pink, habitat grassland. HP 115, Atk 45, Def
-      20, SpA 45, SpD 25, Spe 20, total 270. Abilities: competitive, cute-charm, friend-guard.'
-    grade: 0
   - ref: ability:pressure
     summary: Ability. Increases the PP cost of moves targetting the Pokémon by one.
     grade: 0
+  - ref: pokemon:squirtle
+    summary: 'Pokémon #7, water, Tiny Turtle Pokémon, blue, habitat waters-edge. HP 44, Atk 48, Def 65,
+      SpA 50, SpD 64, Spe 43, total 314. Abilities: rain-dish, torrent.'
+    grade: null
   - ref: ability:anticipation
     summary: Ability. Notifies all trainers upon entering battle if an opponent has a super-effective
       move, Self-Destruct, Explosion, or a one-hit KO move.
@@ -1536,10 +1532,6 @@ queries:
   - ref: pokemon:rattata
     summary: 'Pokémon #19, normal, Mouse Pokémon, purple, habitat grassland. HP 30, Atk 56, Def 35, SpA
       25, SpD 35, Spe 72, total 253. Abilities: guts, hustle, run-away.'
-    grade: 0
-  - ref: pokemon:wigglytuff
-    summary: 'Pokémon #40, normal/fairy, Balloon Pokémon, pink, habitat grassland. HP 140, Atk 70, Def
-      45, SpA 85, SpD 50, Spe 45, total 435. Abilities: competitive, cute-charm, frisk.'
     grade: 0
   - ref: move:ice-punch
     summary: Move, ice, physical, power 75, accuracy 100, effect chance 10, priority 0. Has a chance to
@@ -1571,10 +1563,6 @@ queries:
   - ref: ability:magnet-pull
     summary: Ability. Prevents Steel opponents from fleeing or switching out.
     grade: 0
-  - ref: pokemon:slowpoke
-    summary: 'Pokémon #79, water/psychic, Dopey Pokémon, pink, habitat waters-edge. HP 90, Atk 65, Def
-      65, SpA 40, SpD 40, Spe 15, total 315. Abilities: oblivious, own-tempo, regenerator.'
-    grade: 0
   - ref: ability:intimidate
     summary: Ability. Lowers opponents' Attack one stage upon entering battle.
     grade: 0
@@ -1585,13 +1573,13 @@ queries:
     summary: 'Pokémon #18, normal/flying, Bird Pokémon, brown, habitat forest. HP 83, Atk 80, Def 75,
       SpA 70, SpD 70, Spe 101, total 479. Abilities: big-pecks, keen-eye, tangled-feet.'
     grade: 0
+  - ref: pokemon:nidoqueen
+    summary: 'Pokémon #31, poison/ground, Drill Pokémon, blue, habitat grassland. HP 90, Atk 92, Def 87,
+      SpA 75, SpD 85, Spe 76, total 505. Abilities: poison-point, rivalry, sheer-force.'
+    grade: null
   - ref: pokemon:charmeleon
     summary: 'Pokémon #5, fire, Flame Pokémon, red, habitat mountain. HP 58, Atk 64, Def 58, SpA 80, SpD
       65, Spe 80, total 405. Abilities: blaze, solar-power.'
-    grade: 0
-  - ref: pokemon:kadabra
-    summary: 'Pokémon #64, psychic, Psi Pokémon, brown, habitat urban. HP 40, Atk 35, Def 30, SpA 120,
-      SpD 70, Spe 105, total 400. Abilities: inner-focus, magic-guard, synchronize.'
     grade: 0
   - ref: pokemon:ivysaur
     summary: 'Pokémon #2, grass/poison, Seed Pokémon, green, habitat grassland. HP 60, Atk 62, Def 63,
@@ -1601,6 +1589,10 @@ queries:
     summary: Ability. Prevents opponents from fleeing or switching out. Eluded by Flying-types and Pokémon
       in the air.
     grade: 0
+  - ref: pokemon:wartortle
+    summary: 'Pokémon #8, water, Turtle Pokémon, blue, habitat waters-edge. HP 59, Atk 63, Def 80, SpA
+      65, SpD 80, Spe 58, total 405. Abilities: rain-dish, torrent.'
+    grade: null
   - ref: ability:magic-guard
     summary: Ability. Protects against damage not directly caused by a move.
     grade: 0
@@ -2029,6 +2021,14 @@ queries:
     summary: 'Pokémon #9, water, Shellfish Pokémon, blue, habitat waters-edge. HP 79, Atk 83, Def 100,
       SpA 85, SpD 105, Spe 78, total 530. Abilities: rain-dish, torrent.'
     grade: 0
+  - ref: pokemon:growlithe
+    summary: 'Pokémon #58, fire, Puppy Pokémon, brown, habitat grassland. HP 55, Atk 70, Def 45, SpA 70,
+      SpD 50, Spe 60, total 350. Abilities: flash-fire, intimidate, justified.'
+    grade: null
+  - ref: pokemon:moltres
+    summary: 'Pokémon #146, fire/flying, Flame Pokémon, yellow, habitat rare. Legendary. HP 90, Atk 100,
+      Def 90, SpA 125, SpD 85, Spe 90, total 580. Abilities: flame-body, pressure.'
+    grade: null
   - ref: pokemon:charmander
     summary: 'Pokémon #4, fire, Lizard Pokémon, red, habitat mountain. HP 39, Atk 52, Def 43, SpA 60,
       SpD 50, Spe 65, total 309. Abilities: blaze, solar-power.'
@@ -2041,6 +2041,10 @@ queries:
     summary: Move, fire, special, power 90, accuracy 100, effect chance 10, priority 0. Has a chance to
       burn the target.
     grade: 3
+  - ref: pokemon:rapidash
+    summary: 'Pokémon #78, fire, Fire Horse Pokémon, yellow, habitat grassland. HP 65, Atk 100, Def 70,
+      SpA 80, SpD 80, Spe 105, total 500. Abilities: flame-body, flash-fire, run-away.'
+    grade: null
   - ref: ability:pressure
     summary: Ability. Increases the PP cost of moves targetting the Pokémon by one.
     grade: 0
@@ -2051,6 +2055,14 @@ queries:
   - ref: ability:hyper-cutter
     summary: Ability. Prevents Attack from being lowered by other Pokémon.
     grade: 0
+  - ref: pokemon:magmar
+    summary: 'Pokémon #126, fire, Spitfire Pokémon, red, habitat mountain. HP 65, Atk 95, Def 57, SpA
+      100, SpD 85, Spe 93, total 495. Abilities: flame-body, vital-spirit.'
+    grade: null
+  - ref: pokemon:ninetales
+    summary: 'Pokémon #38, fire, Fox Pokémon, yellow, habitat grassland. HP 73, Atk 76, Def 75, SpA 81,
+      SpD 100, Spe 100, total 505. Abilities: drought, flash-fire.'
+    grade: null
   - ref: move:tri-attack
     summary: Move, normal, special, power 80, accuracy 100, effect chance 20, priority 0. Has a chance
       to burn, freeze, or paralyze the target.
@@ -2118,6 +2130,14 @@ queries:
     summary: 'Pokémon #3, grass/poison, Seed Pokémon, green, habitat grassland. HP 80, Atk 82, Def 83,
       SpA 100, SpD 100, Spe 80, total 525. Abilities: chlorophyll, overgrow.'
     grade: 0
+  - ref: pokemon:ponyta
+    summary: 'Pokémon #77, fire, Fire Horse Pokémon, yellow, habitat grassland. HP 50, Atk 85, Def 55,
+      SpA 65, SpD 65, Spe 90, total 410. Abilities: flame-body, flash-fire, run-away.'
+    grade: null
+  - ref: pokemon:vulpix
+    summary: 'Pokémon #37, fire, Fox Pokémon, brown, habitat grassland. HP 38, Atk 41, Def 40, SpA 50,
+      SpD 65, Spe 65, total 299. Abilities: drought, flash-fire.'
+    grade: null
   - ref: move:light-screen
     summary: Move, psychic, status, power None, accuracy None, effect chance None, priority 0. Reduces
       damage from special attacks by 50% for five turns.
@@ -2128,6 +2148,10 @@ queries:
 - id: Q-USER-07
   query: moves that restore hp
   candidates:
+  - ref: move:soft-boiled
+    summary: Move, normal, status, power None, accuracy None, effect chance None, priority 0. Heals the
+      user by half its max HP.
+    grade: null
   - ref: pokemon:charizard
     summary: 'Pokémon #6, fire/flying, Flame Pokémon, red, habitat mountain. HP 78, Atk 84, Def 78, SpA
       109, SpD 85, Spe 100, total 534. Abilities: blaze, solar-power.'
@@ -2173,6 +2197,14 @@ queries:
     summary: Ability. Prevents being KOed from full HP, leaving 1 HP instead. Protects against the one-hit
       KO moves regardless of HP.
     grade: 0
+  - ref: move:leech-life
+    summary: Move, bug, physical, power 80, accuracy 100, effect chance None, priority 0. Drains half
+      the damage inflicted to heal the user.
+    grade: null
+  - ref: move:dream-eater
+    summary: Move, psychic, special, power 100, accuracy 100, effect chance None, priority 0. Only works
+      on sleeping Pokémon. Drains half the damage inflicted to heal the user.
+    grade: null
   - ref: pokemon:nidoqueen
     summary: 'Pokémon #31, poison/ground, Drill Pokémon, blue, habitat grassland. HP 90, Atk 92, Def 87,
       SpA 75, SpD 85, Spe 76, total 505. Abilities: poison-point, rivalry, sheer-force.'
@@ -2189,6 +2221,10 @@ queries:
     summary: Move, fire, special, power 35, accuracy 85, effect chance 100, priority 0. Prevents the target
       from fleeing and inflicts damage for 2-5 turns.
     grade: 0
+  - ref: move:absorb
+    summary: Move, grass, special, power 20, accuracy 100, effect chance None, priority 0. Drains half
+      the damage inflicted to heal the user.
+    grade: null
   - ref: pokemon:arbok
     summary: 'Pokémon #24, poison, Cobra Pokémon, purple, habitat grassland. HP 60, Atk 95, Def 69, SpA
       65, SpD 79, Spe 80, total 448. Abilities: intimidate, shed-skin, unnerve.'
@@ -2208,6 +2244,10 @@ queries:
     summary: 'Pokémon #10, bug, Worm Pokémon, green, habitat forest. HP 45, Atk 30, Def 35, SpA 20, SpD
       20, Spe 45, total 195. Abilities: run-away, shield-dust.'
     grade: 0
+  - ref: move:recover
+    summary: Move, normal, status, power None, accuracy None, effect chance None, priority 0. Heals the
+      user by half its max HP.
+    grade: null
   - ref: move:stomp
     summary: Move, normal, physical, power 65, accuracy 100, effect chance 30, priority 0. Has a chance
       to make the target flinch.
@@ -2231,6 +2271,10 @@ queries:
       1/4 of the user’s max HP into a doll, protecting the user from further damage or status changes
       until it breaks.
     grade: 0
+  - ref: move:mega-drain
+    summary: Move, grass, special, power 40, accuracy 100, effect chance None, priority 0. Drains half
+      the damage inflicted to heal the user.
+    grade: null
   - ref: move:mist
     summary: Move, ice, status, power None, accuracy None, effect chance None, priority 0. Protects the
       user’s stats from being changed by enemy moves.
@@ -2242,6 +2286,10 @@ queries:
   - ref: ability:static
     summary: Ability. Has a 30% chance of paralyzing attacking Pokémon on contact.
     grade: 0
+  - ref: move:rest
+    summary: Move, psychic, status, power None, accuracy None, effect chance None, priority 0. User sleeps
+      for two turns, completely healing itself.
+    grade: null
 - id: Q-USER-08
   query: force the opponent to switch
   candidates:
@@ -2257,10 +2305,18 @@ queries:
     summary: Move, normal, status, power None, accuracy None, effect chance None, priority -6. Immediately
       ends wild battles. Forces trainers to switch Pokémon.
     grade: 3
+  - ref: pokemon:golbat
+    summary: 'Pokémon #42, poison/flying, Bat Pokémon, purple, habitat cave. HP 75, Atk 80, Def 70, SpA
+      65, SpD 75, Spe 90, total 455. Abilities: infiltrator, inner-focus.'
+    grade: null
   - ref: pokemon:bulbasaur
     summary: 'Pokémon #1, grass/poison, Seed Pokémon, green, habitat grassland. HP 45, Atk 49, Def 49,
       SpA 65, SpD 65, Spe 45, total 318. Abilities: chlorophyll, overgrow.'
     grade: 0
+  - ref: pokemon:pidgeotto
+    summary: 'Pokémon #17, normal/flying, Bird Pokémon, brown, habitat forest. HP 63, Atk 60, Def 55,
+      SpA 50, SpD 50, Spe 71, total 349. Abilities: big-pecks, keen-eye, tangled-feet.'
+    grade: null
   - ref: pokemon:raticate
     summary: 'Pokémon #20, normal, Mouse Pokémon, brown, habitat grassland. HP 55, Atk 81, Def 60, SpA
       50, SpD 70, Spe 97, total 413. Abilities: guts, hustle, run-away.'
@@ -2276,6 +2332,14 @@ queries:
   - ref: ability:magnet-pull
     summary: Ability. Prevents Steel opponents from fleeing or switching out.
     grade: 0
+  - ref: pokemon:ninetales
+    summary: 'Pokémon #38, fire, Fox Pokémon, yellow, habitat grassland. HP 73, Atk 76, Def 75, SpA 81,
+      SpD 100, Spe 100, total 505. Abilities: drought, flash-fire.'
+    grade: null
+  - ref: pokemon:spearow
+    summary: 'Pokémon #21, normal/flying, Tiny Bird Pokémon, brown, habitat rough-terrain. HP 40, Atk
+      60, Def 30, SpA 31, SpD 31, Spe 70, total 262. Abilities: keen-eye, sniper.'
+    grade: null
   - ref: pokemon:pidgeot
     summary: 'Pokémon #18, normal/flying, Bird Pokémon, brown, habitat forest. HP 83, Atk 80, Def 75,
       SpA 70, SpD 70, Spe 101, total 479. Abilities: big-pecks, keen-eye, tangled-feet.'
@@ -2293,6 +2357,10 @@ queries:
   - ref: ability:natural-cure
     summary: Ability. Cures any major status ailment upon switching out.
     grade: 0
+  - ref: pokemon:fearow
+    summary: 'Pokémon #22, normal/flying, Beak Pokémon, brown, habitat rough-terrain. HP 65, Atk 90, Def
+      65, SpA 61, SpD 61, Spe 100, total 442. Abilities: keen-eye, sniper.'
+    grade: null
   - ref: pokemon:charmander
     summary: 'Pokémon #4, fire, Lizard Pokémon, red, habitat mountain. HP 39, Atk 52, Def 43, SpA 60,
       SpD 50, Spe 65, total 309. Abilities: blaze, solar-power.'
@@ -2332,6 +2400,10 @@ queries:
     summary: 'Pokémon #2, grass/poison, Seed Pokémon, green, habitat grassland. HP 60, Atk 62, Def 63,
       SpA 80, SpD 80, Spe 60, total 405. Abilities: chlorophyll, overgrow.'
     grade: 0
+  - ref: pokemon:zubat
+    summary: 'Pokémon #41, poison/flying, Bat Pokémon, purple, habitat cave. HP 40, Atk 45, Def 35, SpA
+      30, SpD 40, Spe 55, total 245. Abilities: infiltrator, inner-focus.'
+    grade: null
   - ref: ability:anticipation
     summary: Ability. Notifies all trainers upon entering battle if an opponent has a super-effective
       move, Self-Destruct, Explosion, or a one-hit KO move.
@@ -2340,6 +2412,10 @@ queries:
     summary: Move, flying, status, power None, accuracy None, effect chance None, priority 0. Uses the
       target’s last used move.
     grade: 0
+  - ref: pokemon:pidgey
+    summary: 'Pokémon #16, normal/flying, Tiny Bird Pokémon, brown, habitat forest. HP 40, Atk 45, Def
+      40, SpA 35, SpD 35, Spe 56, total 251. Abilities: big-pecks, keen-eye, tangled-feet.'
+    grade: null
   - ref: pokemon:venusaur
     summary: 'Pokémon #3, grass/poison, Seed Pokémon, green, habitat grassland. HP 80, Atk 82, Def 83,
       SpA 100, SpD 100, Spe 80, total 525. Abilities: chlorophyll, overgrow.'
@@ -2348,6 +2424,10 @@ queries:
     summary: Ability. Raises the attack stat corresponding to the opponents' weaker defense one stage
       upon entering battle.
     grade: 0
+  - ref: pokemon:vulpix
+    summary: 'Pokémon #37, fire, Fox Pokémon, brown, habitat grassland. HP 38, Atk 41, Def 40, SpA 50,
+      SpD 65, Spe 65, total 299. Abilities: drought, flash-fire.'
+    grade: null
   - ref: ability:liquid-ooze
     summary: Ability. Damages opponents using leeching moves for as much as they would heal.
     grade: 0
@@ -2370,6 +2450,10 @@ queries:
     summary: 'Pokémon #8, water, Turtle Pokémon, blue, habitat waters-edge. HP 59, Atk 63, Def 80, SpA
       65, SpD 80, Spe 58, total 405. Abilities: rain-dish, torrent.'
     grade: 0
+  - ref: pokemon:victreebel
+    summary: 'Pokémon #71, grass/poison, Flycatcher Pokémon, green, habitat forest. HP 80, Atk 105, Def
+      65, SpA 100, SpD 70, Spe 70, total 490. Abilities: chlorophyll, gluttony.'
+    grade: null
   - ref: ability:overgrow
     summary: Ability. Strengthens Grass moves to inflict 1.5× damage at 1/3 max HP or less.
     grade: 0
@@ -2411,11 +2495,27 @@ queries:
     summary: 'Pokémon #3, grass/poison, Seed Pokémon, green, habitat grassland. HP 80, Atk 82, Def 83,
       SpA 100, SpD 100, Spe 80, total 525. Abilities: chlorophyll, overgrow.'
     grade: 3
+  - ref: pokemon:bellsprout
+    summary: 'Pokémon #69, grass/poison, Flower Pokémon, green, habitat forest. HP 50, Atk 75, Def 35,
+      SpA 70, SpD 30, Spe 40, total 300. Abilities: chlorophyll, gluttony.'
+    grade: null
   - ref: pokemon:ivysaur
     summary: 'Pokémon #2, grass/poison, Seed Pokémon, green, habitat grassland. HP 60, Atk 62, Def 63,
       SpA 80, SpD 80, Spe 60, total 405. Abilities: chlorophyll, overgrow.'
     grade: 2
+  - ref: pokemon:tangela
+    summary: 'Pokémon #114, grass, Vine Pokémon, blue, habitat grassland. HP 65, Atk 55, Def 115, SpA
+      100, SpD 40, Spe 60, total 435. Abilities: chlorophyll, leaf-guard, regenerator.'
+    grade: null
+  - ref: pokemon:weepinbell
+    summary: 'Pokémon #70, grass/poison, Flycatcher Pokémon, green, habitat forest. HP 65, Atk 90, Def
+      50, SpA 85, SpD 45, Spe 55, total 390. Abilities: chlorophyll, gluttony.'
+    grade: null
   - ref: pokemon:oddish
     summary: 'Pokémon #43, grass/poison, Weed Pokémon, blue, habitat grassland. HP 45, Atk 50, Def 55,
       SpA 75, SpD 65, Spe 30, total 320. Abilities: chlorophyll, run-away.'
     grade: 1
+  - ref: pokemon:exeggutor
+    summary: 'Pokémon #103, grass/psychic, Coconut Pokémon, yellow, habitat forest. HP 95, Atk 95, Def
+      85, SpA 125, SpD 75, Spe 55, total 530. Abilities: chlorophyll, harvest.'
+    grade: null
