@@ -4,25 +4,19 @@ The thresholds must accept an ideal ranking and small ordering slips, and
 reject an irrelevant first result and a naive full-text search.
 """
 
-import json
-import re
 from collections.abc import Callable, Mapping
 
 import pytest
 
+from pokedex_tooling import baselines
 from pokedex_tooling.client import Outcome, RankedResult, SearchOutcome
 from pokedex_tooling.entities import EntityKind, EntityRef
-from pokedex_tooling.paths import DATASET_PATH
 from pokedex_tooling.relevance import RelevanceReport, score_outcomes
+from pokedex_tooling.snapshot import load_snapshot
 from pokedex_tooling.specs import JudgedQuery, load_judgments, load_thresholds
 
-DATASET_KEYS = {
-    EntityKind.POKEMON: "pokemon",
-    EntityKind.MOVE: "moves",
-    EntityKind.ABILITY: "abilities",
-}
-MIN_TOKEN_LENGTH = 3
 Ranker = Callable[[JudgedQuery, EntityKind, Mapping[str, int]], list[str]]
+SNAPSHOT = load_snapshot()
 
 
 def by_grade(grades: Mapping[str, int]) -> list[str]:
@@ -45,23 +39,7 @@ def irrelevant_first(judged: JudgedQuery, kind: EntityKind, grades: Mapping[str,
 
 
 def naive_full_text(judged: JudgedQuery, kind: EntityKind, grades: Mapping[str, int]) -> list[str]:
-    dataset = json.loads(DATASET_PATH.read_text(encoding="utf-8"))
-    tokens = [
-        token
-        for token in re.findall(r"[a-z]+", judged.query.lower())
-        if len(token) >= MIN_TOKEN_LENGTH
-    ]
-    scored: list[tuple[int, int, str]] = []
-    for entry in dataset[DATASET_KEYS[kind]]:
-        if kind == EntityKind.POKEMON:
-            fields = [entry["species"]["description"] or "", " ".join(entry["types"])]
-        else:
-            fields = [entry["short_effect"] or "", entry["effect"] or ""]
-        text = " ".join([entry["name"].replace("-", " "), *fields]).lower()
-        score = sum(token in text for token in tokens)
-        if score:
-            scored.append((-score, entry["id"], entry["name"]))
-    return [name for _, _, name in sorted(scored)]
+    return baselines.naive_full_text(SNAPSHOT, judged.query, kind)
 
 
 def report_for(ranker: Ranker) -> RelevanceReport:
