@@ -59,6 +59,7 @@ Then(
       return;
     }
     const graph = page.getByRole("figure", { name: "Relation graph" });
+    await expect(graph.locator("line").first()).toBeAttached();
     const links = await graph.locator("line").count();
     expect(links).toBeGreaterThan(0);
     await expect(page.getByRole("list", { name: "Relations" }).getByRole("listitem")).toHaveCount(

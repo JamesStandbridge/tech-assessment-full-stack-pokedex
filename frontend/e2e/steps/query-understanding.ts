@@ -13,8 +13,11 @@ When("I type {string} and pause", async ({ page, pokedex }, text: string) => {
 When(
   "I type {string} one character at a time and pause",
   async ({ page, pokedex }, text: string) => {
+    // A fake clock keeps a loaded machine from turning a slow keystroke into a real pause.
+    await page.clock.install();
     await pokedex.searchBox().pressSequentially(text, { delay: KEYSTROKE_MS });
-    await page.waitForTimeout(PAUSE_MS);
+    await page.clock.runFor(PAUSE_MS);
+    await expect.poll(() => pokedex.searches.length).toBeGreaterThan(0);
   },
 );
 
