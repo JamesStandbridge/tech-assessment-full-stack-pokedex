@@ -51,6 +51,8 @@ EFFECTS = [
     "forced-switch",
     "ground",
     "electric",
+    "raise-attack",
+    "lower-special-defense",
 ]
 AMBIGUOUS_WORDS = frozenset({"psychic", "confusion"})
 RELATIONS = [

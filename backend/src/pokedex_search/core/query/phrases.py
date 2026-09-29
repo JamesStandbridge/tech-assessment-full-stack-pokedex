@@ -6,7 +6,6 @@ from pokedex_search.core.query.concepts import Concept, Span
 from pokedex_search.core.query.tokenizer import Token, tokenize
 from pokedex_search.core.query.vocabulary import Vocabulary
 from pokedex_search.domain.entities import EntityRef, Frozen
-from pokedex_search.domain.facts import EffectTarget
 from pokedex_search.domain.terms import TermRole
 
 MAX_NUMBER_LENGTH = 4
@@ -64,9 +63,9 @@ def _grouped(
 
 
 def _effects(vocabulary: Vocabulary) -> Iterable[tuple[str, Concept]]:
-    for effect, phrases in vocabulary.effects.items():
-        target = EffectTarget.USER if effect in vocabulary.self_effects else EffectTarget.OPPONENT
-        concept = Concept(role=TermRole.EFFECT, value=effect, default_target=target)
+    targets = vocabulary.default_targets
+    for effect, phrases in vocabulary.effect_phrases.items():
+        concept = Concept(role=TermRole.EFFECT, value=effect, default_target=targets[effect])
         yield from ((phrase, concept) for phrase in phrases)
 
 

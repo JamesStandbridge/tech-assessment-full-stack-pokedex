@@ -114,6 +114,27 @@ effects:
 # Effects that apply to the user when a query names no target.
 self_effects: [healing]
 
+# Every verb followed by a stat names the effect direction-stat, such as
+# raise-attack for boost atk.
+stat_changes:
+  directions:
+    raise:
+      target: user
+      verbs: [raise, raises, raising, boost, boosts, boosting, increase, increases, increasing,
+              sharply raise, sharply raises, buff, buffs]
+    lower:
+      target: opponent
+      verbs: [lower, lowers, lowering, reduce, reduces, reducing, decrease, decreases, drop,
+              drops, cut, cuts, harshly lower, harshly lowers, debuff, debuffs]
+  stats:
+    attack: [attack, atk, physical attack]
+    defense: [defense, def, defence]
+    special-attack: [special attack, sp atk, spatk, special atk]
+    special-defense: [special defense, sp def, spdef, special def]
+    speed: [speed, spe]
+    accuracy: [accuracy]
+    evasion: [evasion, evasiveness]
+
 modes:
   prevents: [prevent, prevents, preventing, avoid, avoids, immune, immunity, block, blocks,
              stop, stops, protect against]

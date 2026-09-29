@@ -18,6 +18,18 @@ effects:
   electric: [Absorbs Electric moves]
   water: [Absorbs Water moves]
   fire: [Protects against Fire moves]
+  raise-attack: ["rais(?:es|ing) (?:the user[’']s |user[’']s )?(?<!special )attack",
+                 "(?<!special )attack rises"]
+  raise-defense: ["rais(?:es|ing) (?:the user[’']s |user[’']s )?defense"]
+  raise-special-attack: ["rais(?:es|ing) (?:the user[’']s |user[’']s )?(?:attack and )?special attack"]
+  raise-special-defense: ["rais(?:es|ing) (?:the user[’']s |user[’']s )?special defense"]
+  raise-speed: ["rais(?:es|ing) (?:the user[’']s |user[’']s )?speed"]
+  raise-evasion: ["rais(?:es|ing) (?:the user[’']s |user[’']s )?evasion", "increases evasion"]
+  lower-attack: ["lowers? (?:the target[’']s |opponents[’'] )?(?<!special )attack"]
+  lower-defense: ["lowers? (?:the target[’']s |opponents[’'] )?defense"]
+  lower-special-defense: ["lowers? (?:the target[’']s )?special defense"]
+  lower-speed: ["lowers? (?:the target[’']s )?speed"]
+  lower-accuracy: ["lowers? (?:the target[’']s )?accuracy"]
 
 # A text naming several effects this way causes only one of them, so they share
 # its probability, as in "a chance to burn, freeze, or paralyze".
@@ -29,6 +41,22 @@ effect_rules:
     mode: prevents
     target: null
     probability: none
+  - pattern: "and lowers"
+    effects: [lower-attack, lower-defense, lower-special-defense, lower-speed, lower-accuracy]
+    mode: causes
+    target: user
+    probability: move
+  - pattern: "[Rr]ais(?:es|ing)|rises|[Ii]ncreases evasion"
+    effects: [raise-attack, raise-defense, raise-special-attack, raise-special-defense,
+              raise-speed, raise-evasion]
+    mode: causes
+    target: user
+    probability: move
+  - pattern: "[Ll]owers?"
+    effects: [lower-attack, lower-defense, lower-special-defense, lower-speed, lower-accuracy]
+    mode: causes
+    target: opponent
+    probability: move
   - pattern: "heal the user|\\bHeals\\b|\\bhealing\\b|stealing HP"
     effects: [healing]
     mode: causes

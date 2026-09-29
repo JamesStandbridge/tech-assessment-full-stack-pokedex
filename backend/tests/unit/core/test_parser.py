@@ -88,6 +88,21 @@ PLANS: list[tuple[str, dict[str, object]]] = [
     ),
     ("the opponent", {}),
     (
+        "moves that raise attack",
+        {
+            "kinds": ["move"],
+            "effect": {"effect": "raise-attack", "mode": "causes", "target": "user"},
+        },
+    ),
+    (
+        "lower speed of the opponent",
+        {"effect": {"effect": "lower-speed", "mode": "causes", "target": "opponent"}},
+    ),
+    (
+        "boost special attack",
+        {"effect": {"effect": "raise-special-attack", "mode": "causes", "target": "user"}},
+    ),
+    (
         "pokemon immune to ground moves",
         {"kinds": ["pokemon"], "effect": {"effect": "ground", "mode": "prevents", "target": None}},
     ),

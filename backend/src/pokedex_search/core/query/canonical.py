@@ -4,7 +4,7 @@ from typing import assert_never
 
 from pokedex_search.core.query.refinements import derive_refinements
 from pokedex_search.core.query.vocabulary import Vocabulary
-from pokedex_search.domain.facts import EffectMode, EffectTarget
+from pokedex_search.domain.facts import EffectMode
 from pokedex_search.domain.plan import (
     Characteristic,
     CharacteristicFacet,
@@ -73,12 +73,10 @@ class CanonicalWriter:
         if effect is None:
             return ""
         words = self._vocabulary
-        name = words.effects[effect.effect][0]
+        name = words.effect_phrases[effect.effect][0]
         if effect.mode is EffectMode.PREVENTS:
             return f"{words.modes[EffectMode.PREVENTS][0]} {name}"
-        default = (
-            EffectTarget.USER if effect.effect in words.self_effects else EffectTarget.OPPONENT
-        )
+        default = words.default_targets[effect.effect]
         if effect.target is not None and (effect.target is not default or name in words.types):
             return f"{name} {words.targets[effect.target][0]}"
         return name

@@ -75,7 +75,7 @@ def effect_reason(effect: SourcedEffect, own: EntityRef) -> Reason:
     source = "" if effect.source == own else f" through {effect.source.name}"
     return Reason(
         type=ReasonType.EFFECT,
-        detail=f"{fact.mode.capitalize()} {fact.effect}{chance}{source}",
+        detail=f"{fact.mode.capitalize()} {fact.effect.replace('-', ' ')}{chance}{source}",
         related=None if effect.source == own else effect.source,
         probability=fact.probability,
         mode=fact.mode,
