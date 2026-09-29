@@ -96,6 +96,13 @@ def test_pooling_again_keeps_existing_grades() -> None:
     assert again == graded
 
 
+def test_pooling_again_keeps_candidates_no_ranker_proposes_anymore() -> None:
+    graded = sheet({"pokemon:mew": 3, "pokemon:ditto": 1})
+    again = build_assessments(SNAPSHOT, JUDGMENTS, graded, {})
+    kept = {candidate.ref: candidate.grade for candidate in again.queries[0].candidates}
+    assert kept["pokemon:ditto"] == 1
+
+
 def test_live_results_join_the_pool() -> None:
     live = {"Q-NAME-02": pokemon_outcome("mew", "abra")}
     refs = {

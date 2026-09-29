@@ -127,7 +127,7 @@ def build_assessments(
     existing: AssessmentsDocument | None,
     live: Mapping[str, SearchOutcome],
 ) -> AssessmentsDocument:
-    """Pool candidates for every judged and user query, keeping existing grades.
+    """Pool candidates for every judged and user query, keeping existing candidates and grades.
 
     Args:
         snapshot: The dataset.
@@ -166,6 +166,9 @@ def build_assessments(
     assessed: list[AssessedQuery] = []
     for query_id, text, kinds, rule_refs in queries:
         refs = pool_refs(snapshot, text, kinds, rule_refs, live.get(query_id))
+        earlier = previous.get(query_id)
+        if earlier is not None:
+            refs.update(EntityRef.parse(candidate.ref) for candidate in earlier.candidates)
         candidates: list[Candidate] = []
         for ref in sorted(refs, key=lambda ref: shuffle_key(query_id, ref)):
             record = snapshot.find(ref)
