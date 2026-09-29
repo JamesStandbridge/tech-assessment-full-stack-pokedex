@@ -1,0 +1,93 @@
+# Rules that turn effect texts into facts. Status effects are read from short
+# effects only, because long effects cite mechanics outside the snapshot, such
+# as Sleep Talk. Weather roles are read from short effects, and from long
+# effects only for a weather the short effect does not mention.
+
+statuses:
+  sleep: [sleep, sleeps, sleeping, asleep]
+  paralysis: [paralyze, paralyzes, paralyzing, paralysis]
+  poison: [poison, poisons, poisoning, poisoned]
+  burn: [burn, burns, burning, burned]
+  freeze: [freeze, freezes, frozen]
+  confusion: [confuse, confuses, confusion, confused]
+  flinch: [flinch, flinching]
+
+effect_rules:
+  - pattern: "\\bUser sleeps\\b"
+    mode: causes
+    target: user
+    probability: move
+  - pattern: "then confuses the user"
+    mode: causes
+    target: user
+    probability: move
+  - pattern: "^Only works on sleeping"
+    mode: requires
+    target: opponent
+    probability: none
+  - pattern: "pass twice as quickly|\\bwhen confused\\b|\\bupon flinching\\b"
+    mode: requires
+    target: null
+    probability: none
+  - pattern: "^Prevents \\w+\\.$"
+    mode: prevents
+    target: null
+    probability: none
+  - pattern: "^Copies .* received onto"
+    mode: causes
+    target: opponent
+    probability: none
+  - pattern: "^Has an? (?P<percent>\\d+)% chance"
+    mode: causes
+    target: opponent
+    probability: percent
+  - pattern: "Has a chance to"
+    mode: causes
+    target: opponent
+    probability: move
+  - pattern: "^(?:Badly poisons|Paralyzes|Confuses|Poisons) the target|^Puts the target to sleep"
+    mode: causes
+    target: opponent
+    probability: move
+
+weathers:
+  rain: ["\\brain\\b(?! dish)", "\\brain dance\\b"]
+  sun: ["\\bstrong sunlight\\b", "\\bsunny day\\b"]
+  sandstorm: ["\\bsandstorm\\b"]
+  hail: ["\\bhail\\b"]
+
+generic_weather: "\\bweather\\b"
+damaging_weathers: [sandstorm, hail]
+
+ignored_sentences:
+  - "full list of"
+  - "still applies"
+  - "Weather Ball"
+  - "Forecast"
+  - "does not prevent the weather"
+  - "Overworld"
+  - "cancel the previous weather"
+  - "Yawn"
+
+weather_rules:
+  - pattern: "\\bSummons\\b|weather changes to"
+    role: setter
+    scope: mentioned
+  - pattern: "Negates all effects of weather|will not have any of its effects"
+    role: drawback
+    scope: all
+  - pattern: "damage from (?:from )?weather"
+    role: protection
+    scope: damaging
+  - pattern: "Protects against (?:sandstorm|hail) damage"
+    role: protection
+    scope: mentioned
+  - pattern: "power is halved|in damage each turn|50% accuracy"
+    role: drawback
+    scope: mentioned
+  - pattern: "."
+    role: benefit
+    scope: mentioned
+
+weather_stats:
+  speed: "\\bSpeed\\b"
