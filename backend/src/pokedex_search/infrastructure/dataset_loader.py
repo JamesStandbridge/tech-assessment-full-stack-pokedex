@@ -42,6 +42,7 @@ def _pokemon(raw: RawPokemon) -> Pokemon:
             genus=species.genus,
             description=_clean(species.description),
             color=species.color,
+            shape=species.shape,
             habitat=species.habitat,
             is_legendary=species.is_legendary,
             is_mythical=species.is_mythical,

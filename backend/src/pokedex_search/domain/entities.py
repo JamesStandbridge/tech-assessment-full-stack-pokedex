@@ -55,6 +55,7 @@ class Species(Frozen):
     genus: str | None
     description: str | None
     color: str
+    shape: str | None
     habitat: str | None
     is_legendary: bool
     is_mythical: bool

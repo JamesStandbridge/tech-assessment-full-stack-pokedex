@@ -24,6 +24,7 @@ class RawSpecies(_Raw):
     genus: str | None
     description: str | None
     color: str
+    shape: str | None
     habitat: str | None
     is_legendary: bool
     is_mythical: bool
