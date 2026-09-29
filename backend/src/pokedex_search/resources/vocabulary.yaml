@@ -23,7 +23,8 @@ stats:
   power: [power, base power]
   accuracy: [accuracy]
   pp: [pp, power points]
-  priority: [priority]
+  priority: [priority, go first, goes first, going first, strike first, strikes first,
+             act first, acts first, attack first, attacks first, hit first, hits first]
 
 stat_adjectives:
   - phrases: [fast, fastest, quick, quickest, speedy, speediest, rapid]

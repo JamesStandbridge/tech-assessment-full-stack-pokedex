@@ -87,6 +87,14 @@ PLANS: list[tuple[str, dict[str, object]]] = [
         {"effect": {"effect": "forced-switch", "mode": "causes", "target": "opponent"}},
     ),
     ("the opponent", {}),
+    (
+        "moves that go first",
+        {
+            "kinds": ["move"],
+            "stat_sort": [{"stat": "priority", "direction": "desc"}],
+            "stat_filters": [{"stat": "priority", "comparator": "gt", "value": 0}],
+        },
+    ),
 ]
 
 
