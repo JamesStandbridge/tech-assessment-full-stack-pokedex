@@ -18,6 +18,7 @@ dependencies = [
 prepare-data = "pokedex_tooling.dataset:main"
 validate-specs = "pokedex_tooling.validate_specs:main"
 evaluate-relevance = "pokedex_tooling.relevance:main"
+pool-assessments = "pokedex_tooling.pooling:main"
 
 [dependency-groups]
 dev = [

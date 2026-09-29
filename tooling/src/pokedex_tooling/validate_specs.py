@@ -16,6 +16,7 @@ from pytest_bdd.exceptions import GherkinParseError
 from pokedex_tooling import vocabulary
 from pokedex_tooling.entities import EntityKind, EntityRef
 from pokedex_tooling.paths import (
+    ASSESSMENTS_PATH,
     DATASET_PATH,
     FEATURES_DIR,
     JUDGMENTS_PATH,
@@ -26,10 +27,12 @@ from pokedex_tooling.paths import (
 from pokedex_tooling.specs import (
     PRIORITIES_BY_CRITICALITY,
     PRIORITY_TAGS,
+    AssessmentsDocument,
     JudgmentsDocument,
     RequirementsDocument,
     ScenarioRun,
     ThresholdsDocument,
+    load_assessments,
     load_judgments,
     load_requirements,
     load_scenario_runs,
@@ -111,6 +114,7 @@ def check_json_schemas(dataset_available: bool) -> list[Problem]:
     targets: dict[str, Path] = {
         "requirements.schema.json": REQUIREMENTS_PATH,
         "judgments.schema.json": JUDGMENTS_PATH,
+        "assessments.schema.json": ASSESSMENTS_PATH,
     }
     if dataset_available:
         targets["pokedex.schema.json"] = DATASET_PATH
@@ -397,6 +401,53 @@ def check_judgments(
     return problems
 
 
+USER_QUERY_ID = re.compile(r"^Q-USER-[0-9]{2}$")
+
+
+def check_assessments(
+    assessments: AssessmentsDocument, judgments: JudgmentsDocument, index: DatasetIndex
+) -> list[Problem]:
+    """Check that the assessment sheet covers every judged query with real entities.
+
+    Args:
+        assessments: The assessment sheet.
+        judgments: Rule judgments, whose queries must all be pooled.
+        index: Entities present in the dataset.
+
+    Returns:
+        The problems found.
+    """
+    problems: list[Problem] = []
+    judged = {query.id: query.query for query in judgments.queries}
+    seen: set[str] = set()
+    for query in assessments.queries:
+        if query.id in seen:
+            problems.append(Problem(location=query.id, message="Duplicate identifier."))
+        seen.add(query.id)
+        if query.id in judged and judged[query.id] != query.query:
+            problems.append(
+                Problem(location=query.id, message="Query text differs from the judgments.")
+            )
+        if query.id not in judged and USER_QUERY_ID.fullmatch(query.id) is None:
+            problems.append(
+                Problem(location=query.id, message="Queries added by assessors use Q-USER-nn.")
+            )
+        refs: set[str] = set()
+        for candidate in query.candidates:
+            if candidate.ref in refs:
+                problems.append(
+                    Problem(location=query.id, message=f"Duplicate candidate {candidate.ref}.")
+                )
+            refs.add(candidate.ref)
+            _parse_ref(candidate.ref, query.id, index, problems)
+    problems.extend(
+        Problem(location=query_id, message="Judged query missing; run pool-assessments.")
+        for query_id in judged
+        if query_id not in seen
+    )
+    return problems
+
+
 def check_thresholds(
     thresholds: ThresholdsDocument, requirements: RequirementsDocument
 ) -> list[Problem]:
@@ -438,6 +489,7 @@ def validate_all() -> list[Problem]:
         requirements = load_requirements()
         judgments = load_judgments()
         thresholds = load_thresholds()
+        assessments = load_assessments()
         runs = load_scenario_runs(FEATURES_DIR)
     except (ValidationError, GherkinParseError) as error:
         return [*problems, Problem(location="specs", message=str(error).splitlines()[0])]
@@ -448,6 +500,7 @@ def validate_all() -> list[Problem]:
     scenario_check = check_scenarios(runs, requirements, index)
     problems += scenario_check.problems
     problems += check_judgments(judgments, requirements, scenario_check.expectations, index)
+    problems += check_assessments(assessments, judgments, index)
     return problems
 
 

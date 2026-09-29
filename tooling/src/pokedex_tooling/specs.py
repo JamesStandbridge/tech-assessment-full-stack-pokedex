@@ -8,7 +8,13 @@ from pydantic import BaseModel
 from pytest_bdd.gherkin_parser import Scenario, get_gherkin_document
 
 from pokedex_tooling.entities import EntityKind
-from pokedex_tooling.paths import FEATURES_DIR, JUDGMENTS_PATH, REQUIREMENTS_PATH, THRESHOLDS_PATH
+from pokedex_tooling.paths import (
+    ASSESSMENTS_PATH,
+    FEATURES_DIR,
+    JUDGMENTS_PATH,
+    REQUIREMENTS_PATH,
+    THRESHOLDS_PATH,
+)
 
 Priority = Literal["must", "should", "could"]
 PRIORITIES_BY_CRITICALITY: tuple[Priority, ...] = ("must", "should", "could")
@@ -88,12 +94,49 @@ class ThresholdMetrics(BaseModel):
     reciprocal_rank: MetricThreshold
 
 
+class AssessorThreshold(BaseModel):
+    """Pre-registered minimum for scores against assessor grades."""
+
+    ndcg_mean_minimum: float
+
+
 class ThresholdsDocument(BaseModel):
     """Content of specs/relevance/thresholds.yaml."""
 
     schema_version: Literal[1]
     cutoff: int
     metrics: ThresholdMetrics
+    assessor: AssessorThreshold
+
+
+class Candidate(BaseModel):
+    """A pooled candidate as the assessor sees it."""
+
+    ref: str
+    summary: str
+    grade: int | None
+
+
+class AssessedQuery(BaseModel):
+    """A query and its pooled candidates."""
+
+    id: str
+    query: str
+    candidates: list[Candidate]
+
+    @property
+    def complete(self) -> bool:
+        """Tell whether every candidate has a grade."""
+        return all(candidate.grade is not None for candidate in self.candidates)
+
+
+class AssessmentsDocument(BaseModel):
+    """Content of specs/relevance/assessments.yaml."""
+
+    schema_version: Literal[1]
+    instructions: str
+    grades: dict[str, str]
+    queries: list[AssessedQuery]
 
 
 class RenderedStep(BaseModel):
@@ -144,6 +187,11 @@ def load_judgments(path: Path = JUDGMENTS_PATH) -> JudgmentsDocument:
 def load_thresholds(path: Path = THRESHOLDS_PATH) -> ThresholdsDocument:
     """Load and validate the relevance thresholds."""
     return ThresholdsDocument.model_validate(read_yaml(path))
+
+
+def load_assessments(path: Path = ASSESSMENTS_PATH) -> AssessmentsDocument:
+    """Load and validate the assessor grades."""
+    return AssessmentsDocument.model_validate(read_yaml(path))
 
 
 def _render(text: str, row: dict[str, str]) -> str:

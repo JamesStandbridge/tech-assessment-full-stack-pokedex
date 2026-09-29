@@ -6,6 +6,7 @@ from pokedex_tooling.client import Outcome, RankedResult, SearchOutcome
 from pokedex_tooling.entities import EntityKind, EntityRef
 from pokedex_tooling.relevance import ndcg, reciprocal_rank, score_outcomes
 from pokedex_tooling.specs import (
+    AssessorThreshold,
     JudgedQuery,
     JudgmentsDocument,
     MetricThreshold,
@@ -24,6 +25,7 @@ def thresholds(per_query: float = 0.8, mean: float = 0.9) -> ThresholdsDocument:
                 description="", per_query_minimum=1.0, applies_to_needs=["name-recovery"]
             ),
         ),
+        assessor=AssessorThreshold(ndcg_mean_minimum=0.8),
     )
 
 
