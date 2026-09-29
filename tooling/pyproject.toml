@@ -4,12 +4,14 @@ version = "0.1.0"
 description = "Dataset preparation, specification checks, acceptance tests and relevance evaluation for the Pokédex search."
 requires-python = ">=3.12"
 dependencies = [
+    "httpx>=0.28",
     "jsonschema>=4.23",
     "openapi-spec-validator>=0.7",
     "pydantic>=2.9",
     "pytest>=8.3",
     "pytest-bdd>=8.1",
     "pyyaml>=6.0",
+    "referencing>=0.35",
 ]
 
 [project.scripts]
@@ -30,7 +32,15 @@ build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 testpaths = ["tests/unit"]
-filterwarnings = ["ignore::DeprecationWarning:gherkin.*"]
+filterwarnings = [
+    "ignore::DeprecationWarning:gherkin.*",
+    "ignore:Passing nodeid to _register_fixture is deprecated:pytest.PytestRemovedIn10Warning",
+    "ignore:Passing baseid to FixtureDef is deprecated:pytest.PytestRemovedIn10Warning",
+]
+markers = [
+    "stretch: scenario verifying a stretch requirement",
+    "requirement(identifier): requirement verified by the scenario",
+]
 
 [tool.ruff]
 line-length = 100
