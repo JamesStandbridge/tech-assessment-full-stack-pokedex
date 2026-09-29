@@ -52,6 +52,7 @@ class Lexicon(Frozen):
     """Every rule used to extract facts, in precedence order."""
 
     effects: dict[str, tuple[str, ...]]
+    exclusive_effects: str
     effect_rules: tuple[EffectRule, ...]
     weathers: dict[str, tuple[str, ...]]
     generic_weather: str

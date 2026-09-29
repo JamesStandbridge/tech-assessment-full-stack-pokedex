@@ -24,6 +24,7 @@ class EffectClassifier:
             (re.compile(rf"\b(?:{'|'.join(words)})\b", re.IGNORECASE), effect)
             for effect, words in lexicon.effects.items()
         )
+        self._exclusive = re.compile(lexicon.exclusive_effects)
 
     def named_effects(self, text: str) -> tuple[str, ...]:
         """Return the effects a text names, in lexicon order."""
@@ -43,19 +44,27 @@ class EffectClassifier:
             entity: The entity to read.
 
         Returns:
-            One fact per effect its short effect names and a rule expresses.
+            One fact per effect its short effect names and a rule expresses. Effects
+            named as alternatives share the probability.
         """
         text = entity.short_effect or ""
-        facts = (self._fact(effect, text, entity) for effect in self.named_effects(text))
+        effects = self.named_effects(text)
+        share = len(effects) if len(effects) > 1 and self._exclusive.search(text) else 1
+        facts = (self._fact(effect, text, entity, share) for effect in effects)
         return tuple(fact for fact in facts if fact is not None)
 
-    def _fact(self, effect: str, text: str, entity: Move | Ability) -> EffectFact | None:
+    def _fact(
+        self, effect: str, text: str, entity: Move | Ability, share: int
+    ) -> EffectFact | None:
         for pattern, rule in self._rules:
             match = pattern.search(text) if rule.admits(effect) else None
             if match is not None:
                 probability = self._probability(rule, match, entity)
                 return EffectFact(
-                    effect=effect, mode=rule.mode, target=rule.target, probability=probability
+                    effect=effect,
+                    mode=rule.mode,
+                    target=rule.target,
+                    probability=None if probability is None else round(probability / share, 4),
                 )
         return None
 

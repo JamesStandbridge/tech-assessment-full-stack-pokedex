@@ -38,6 +38,22 @@ EFFECTS = [
     ("toxic", [("poison", "causes", "opponent", 0.9)]),
     ("thunder", [("paralysis", "causes", "opponent", 0.21)]),
     ("static", [("paralysis", "causes", "opponent", 0.3)]),
+    (
+        "tri-attack",
+        [
+            ("paralysis", "causes", "opponent", 0.0667),
+            ("burn", "causes", "opponent", 0.0667),
+            ("freeze", "causes", "opponent", 0.0667),
+        ],
+    ),
+    (
+        "effect-spore",
+        [
+            ("sleep", "causes", "opponent", 0.1),
+            ("paralysis", "causes", "opponent", 0.1),
+            ("poison", "causes", "opponent", 0.1),
+        ],
+    ),
     ("tangled-feet", [("confusion", "requires", None, None)]),
     ("razor-wind", []),
     ("substitute", []),

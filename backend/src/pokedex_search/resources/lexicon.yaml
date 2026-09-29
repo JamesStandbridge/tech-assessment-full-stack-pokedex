@@ -15,6 +15,10 @@ effects:
   healing: [heal the user, heals, healing, stealing HP]
   forced-switch: [switch]
 
+# A text naming several effects this way causes only one of them, so they share
+# its probability, as in "a chance to burn, freeze, or paralyze".
+exclusive_effects: "\\bor\\b"
+
 effect_rules:
   - pattern: "heal the user|\\bHeals\\b|\\bhealing\\b|stealing HP"
     effects: [healing]
