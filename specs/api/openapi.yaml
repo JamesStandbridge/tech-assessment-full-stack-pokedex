@@ -1,0 +1,275 @@
+openapi: 3.1.0
+info:
+  title: Pokédex Search API
+  version: 0.1.0
+  description: >
+    Searches the published pokedex.json snapshot for Pokémon, moves and
+    abilities. Results form one ranked list; every result says why it matched.
+paths:
+  /api/search:
+    get:
+      operationId: search
+      summary: Search the Pokédex
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Free-text query, trimmed, between 2 and 200 characters.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The query is valid. The outcome says whether anything answers it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+        "400":
+          description: The query breaks the input rules.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: invalid_query
+                  message: The query must contain between 2 and 200 characters.
+        "500":
+          description: Unexpected failure. No internal detail is exposed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: internal_error
+                  message: The search failed unexpectedly.
+  /api/health:
+    get:
+      operationId: health
+      summary: Report whether the dataset is loaded
+      responses:
+        "200":
+          description: The service is ready.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, dataset_sha256]
+                properties:
+                  status:
+                    type: string
+                    const: ok
+                  dataset_sha256:
+                    type: string
+components:
+  schemas:
+    SearchResponse:
+      type: object
+      required: [query, outcome, interpretation, explanation, notices, results]
+      properties:
+        query:
+          type: string
+          description: The query after trimming.
+        outcome:
+          type: string
+          enum: [results, empty]
+        interpretation:
+          $ref: "#/components/schemas/Interpretation"
+        explanation:
+          type: [string, "null"]
+          description: Why nothing answers the query. Required when the outcome is empty.
+        notices:
+          type: array
+          description: Honest caveats about the dataset, such as a mechanic it does not contain.
+          items:
+            type: string
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/Result"
+      allOf:
+        - if:
+            properties:
+              outcome:
+                const: empty
+          then:
+            properties:
+              explanation:
+                type: string
+              results:
+                maxItems: 0
+    Interpretation:
+      type: object
+      required: [readings, summary]
+      properties:
+        readings:
+          type: array
+          description: How the query was read. Several readings mean the query was ambiguous.
+          items:
+            type: string
+            enum: [name, criteria, effect, weather]
+        summary:
+          type: string
+          description: Human-readable description of the reading, shown to the user.
+    Result:
+      oneOf:
+        - $ref: "#/components/schemas/PokemonResult"
+        - $ref: "#/components/schemas/MoveResult"
+        - $ref: "#/components/schemas/AbilityResult"
+      discriminator:
+        propertyName: kind
+        mapping:
+          pokemon: "#/components/schemas/PokemonResult"
+          move: "#/components/schemas/MoveResult"
+          ability: "#/components/schemas/AbilityResult"
+    ResultBase:
+      type: object
+      required: [kind, name, rank, role, reasons]
+      properties:
+        kind:
+          type: string
+          enum: [pokemon, move, ability]
+        name:
+          type: string
+          description: Kebab-case dataset name.
+        rank:
+          type: integer
+          minimum: 1
+          description: Position in the overall result list.
+        role:
+          type: [string, "null"]
+          enum: [benefit, drawback, null]
+          description: Set for weather results; null otherwise.
+        reasons:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/Reason"
+    Reason:
+      type: object
+      required: [type, detail, related]
+      properties:
+        type:
+          type: string
+          enum:
+            - name-exact
+            - name-prefix
+            - name-infix
+            - name-fuzzy
+            - dex-number
+            - type-filter
+            - stat-rank
+            - effect
+            - weather
+            - learns-move
+            - has-ability
+        detail:
+          type: string
+          description: Human-readable explanation shown to the user.
+        related:
+          oneOf:
+            - $ref: "#/components/schemas/EntityRef"
+            - type: "null"
+    EntityRef:
+      type: object
+      required: [kind, name]
+      properties:
+        kind:
+          type: string
+          enum: [pokemon, move, ability]
+        name:
+          type: string
+    PokemonResult:
+      allOf:
+        - $ref: "#/components/schemas/ResultBase"
+        - type: object
+          required: [kind, id, types, stats, abilities, genus, description, sprite_url]
+          properties:
+            kind:
+              const: pokemon
+            id:
+              type: integer
+            types:
+              type: array
+              minItems: 1
+              maxItems: 2
+              items:
+                type: string
+            stats:
+              $ref: "#/components/schemas/Stats"
+            abilities:
+              type: array
+              items:
+                type: string
+            genus:
+              type: [string, "null"]
+            description:
+              type: [string, "null"]
+            sprite_url:
+              type: [string, "null"]
+              format: uri
+    Stats:
+      type: object
+      required: [hp, attack, defense, special-attack, special-defense, speed]
+      properties:
+        hp: {type: integer}
+        attack: {type: integer}
+        defense: {type: integer}
+        special-attack: {type: integer}
+        special-defense: {type: integer}
+        speed: {type: integer}
+    MoveResult:
+      allOf:
+        - $ref: "#/components/schemas/ResultBase"
+        - type: object
+          required: [kind, id, type, damage_class, power, accuracy, pp, priority, effect_chance, short_effect]
+          properties:
+            kind:
+              const: move
+            id:
+              type: integer
+            type:
+              type: string
+            damage_class:
+              type: string
+              enum: [physical, special, status]
+            power:
+              type: [integer, "null"]
+            accuracy:
+              type: [integer, "null"]
+            pp:
+              type: integer
+            priority:
+              type: integer
+            effect_chance:
+              type: [integer, "null"]
+            short_effect:
+              type: string
+    AbilityResult:
+      allOf:
+        - $ref: "#/components/schemas/ResultBase"
+        - type: object
+          required: [kind, id, short_effect, generation]
+          properties:
+            kind:
+              const: ability
+            id:
+              type: integer
+            short_effect:
+              type: string
+            generation:
+              type: string
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [invalid_query, internal_error]
+            message:
+              type: string

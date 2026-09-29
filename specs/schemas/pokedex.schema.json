@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pokedex.schema.json",
+  "title": "Published pokedex.json snapshot, schema version 1",
+  "type": "object",
+  "required": ["metadata", "pokemon", "moves", "abilities"],
+  "additionalProperties": false,
+  "$defs": {
+    "name": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "names": { "type": "array", "items": { "$ref": "#/$defs/name" } },
+    "generation": { "type": "string", "pattern": "^generation-[ivx]+$" },
+    "nullableInteger": { "type": ["integer", "null"] },
+    "pokemon": {
+      "type": "object",
+      "required": ["id", "name", "height_decimetres", "weight_hectograms", "base_experience", "types", "stats", "abilities", "moves", "species", "images"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/name" },
+        "height_decimetres": { "type": "integer" },
+        "weight_hectograms": { "type": "integer" },
+        "base_experience": { "$ref": "#/$defs/nullableInteger" },
+        "types": { "type": "array", "minItems": 1, "maxItems": 2, "items": { "$ref": "#/$defs/name" } },
+        "stats": {
+          "type": "object",
+          "required": ["hp", "attack", "defense", "special-attack", "special-defense", "speed"],
+          "additionalProperties": false,
+          "properties": {
+            "hp": { "type": "integer" },
+            "attack": { "type": "integer" },
+            "defense": { "type": "integer" },
+            "special-attack": { "type": "integer" },
+            "special-defense": { "type": "integer" },
+            "speed": { "type": "integer" }
+          }
+        },
+        "abilities": { "$ref": "#/$defs/names" },
+        "moves": { "$ref": "#/$defs/names" },
+        "species": {
+          "type": "object",
+          "required": ["generation", "description", "genus", "color", "shape", "habitat", "is_legendary", "is_mythical", "evolution_chain_id"],
+          "additionalProperties": false,
+          "properties": {
+            "generation": { "$ref": "#/$defs/generation" },
+            "description": { "type": ["string", "null"] },
+            "genus": { "type": ["string", "null"] },
+            "color": { "type": "string" },
+            "shape": { "type": ["string", "null"] },
+            "habitat": { "type": ["string", "null"] },
+            "is_legendary": { "type": "boolean" },
+            "is_mythical": { "type": "boolean" },
+            "evolution_chain_id": { "$ref": "#/$defs/nullableInteger" }
+          }
+        },
+        "images": {
+          "type": "object",
+          "required": ["sprite", "official_artwork"],
+          "additionalProperties": false,
+          "properties": {
+            "sprite": { "type": ["string", "null"] },
+            "official_artwork": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "move": {
+      "type": "object",
+      "required": ["id", "name", "type", "power", "pp", "accuracy", "priority", "damage_class", "effect_chance", "effect", "short_effect", "generation", "learned_by_pokemon"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/name" },
+        "type": { "$ref": "#/$defs/name" },
+        "power": { "$ref": "#/$defs/nullableInteger" },
+        "pp": { "$ref": "#/$defs/nullableInteger" },
+        "accuracy": { "$ref": "#/$defs/nullableInteger" },
+        "priority": { "type": "integer" },
+        "damage_class": { "enum": ["physical", "special", "status"] },
+        "effect_chance": { "$ref": "#/$defs/nullableInteger" },
+        "effect": { "type": ["string", "null"] },
+        "short_effect": { "type": ["string", "null"] },
+        "generation": { "$ref": "#/$defs/generation" },
+        "learned_by_pokemon": { "$ref": "#/$defs/names" }
+      }
+    },
+    "ability": {
+      "type": "object",
+      "required": ["id", "name", "effect", "short_effect", "generation", "is_main_series", "pokemon"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/name" },
+        "effect": { "type": ["string", "null"] },
+        "short_effect": { "type": ["string", "null"] },
+        "generation": { "$ref": "#/$defs/generation" },
+        "is_main_series": { "type": "boolean" },
+        "pokemon": { "$ref": "#/$defs/names" }
+      }
+    }
+  },
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["schema_version", "source", "scope", "version_groups"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "const": 1 },
+        "source": { "type": "string" },
+        "scope": { "type": "string" },
+        "version_groups": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "pokemon": { "type": "array", "items": { "$ref": "#/$defs/pokemon" } },
+    "moves": { "type": "array", "items": { "$ref": "#/$defs/move" } },
+    "abilities": { "type": "array", "items": { "$ref": "#/$defs/ability" } }
+  }
+}
