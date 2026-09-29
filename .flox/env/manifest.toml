@@ -14,7 +14,12 @@ MISE_YES = "1"
 [hook]
 on-activate = """
 export MISE_TRUSTED_CONFIG_PATHS="$FLOX_ENV_PROJECT"
-mise install --quiet
+# Release signatures are checked against a throwaway keyring, so the state of
+# the user's own GnuPG keyring cannot break the installation.
+gnupg_home="$(mktemp -d)"
+chmod 700 "$gnupg_home"
+GNUPGHOME="$gnupg_home" mise install --quiet
+rm -rf "$gnupg_home"
 """
 
 [profile]
