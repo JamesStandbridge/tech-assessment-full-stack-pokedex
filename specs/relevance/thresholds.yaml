@@ -1,5 +1,16 @@
 # Relevance targets checked by the evaluation run. Metrics are computed per
 # query and per judged kind, on the results of that kind in ranked order.
+#
+# Calibrated on the judged queries (tooling/tests/unit/test_threshold_calibration.py):
+#   ranking                         mean nDCG   share of pairs >= 0.80
+#   ideal                           1.00        100%
+#   top two swapped                 0.94        92%
+#   best result moved to rank 5     0.90        76%
+#   one irrelevant first result     0.72        0%
+#   naive substring full-text       0.60        36%
+#   naive whole-word full-text      0.45        32%
+# The per-query minimum rejects any irrelevant first result; the mean minimum
+# tolerates occasional ordering slips but rejects systematic ones.
 
 schema_version: 1
 

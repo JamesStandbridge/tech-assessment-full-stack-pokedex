@@ -17,6 +17,7 @@ dependencies = [
 [project.scripts]
 prepare-data = "pokedex_tooling.dataset:main"
 validate-specs = "pokedex_tooling.validate_specs:main"
+evaluate-relevance = "pokedex_tooling.relevance:main"
 
 [dependency-groups]
 dev = [
