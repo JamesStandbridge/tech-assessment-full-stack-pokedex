@@ -73,11 +73,11 @@ Then("the constellation shows the whole sky", async ({ pokedex }) => {
 });
 
 Then("I see an example for each kind of question:", async ({ page }, table: DataTable) => {
+  const examples = page.getByRole("list", { name: "Examples" });
   for (const row of table.hashes()) {
-    const region = page.getByRole("region", { name: row["question"] ?? "" });
-    await expect(
-      region.getByRole("button", { name: row["query"] ?? "", exact: true }),
-    ).toBeVisible();
+    const example = examples.getByRole("button", { name: row["query"] ?? "", exact: true });
+    await expect(example).toBeVisible();
+    await expect(example).toHaveAccessibleDescription(row["question"] ?? "");
   }
 });
 

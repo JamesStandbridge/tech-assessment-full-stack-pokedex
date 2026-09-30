@@ -2,6 +2,7 @@ import { type JSX, lazy, Suspense, useEffect, useState } from "react";
 
 import { ApiError } from "../../api/errors";
 import type { EntityRef, SearchResponse } from "../../api/contract";
+import { Panel } from "../../ui/Panel";
 import { Spinner } from "../../ui/Spinner";
 import { Home } from "../states/Home";
 import { Announcer } from "../workbench/Announcer";
@@ -78,17 +79,21 @@ function useShownResponse(query: string): SearchResponse | null {
   return query === "" ? null : (search.data ?? null);
 }
 
-function Panel(props: {
+function Answer(props: {
   readonly controller: SearchController;
   readonly onOpen: (ref: EntityRef) => void;
 }): JSX.Element {
   return (
-    <div className="plate motion-safe:animate-rise pointer-events-auto absolute right-0 bottom-0 left-0 z-20 max-h-[58dvh] overflow-y-auto p-4 sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none sm:w-[26rem] sm:p-5">
-      <div className="mb-4 flex justify-end">
-        <ClearSearch controller={props.controller} />
-      </div>
+    <Panel
+      label="Answer"
+      eyebrow="Answer"
+      title={props.controller.query}
+      actions={<ClearSearch controller={props.controller} />}
+      scrolls
+      className="motion-safe:animate-rise absolute right-0 bottom-0 left-0 z-20 max-h-[62dvh] sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none sm:w-[28rem]"
+    >
       <Outcome {...props} />
-    </div>
+    </Panel>
   );
 }
 
@@ -132,7 +137,7 @@ function Backdrop(props: {
       </Suspense>
       {docked ? (
         <Suspense fallback={null}>
-          <WorkbenchColumn />
+          <WorkbenchColumn lowered={props.controller.query === ""} />
         </Suspense>
       ) : null}
     </>
@@ -153,12 +158,8 @@ function Screen(): JSX.Element {
     <div data-ambience={ambience} className="ambience relative h-dvh overflow-hidden">
       <main className="contents">
         <Backdrop response={response} controller={controller} onOpen={setOpened} />
-        <Header controller={controller} />
-        {hasQuery ? (
-          <Panel controller={controller} onOpen={setOpened} />
-        ) : (
-          <Home onRun={controller.run} />
-        )}
+        <Header controller={controller}>{hasQuery ? null : <Home onRun={controller.run} />}</Header>
+        {hasQuery ? <Answer controller={controller} onOpen={setOpened} /> : null}
       </main>
       <Details opened={opened} onOpen={setOpened} />
       <Announcer />
