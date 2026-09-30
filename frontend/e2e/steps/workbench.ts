@@ -100,6 +100,9 @@ When("I press the undo shortcut in the search box", async ({ page, pokedex }) =>
 
 When("I compare {string}", async ({ page }, text: string) => {
   await (await resultButton(page, `Compare ${nodeLabel(text)} on the bench`)).click();
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("compare")?.split(",") ?? [])
+    .toContain(parseRef(text).name);
 });
 
 Then(/^the bench compares ((?:"[^"]+"(?:, | and )?)+)$/, async ({ pokedex }, list: string) => {

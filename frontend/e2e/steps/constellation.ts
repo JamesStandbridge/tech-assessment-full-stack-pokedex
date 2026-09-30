@@ -33,6 +33,17 @@ async function spotOf(label: Locator): Promise<Spot> {
 }
 
 const LABEL_TOLERANCE = 1;
+/** Two readings of the stars this far apart match once the sky has settled into its frame. */
+const SETTLE_MS = 250;
+
+async function spotsOf(pokedex: PokedexWorld): Promise<Map<string, Spot>> {
+  const spots = new Map<string, Spot>();
+  for (const label of await pokedex.constellation().locator("button[data-node]").all()) {
+    const node = await label.getAttribute("data-node");
+    if (node !== null) spots.set(node, await spotOf(label));
+  }
+  return spots;
+}
 
 Then("the constellation shows {int} species", async ({ pokedex }, count: number) => {
   await expect(pokedex.constellation()).toHaveAttribute("data-species", String(count));
@@ -106,10 +117,12 @@ When(
   async ({ page, pokedex }, dx: number, dy: number) => {
     const sighting = sightingOf(page);
     await expect(pokedex.star("ability:swift-swim")).toBeVisible();
-    for (const label of await pokedex.constellation().locator("button[data-node]").all()) {
-      const node = await label.getAttribute("data-node");
-      if (node !== null) sighting.spots.set(node, await spotOf(label));
-    }
+    await expect(async () => {
+      const before = await spotsOf(pokedex);
+      await page.waitForTimeout(SETTLE_MS);
+      expect(await spotsOf(pokedex)).toEqual(before);
+      for (const [node, spot] of before) sighting.spots.set(node, spot);
+    }).toPass();
     const box = await pokedex.constellation().boundingBox();
     if (box === null) throw new Error("The constellation is not on screen");
     const start = { x: box.x + box.width / 3, y: box.y + box.height / 2 };
