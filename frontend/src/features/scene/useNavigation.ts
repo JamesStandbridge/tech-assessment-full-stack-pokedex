@@ -3,6 +3,22 @@ import { useState } from "react";
 import type { SceneFrame } from "../../domain/scene";
 import { type Pan, UNMOVED } from "./still";
 
+/** Whether two frames share the camera the user is looking through, ignoring object identity. */
+export function sameSkyView(left: SceneFrame, right: SceneFrame): boolean {
+  if (left === right) return true;
+  const a = left.camera;
+  const b = right.camera;
+  return (
+    left.layout === right.layout &&
+    left.weather === right.weather &&
+    a.distance === b.distance &&
+    a.aspect === b.aspect &&
+    a.target.x === b.target.x &&
+    a.target.y === b.target.y &&
+    a.target.z === b.target.z
+  );
+}
+
 export interface Navigation {
   /** How the user moved the still map. */
   readonly pan: Pan;
@@ -23,11 +39,13 @@ interface Held {
 /** How the user moved the view of a frame; a new frame starts unmoved. */
 export function useNavigation(frame: SceneFrame): Navigation {
   const [held, setHeld] = useState<Held>({ frame, pan: UNMOVED, moved: false });
-  const current = held.frame === frame ? held : { frame, pan: UNMOVED, moved: false };
+  const current = sameSkyView(held.frame, frame)
+    ? { ...held, frame }
+    : { frame, pan: UNMOVED, moved: false };
   const navigate = (move: (pan: Pan) => Pan): void => {
     setHeld((previous) => ({
       frame,
-      pan: move(previous.frame === frame ? previous.pan : UNMOVED),
+      pan: move(sameSkyView(previous.frame, frame) ? previous.pan : UNMOVED),
       moved: true,
     }));
   };

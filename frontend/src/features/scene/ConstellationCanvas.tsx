@@ -76,7 +76,7 @@ function dispatch(message: FromWorker, events: SceneEvents): void {
   }
 }
 
-/** A primary drag turns the camera, any other drag pans it, the wheel and a pinch zoom it. */
+/** A one-finger drag turns the camera; a two-finger click, Shift or a pinch pans it. */
 function commandOf(gesture: Gesture): ToWorker {
   switch (gesture.type) {
     case "hover":
@@ -174,8 +174,12 @@ export function ConstellationCanvas(props: ConstellationCanvasProps): JSX.Elemen
       send(workerRef.current, { type: "highlight", ids: highlighted });
     }
   }, [workerRef, highlighted]);
+  const hadMovedRef = useRef(false);
   useEffect(() => {
-    if (workerRef.current !== null && !moved) send(workerRef.current, { type: "recenter" });
+    if (hadMovedRef.current && !moved && workerRef.current !== null) {
+      send(workerRef.current, { type: "recenter" });
+    }
+    hadMovedRef.current = moved;
   }, [workerRef, moved]);
   return (
     <div

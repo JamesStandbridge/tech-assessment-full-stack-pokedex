@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import type { SearchResponse, Species } from "../../api/contract";
 import { constellation, typeClusters } from "../../domain/constellation";
@@ -31,13 +31,17 @@ export interface Sky {
 export function useSky(species: readonly Species[], props: SkyInput): Sky {
   const [focused, setFocused] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
-  const places = constellation(species);
-  const frame = sceneFrame(places, props.response);
+  const places = useMemo(() => constellation(species), [species]);
+  const frame = useMemo(() => sceneFrame(places, props.response), [places, props.response]);
+  const marks = useMemo(
+    () => marksOf(frame, typeClusters(species, places)),
+    [frame, species, places],
+  );
   const byId = new Map(frame.nodes.map((node) => [node.id, node]));
   const spotlight = focused ?? hovered;
   return {
     frame,
-    marks: marksOf(frame, typeClusters(species, places)),
+    marks,
     highlighted: spotlight === null ? new Set<string>() : neighbours(frame, spotlight),
     hovered: hovered === null ? null : (byId.get(hovered) ?? null),
     inset: useInset(props.panel, props.workbench),
