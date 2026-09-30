@@ -22,7 +22,7 @@ export function Panel(props: PanelProps): JSX.Element {
   return (
     <section
       aria-label={label}
-      className={`plate pointer-events-auto flex min-h-0 flex-col ${className}`}
+      className={`plate pointer-events-auto flex w-full min-w-0 flex-col ${className}`}
     >
       <header className="border-line flex shrink-0 items-center gap-3 border-b px-4 pt-3.5 pb-3 sm:px-5">
         <div className="min-w-0 flex-1">
@@ -42,7 +42,7 @@ export function Panel(props: PanelProps): JSX.Element {
         {actions}
       </header>
       <div
-        className={scrolls ? "scroll-area min-h-0 flex-1 px-4 py-4 sm:px-5" : "px-4 py-4 sm:px-5"}
+        className={`min-w-0 ${scrolls ? "scroll-area min-h-0 flex-1 px-4 py-4 sm:px-5" : "px-4 py-4 sm:px-5"}`}
       >
         {props.children}
       </div>

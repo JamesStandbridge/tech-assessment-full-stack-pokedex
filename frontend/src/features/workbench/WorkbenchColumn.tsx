@@ -38,7 +38,7 @@ export function WorkbenchColumn({
           Party {workbench.party.length} and bench {workbench.bench.length}
         </Button>
       </div>
-      <div id={contentId} className={`space-y-3 ${open ? "" : "hidden sm:block"}`}>
+      <div id={contentId} className={`min-w-0 space-y-3 ${open ? "" : "hidden sm:block"}`}>
         <PartyDock />
         <Bench />
       </div>

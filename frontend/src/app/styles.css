@@ -3,6 +3,10 @@
 @import "../ui/tokens.css";
 @import "../ui/light.css";
 
+/* The root data-motion attribute is the resolved preference, so an in-app choice overrides the system. */
+@custom-variant motion-reduce (&:where([data-motion="reduced"], [data-motion="reduced"] *));
+@custom-variant motion-safe (&:where([data-motion="full"], [data-motion="full"] *));
+
 @utility catalogue {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -132,6 +136,7 @@
   }
 
   .scroll-area {
+    overflow-x: clip;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
@@ -214,7 +219,7 @@
     transition: transform 180ms var(--ease-plate);
   }
 
-  @media (prefers-reduced-motion: no-preference) {
+  @variant motion-safe {
     .holo-card {
       transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
     }
@@ -241,7 +246,7 @@
     background-image: var(--ambience-hail);
   }
 
-  @media (prefers-reduced-motion: no-preference) {
+  @variant motion-safe {
     .ambience[data-ambience="rain"]::before {
       content: "";
       position: fixed;

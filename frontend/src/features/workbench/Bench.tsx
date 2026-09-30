@@ -114,7 +114,7 @@ function BenchTable(props: {
   readonly reference: string | null;
 }): JSX.Element {
   return (
-    <div className="-mx-1 overflow-x-auto">
+    <div className="min-w-0 overflow-x-auto">
       <table className="w-full text-sm">
         <caption className="sr-only">Base stats side by side</caption>
         <thead>
