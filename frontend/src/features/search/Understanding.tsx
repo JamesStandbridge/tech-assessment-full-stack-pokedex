@@ -48,12 +48,15 @@ function Refinements(props: {
 }): JSX.Element | null {
   if (props.refinements.length === 0) return null;
   return (
-    <nav aria-label="Refine the search" className="flex flex-wrap gap-2">
+    <nav aria-label="Refine the search" className="flex flex-wrap items-center gap-1.5">
+      <span aria-hidden="true" className="catalogue text-muted mr-1">
+        Refine
+      </span>
       {props.refinements.map((refinement) => (
         <Button
           key={`${refinement.action}:${refinement.constraint}`}
-          variant="outline"
-          size="small"
+          variant="hairline"
+          size="tight"
           onPress={() => {
             props.onRun(refinement.query);
           }}
