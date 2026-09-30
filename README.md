@@ -100,6 +100,94 @@ the summary names both readings above Psychic-type Pokémon and moves;
 `chikorita` is not in the snapshot and returns an empty outcome with an
 explanation and example queries.
 
+## Mathematics and algorithms
+
+There is no single relevance score across the product. A name distance, a
+base stat and a weather relation do not live on comparable scales. The parser
+therefore builds one or more typed `SearchPlan`s, and each constraint keeps its
+own retrieval model.
+
+![One query, one model per constraint](docs/retrieval.svg)
+
+**Conjunctive retrieval.** Within one plan, candidate sets intersect:
+
+$$
+R = R_{\text{kind}} \cap R_{\text{type}} \cap R_{\text{stat}}
+    \cap R_{\text{effect}} \cap R_{\text{weather}}
+$$
+
+A result must satisfy every constraint. Truly ambiguous readings become
+separate plans; their scores are never added because the scales are unrelated.
+The final deterministic tie-breaker is the dataset identifier.
+
+**Names.** Matching proceeds in tiers: exact, prefix, infix, then fuzzy.
+Fuzzy matching only runs when no literal match exists and uses
+Damerau-Levenshtein distance, which counts insertions, deletions,
+substitutions and adjacent transpositions. The bound is one edit for terms up
+to five characters and two beyond that. Results sort by tier, edit distance,
+length difference, then identifier.
+
+**Stats.** Types and numeric bounds are Boolean filters. One requested stat
+sorts by its raw value. Several stats cannot be averaged directly because
+their distributions differ, so each value is converted to a mid-rank
+percentile:
+
+$$
+p(x) = \frac{\#(v < x) + \#(v \leq x)}{2N}
+$$
+
+The rank is the mean of the requested percentiles. Derived values are explicit:
+`total` is the sum of the six base stats, `bulk = hp + defense +
+special-defense`, and `offense = max(attack, special-attack)`.
+
+**Effects.** Effect text is classified once at indexing time into a fact:
+effect, target, mode and probability. For a move:
+
+$$
+P(\text{effect}) = P(\text{move hits}) \times P(\text{effect}\mid\text{hit})
+$$
+
+Missing accuracy or effect chance means 100%, as in the snapshot. A Pokémon
+inherits the facts of its moves and abilities and ranks by its best source,
+then by the number of distinct sources. This is why Spore (100%) comes before
+Sleep Powder (75%), and why effects on the user do not answer a request about
+the opponent.
+
+**Weather.** Weather strategy is a weighted relation graph. A benefit adds
+`1`, protection or a mixed relation `0.5`, and a drawback `-0.5`; relations
+through moves count half. Setters always rank first, then Pokémon sort by the
+sum of their relation weights. Moves and abilities sort by their best role.
+
+**Description fallback.** Words unexplained by a structured constraint use
+BM25 over species descriptions. BM25 combines inverse document frequency with
+saturating, length-normalised term frequency. It is deliberately a fallback:
+lexical similarity alone does not model prefixes, polarity, targets or typed
+relations.
+
+**Constellation.** Each species starts as a feature vector of six standardised
+base stats plus one-hot types weighted by `1.6`. The centred matrix is
+projected onto its first three principal axes, found by power iteration with
+deflation. For Euclidean distances this is the classical multidimensional
+scaling solution used here. Fixed initial vectors and axis orientation make
+the result deterministic; a bounded separation pass only moves points that
+would overlap.
+
+**Evaluation.** Ranking quality uses normalised discounted cumulative gain:
+
+$$
+\operatorname{DCG}@k = \sum_{i=1}^{k}
+\frac{2^{g_i}-1}{\log_2(i+1)},
+\qquad
+\operatorname{nDCG}@k =
+\frac{\operatorname{DCG}@k}{\operatorname{IDCG}@k}
+$$
+
+The exponential gain makes a grade-3 result substantially more valuable than
+a grade-2 result, while the logarithmic discount rewards putting it near the
+top. Blind grades use condensed nDCG: unjudged candidates are removed rather
+than assumed irrelevant. Quadratic-weighted Cohen's kappa measures agreement
+between the rule grades and the blind assessor.
+
 ## Decisions and trade-offs
 
 The full reasoning is in 13 short records in [`docs/adr`](docs/adr).
@@ -116,8 +204,6 @@ graph for weather. A query becomes one conjunctive plan. BM25 over species
 descriptions is kept only as a fallback. Embeddings were considered and set
 aside: cosine similarity barely separates "cause sleep" from "prevent sleep",
 which is exactly the distinction the intent need depends on.
-
-![One query, one model per constraint](docs/retrieval.svg)
 
 **Effects are turned into facts at indexing time**
 ([ADR 5](docs/adr/0005-search-architecture.md)). A versioned rule lexicon
