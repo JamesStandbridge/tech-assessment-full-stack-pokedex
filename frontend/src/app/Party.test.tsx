@@ -25,7 +25,7 @@ test("Pokémon added from a weather search share that weather in the party", asy
   await userEvent.click(await screen.findByRole("button", { name: "Add Lapras to the party" }));
   await userEvent.click(screen.getByRole("button", { name: "Add Squirtle to the party" }));
   const party = await screen.findByRole("region", { name: "Party" });
-  expect(within(party).getAllByRole("listitem")).toHaveLength(2);
+  expect(await within(party).findAllByRole("listitem")).toHaveLength(2);
   await waitFor(() => {
     expect(party).toHaveTextContent("All of them help with rain");
   });

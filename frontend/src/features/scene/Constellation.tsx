@@ -1,18 +1,14 @@
-import { type JSX, useRef, useState } from "react";
+import { type JSX, useRef } from "react";
 
 import type { EntityRef, SearchResponse, Species } from "../../api/contract";
-import { constellation, typeClusters } from "../../domain/constellation";
-import { linkLabel, namedNodes, neighbours, type SceneFrame, sceneFrame } from "../../domain/scene";
+import { linkLabel, namedNodes, type SceneFrame } from "../../domain/scene";
 import type { SceneNode } from "../../domain/sceneTypes";
-import { ConstellationCanvas } from "./ConstellationCanvas";
-import { marksOf } from "./marks";
-import { typeHex } from "./palette";
-import type { Inset, Mark } from "./protocol";
+import { Recenter } from "./Recenter";
 import { placeLabels, SceneLabels } from "./SceneLabels";
-import { StillMap } from "./StillMap";
+import { SkyDrawing } from "./SkyDrawing";
 import type { Renderer } from "./support";
-import { useInset } from "./useInset";
 import { useRenderer } from "./useRenderer";
+import { useSky } from "./useSky";
 import { useSpecies } from "./useSpecies";
 
 interface ConstellationProps {
@@ -27,48 +23,6 @@ interface ConstellationProps {
   readonly workbench: boolean;
 }
 
-interface Sky {
-  readonly frame: SceneFrame;
-  readonly marks: readonly Mark[];
-  readonly highlighted: ReadonlySet<string>;
-  readonly hovered: SceneNode | null;
-  readonly inset: Inset;
-  readonly nodeOf: (id: string) => SceneNode | undefined;
-  readonly focus: (id: string | null) => void;
-  readonly hover: (id: string | null) => void;
-}
-
-function useSky(species: readonly Species[], props: ConstellationProps): Sky {
-  const [focused, setFocused] = useState<string | null>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
-  const places = constellation(species);
-  const frame = sceneFrame(places, props.response);
-  const byId = new Map(frame.nodes.map((node) => [node.id, node]));
-  const spotlight = focused ?? hovered;
-  return {
-    frame,
-    marks: marksOf(frame, typeClusters(species, places)),
-    highlighted: spotlight === null ? new Set<string>() : neighbours(frame, spotlight),
-    hovered: hovered === null ? null : (byId.get(hovered) ?? null),
-    inset: useInset(props.panel, props.workbench),
-    nodeOf: (id) => byId.get(id),
-    focus: setFocused,
-    hover: setHovered,
-  };
-}
-
-function colorsOf(species: readonly Species[]): ReadonlyMap<string, string> {
-  return new Map(species.map((one) => [`pokemon:${one.name}`, typeHex(one.types[0] ?? "normal")]));
-}
-
-function spritesOf(species: readonly Species[]): ReadonlyMap<string, string> {
-  return new Map(
-    species.flatMap((one) =>
-      one.sprite_url === null ? [] : [[`pokemon:${one.name}`, one.sprite_url] as const],
-    ),
-  );
-}
-
 function Relations({ frame }: { readonly frame: SceneFrame }): JSX.Element {
   return (
     <figcaption className="sr-only">
@@ -78,41 +32,6 @@ function Relations({ frame }: { readonly frame: SceneFrame }): JSX.Element {
         ))}
       </ul>
     </figcaption>
-  );
-}
-
-function Drawing(props: {
-  readonly species: readonly Species[];
-  readonly sky: Sky;
-  readonly renderer: Renderer;
-  readonly onLabels: (positions: Float32Array) => void;
-  readonly onPick: (node: SceneNode) => void;
-  readonly onFallback: () => void;
-}): JSX.Element {
-  const { species, sky, renderer, onLabels } = props;
-  const common = { frame: sky.frame, marks: sky.marks, inset: sky.inset, onLabels };
-  if (renderer === "still") {
-    return (
-      <StillMap
-        {...common}
-        colors={colorsOf(species)}
-        sprites={spritesOf(species)}
-        highlighted={sky.highlighted}
-      />
-    );
-  }
-  return (
-    <ConstellationCanvas
-      {...common}
-      species={species}
-      highlighted={[...sky.highlighted]}
-      onHover={sky.hover}
-      onPick={(id) => {
-        const node = sky.nodeOf(id);
-        if (node !== undefined) props.onPick(node);
-      }}
-      onFallback={props.onFallback}
-    />
   );
 }
 
@@ -153,7 +72,7 @@ function Figure(props: ConstellationProps & { readonly species: readonly Species
       className="absolute inset-0 m-0"
       {...dataOf(sky.frame, renderer, species.length)}
     >
-      <Drawing
+      <SkyDrawing
         species={species}
         sky={sky}
         renderer={renderer}
@@ -170,6 +89,7 @@ function Figure(props: ConstellationProps & { readonly species: readonly Species
         onSelect={select}
         onFocusNode={sky.focus}
       />
+      <Recenter navigation={sky.navigation} inset={sky.inset} />
       <Relations frame={sky.frame} />
     </figure>
   );

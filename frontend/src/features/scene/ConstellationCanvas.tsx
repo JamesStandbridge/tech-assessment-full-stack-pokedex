@@ -4,9 +4,10 @@ import type { Species } from "../../api/contract";
 import { assertNever } from "../../domain/assertNever";
 import type { SceneFrame } from "../../domain/scene";
 import { typeHex } from "./palette";
+import type { Gesture } from "./gestures";
 import type { FromWorker, Inset, Mark, StarSeed, ToWorker, Viewport } from "./protocol";
 import { MIN_FPS } from "./support";
-import { usePointer } from "./usePointer";
+import { cursorOf, useGestures } from "./useGestures";
 
 interface SceneEvents {
   readonly onLabels: (positions: Float32Array) => void;
@@ -22,6 +23,10 @@ interface ConstellationCanvasProps extends SceneEvents {
   readonly marks: readonly Mark[];
   readonly highlighted: readonly string[];
   readonly inset: Inset;
+  /** Whether the user moved the camera; the camera recenters when this turns false. */
+  readonly moved: boolean;
+  readonly hovering: boolean;
+  readonly onNavigate: () => void;
 }
 
 function send(worker: Worker, message: ToWorker, transfer: Transferable[] = []): void {
@@ -66,6 +71,23 @@ function dispatch(message: FromWorker, events: SceneEvents): void {
       return;
     default:
       assertNever(message);
+  }
+}
+
+/** A primary drag turns the camera, any other drag pans it, the wheel and a pinch zoom it. */
+function commandOf(gesture: Gesture): ToWorker {
+  switch (gesture.type) {
+    case "hover":
+    case "click":
+      return { type: gesture.type, x: gesture.x, y: gesture.y };
+    case "leave":
+      return gesture;
+    case "drag":
+      return { type: gesture.mode, dx: gesture.dx, dy: gesture.dy };
+    case "zoom":
+      return { type: "zoom", factor: gesture.factor };
+    default:
+      return assertNever(gesture);
   }
 }
 
@@ -127,10 +149,14 @@ function useWorker(
 
 /** The constellation drawn by the GPU in a worker; decorative, since the page names everything it shows. */
 export function ConstellationCanvas(props: ConstellationCanvasProps): JSX.Element {
-  const { species, frame, marks, highlighted, inset, ...events } = props;
+  const { species, frame, marks, highlighted, inset, moved, hovering, onNavigate, ...events } =
+    props;
   const hostRef = useRef<HTMLDivElement>(null);
   const workerRef = useWorker(hostRef, species, events);
-  usePointer(hostRef, workerRef);
+  useGestures(hostRef, (gesture) => {
+    if (workerRef.current !== null) send(workerRef.current, commandOf(gesture));
+    if (gesture.type === "drag" || gesture.type === "zoom") onNavigate();
+  });
   useEffect(() => {
     if (workerRef.current !== null) send(workerRef.current, { type: "inset", inset });
   }, [workerRef, inset]);
@@ -142,5 +168,14 @@ export function ConstellationCanvas(props: ConstellationCanvasProps): JSX.Elemen
       send(workerRef.current, { type: "highlight", ids: highlighted });
     }
   }, [workerRef, highlighted]);
-  return <div ref={hostRef} aria-hidden="true" className="absolute inset-0 touch-none" />;
+  useEffect(() => {
+    if (workerRef.current !== null && !moved) send(workerRef.current, { type: "recenter" });
+  }, [workerRef, moved]);
+  return (
+    <div
+      ref={hostRef}
+      aria-hidden="true"
+      className={`absolute inset-0 touch-none ${cursorOf(hovering)}`}
+    />
+  );
 }

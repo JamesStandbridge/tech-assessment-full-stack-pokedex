@@ -1,11 +1,21 @@
 import { type JSX, type RefObject, useEffect, useRef, useState } from "react";
 
+import { assertNever } from "../../domain/assertNever";
 import type { SceneFrame } from "../../domain/scene";
-import type { SceneNode } from "../../domain/sceneTypes";
-import { lookOf } from "./looks";
-import { kindHex, weatherHex } from "./palette";
+import type { Gesture } from "./gestures";
 import type { Inset, Mark, Viewport } from "./protocol";
-import { stillPositions, stillView, type StillView } from "./still";
+import {
+  panBy,
+  type Pan,
+  panned,
+  stillPick,
+  stillPositions,
+  stillView,
+  type StillView,
+  zoomAt,
+} from "./still";
+import { StillDrawing } from "./StillDrawing";
+import { cursorOf, useGestures } from "./useGestures";
 
 interface StillMapProps {
   readonly frame: SceneFrame;
@@ -15,30 +25,20 @@ interface StillMapProps {
   readonly sprites: ReadonlyMap<string, string>;
   readonly highlighted: ReadonlySet<string>;
   readonly inset: Inset;
+  /** How the user moved the map. */
+  readonly pan: Pan;
+  readonly hovered: string | null;
   readonly onLabels: (positions: Float32Array) => void;
+  readonly onHover: (id: string | null) => void;
+  readonly onPick: (id: string) => void;
+  readonly onNavigate: (move: (pan: Pan) => Pan) => void;
 }
-
-interface Drawing {
-  readonly frame: SceneFrame;
-  readonly view: StillView;
-  readonly highlighted: ReadonlySet<string>;
-}
-
-const OPACITY: Readonly<Record<SceneNode["emphasis"], number>> = {
-  idle: 0.85,
-  lit: 1,
-  front: 1,
-  dim: 0.25,
-};
-const DOT_SHARE = 0.55;
-const LINK_COLOR = "#9aa6c4";
-const LIT_LINK_COLOR = "#ffd23f";
 
 function useViewport(): {
-  readonly ref: RefObject<SVGSVGElement | null>;
+  readonly ref: RefObject<HTMLDivElement | null>;
   readonly viewport: Viewport;
 } {
-  const ref = useRef<SVGSVGElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState<Viewport>({ width: 1, height: 1, pixelRatio: 1 });
   useEffect(() => {
     const element = ref.current;
@@ -59,130 +59,65 @@ function useViewport(): {
   return { ref, viewport };
 }
 
-function Guides({ frame, view }: Drawing): JSX.Element {
-  const axis = frame.axis;
-  const center = view.project(frame.camera.target);
-  const from = axis === null ? null : view.project(axis.from);
-  const to = axis === null ? null : view.project(axis.to);
-  return (
-    <g className="stroke-muted/40 fill-none">
-      {from === null || to === null ? null : <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} />}
-      {frame.rings.map((ring) => (
-        <circle key={ring.name} cx={center.x} cy={center.y} r={view.radius(ring.radius * 2, 0)} />
-      ))}
-    </g>
-  );
-}
-
-function Links({ frame, view, highlighted }: Drawing): JSX.Element {
-  const at = new Map(frame.nodes.map((node) => [node.id, view.project(node.position)]));
-  return (
-    <g>
-      {frame.links.map((link) => {
-        const from = at.get(link.source);
-        const to = at.get(link.target);
-        if (from === undefined || to === undefined) return null;
-        const lit = highlighted.has(link.source) && highlighted.has(link.target);
-        return (
-          <line
-            key={`${link.source}>${link.target}`}
-            x1={from.x}
-            y1={from.y}
-            x2={to.x}
-            y2={to.y}
-            stroke={lit ? LIT_LINK_COLOR : LINK_COLOR}
-            strokeOpacity={0.2 + link.strength * 0.5}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-/** Share of a star's quad its sprite covers, as in the scene. */
-const SPRITE_SHARE = 0.6;
-const MIN_SPRITE = 10;
-
-interface StarProps {
-  readonly node: SceneNode;
-  readonly at: { readonly x: number; readonly y: number };
-  /** Screen radius of the star's quad. */
-  readonly radius: number;
-  readonly color: string;
-  readonly sprite: string | undefined;
-}
-
-function Star({ node, at, radius, color, sprite }: StarProps): JSX.Element {
-  if (sprite === undefined) {
-    return (
-      <circle
-        cx={at.x}
-        cy={at.y}
-        r={Math.max(1, radius * DOT_SHARE)}
-        fill={color}
-        fillOpacity={OPACITY[node.emphasis]}
-      />
-    );
+/** Any drag pans the map; the wheel and a pinch zoom it around the pointer. */
+function follow(gesture: Gesture, props: StillMapProps, view: StillView): void {
+  const pointed = (at: { readonly x: number; readonly y: number }): string | null =>
+    stillPick(props.frame, panned(view, props.pan), { ...at, highlighted: props.highlighted });
+  switch (gesture.type) {
+    case "hover":
+      props.onHover(pointed(gesture));
+      return;
+    case "leave":
+      props.onHover(null);
+      return;
+    case "click": {
+      const id = pointed(gesture);
+      if (id !== null) props.onPick(id);
+      return;
+    }
+    case "drag":
+      props.onNavigate((pan) => panBy(pan, gesture));
+      return;
+    case "zoom":
+      props.onNavigate((pan) => zoomAt(pan, gesture));
+      return;
+    default:
+      assertNever(gesture);
   }
-  const side = Math.max(MIN_SPRITE, radius * 2 * SPRITE_SHARE);
-  return (
-    <image
-      href={sprite}
-      x={at.x - side / 2}
-      y={at.y - side / 2}
-      width={side}
-      height={side}
-      opacity={OPACITY[node.emphasis]}
-      className="[image-rendering:pixelated]"
-    />
-  );
-}
-
-function Stars(
-  props: Drawing & {
-    readonly colors: ReadonlyMap<string, string>;
-    readonly sprites: ReadonlyMap<string, string>;
-  },
-): JSX.Element {
-  const { frame, view, highlighted, colors, sprites } = props;
-  const colorOf = (node: SceneNode): string =>
-    node.kind === "weather"
-      ? weatherHex(frame.weather ?? "")
-      : (colors.get(node.id) ?? kindHex(node.kind));
-  return (
-    <g>
-      {frame.nodes.map((node) => (
-        <Star
-          key={node.id}
-          node={node}
-          at={view.project(node.position)}
-          radius={view.radius(lookOf(node, highlighted.has(node.id)).size, node.position.z)}
-          color={colorOf(node)}
-          sprite={sprites.get(node.id)}
-        />
-      ))}
-    </g>
-  );
 }
 
 /** The constellation as a still front view, for browsers and users the scene does not suit (SYS-UI-025). */
 export function StillMap(props: StillMapProps): JSX.Element {
-  const { frame, marks, colors, sprites, highlighted, inset, onLabels } = props;
+  const { frame, marks, highlighted, inset, pan, hovered, onLabels } = props;
   const { ref, viewport } = useViewport();
-  const drawing = { frame, view: stillView(frame, { viewport, inset }), highlighted };
+  const view = stillView(frame, { viewport, inset });
+  useGestures(ref, (gesture) => {
+    follow(gesture, props, view);
+  });
   useEffect(() => {
-    onLabels(stillPositions(frame, marks, { viewport, inset }));
-  }, [frame, marks, viewport, inset, onLabels]);
+    onLabels(stillPositions(frame, marks, { viewport, inset, pan, hovered }));
+  }, [frame, marks, viewport, inset, pan, hovered, onLabels]);
+  const transform = `translate(${String(pan.x)} ${String(pan.y)}) scale(${String(pan.scale)})`;
   return (
-    <svg
+    <div
       ref={ref}
       aria-hidden="true"
-      className="absolute inset-0 h-full w-full"
-      viewBox={`0 0 ${String(viewport.width)} ${String(viewport.height)}`}
+      className={`absolute inset-0 touch-none ${cursorOf(hovered !== null)}`}
     >
-      <Guides {...drawing} />
-      <Links {...drawing} />
-      <Stars {...drawing} colors={colors} sprites={sprites} />
-    </svg>
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox={`0 0 ${String(viewport.width)} ${String(viewport.height)}`}
+      >
+        <g transform={transform}>
+          <StillDrawing
+            frame={frame}
+            view={view}
+            highlighted={highlighted}
+            colors={props.colors}
+            sprites={props.sprites}
+          />
+        </g>
+      </svg>
+    </div>
   );
 }

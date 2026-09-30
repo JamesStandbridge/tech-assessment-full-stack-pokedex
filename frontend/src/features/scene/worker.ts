@@ -3,6 +3,7 @@ import { Engine } from "./engine/Engine";
 import type { FromWorker, ToWorker } from "./protocol";
 
 type Command = Exclude<ToWorker, { readonly type: "start" }>;
+type Steer = Extract<Command, { readonly type: "turn" | "pan" | "zoom" | "recenter" }>;
 
 let engine: Engine | null = null;
 const pending: Command[] = [];
@@ -11,7 +12,36 @@ function post(message: FromWorker, transfer: Transferable[] = []): void {
   self.postMessage(message, { transfer });
 }
 
+const STEERS: ReadonlySet<Command["type"]> = new Set(["turn", "pan", "zoom", "recenter"]);
+
+function isSteer(command: Command): command is Steer {
+  return STEERS.has(command.type);
+}
+
+function steer(rig: Engine["rig"], command: Steer): void {
+  switch (command.type) {
+    case "turn":
+      rig.turn(command.dx, command.dy);
+      return;
+    case "pan":
+      rig.pan(command.dx, command.dy);
+      return;
+    case "zoom":
+      rig.zoom(command.factor);
+      return;
+    case "recenter":
+      rig.recenter();
+      return;
+    default:
+      assertNever(command);
+  }
+}
+
 function apply(target: Engine, command: Command): void {
+  if (isSteer(command)) {
+    steer(target.rig, command);
+    return;
+  }
   switch (command.type) {
     case "resize":
       target.resize(command.viewport);
@@ -30,12 +60,6 @@ function apply(target: Engine, command: Command): void {
       return;
     case "leave":
       target.leave();
-      return;
-    case "drag":
-      target.drag(command.dx, command.dy);
-      return;
-    case "zoom":
-      target.zoom(command.delta);
       return;
     case "click":
       target.click(command.x, command.y);

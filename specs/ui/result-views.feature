@@ -133,3 +133,18 @@ Feature: Present results in a view suited to each kind of question
       | the browser has no WebGL     |
       | I prefer reduced motion      |
       | I prefer to save data        |
+
+  @could @SYS-UI-033
+  Scenario: The constellation can be explored by hand
+    Given I prefer reduced motion
+    When I search for "rain team"
+    And I drag the constellation by 120 and 80 pixels
+    Then the stars have moved by 120 and 80 pixels
+    When I zoom into the constellation at "ability:swift-swim"
+    Then the stars of the constellation spread apart
+    When I recenter the constellation
+    Then the stars are back in place
+    When I point at "ability:swift-swim" in the constellation
+    Then the constellation highlights "ability:swift-swim" and "pokemon:goldeen"
+    When I click "ability:swift-swim" in the constellation
+    Then I see the details of "ability:swift-swim"

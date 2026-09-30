@@ -35,7 +35,8 @@ function backendOf(renderer: WebGPURenderer): Backend {
 
 export class Engine {
   private readonly scene = new Scene();
-  private readonly rig = new CameraRig();
+  /** The camera, which the user turns, pans and zooms. */
+  readonly rig = new CameraRig();
   private readonly filaments = new Filaments();
   private readonly guides = new Guides();
   private readonly labels = new LabelTracker();
@@ -144,14 +145,6 @@ export class Engine {
   click(x: number, y: number): void {
     const found = pickStar(this.parts.stars, this.lens(), { x, y, time: this.now() });
     if (found !== null) this.post({ type: "pick", id: found });
-  }
-
-  drag(dx: number, dy: number): void {
-    this.rig.drag(dx, dy);
-  }
-
-  zoom(delta: number): void {
-    this.rig.zoom(delta);
   }
 
   private now(): number {

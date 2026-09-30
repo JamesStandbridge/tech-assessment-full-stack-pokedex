@@ -46,8 +46,10 @@ export type ToWorker =
   | { readonly type: "highlight"; readonly ids: readonly string[] }
   | { readonly type: "hover"; readonly x: number; readonly y: number }
   | { readonly type: "leave" }
-  | { readonly type: "drag"; readonly dx: number; readonly dy: number }
-  | { readonly type: "zoom"; readonly delta: number }
+  | { readonly type: "turn"; readonly dx: number; readonly dy: number }
+  | { readonly type: "pan"; readonly dx: number; readonly dy: number }
+  | { readonly type: "zoom"; readonly factor: number }
+  | { readonly type: "recenter" }
   | { readonly type: "click"; readonly x: number; readonly y: number };
 
 /**

@@ -763,6 +763,14 @@ requirements:
     priority: could
     verification: ui-test
 
+  - id: SYS-UI-033
+    need: visual-exploration
+    template: event-driven
+    statement: When the user drags, scrolls, pinches, points at or clicks the constellation, the web interface shall pan, turn or zoom it, highlight the neighbours of the star pointed at, or select the star clicked, and offer to recenter the view once it has moved.
+    source: product
+    priority: could
+    verification: ui-test
+
   # Party and bench
 
   - id: SYS-UI-026
