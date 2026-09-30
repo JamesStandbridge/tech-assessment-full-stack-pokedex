@@ -3,9 +3,9 @@ import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
 class StillObserver implements ResizeObserver {
-  disconnect(): void {}
-  observe(): void {}
-  unobserve(): void {}
+  readonly disconnect = (): void => undefined;
+  readonly observe = (): void => undefined;
+  readonly unobserve = (): void => undefined;
 }
 
 function noMatch(query: string): MediaQueryList {
