@@ -1,4 +1,6 @@
 import type { EntityKind } from "../../api/contract";
+import { assertNever } from "../../domain/assertNever";
+import type { SceneNode } from "../../domain/sceneTypes";
 import type { Theme } from "../../domain/theme";
 import { THEME_INKS } from "../theme/boot";
 
@@ -64,4 +66,20 @@ export function kindHex(kind: EntityKind | "weather"): string {
 
 export function weatherHex(weather: string): string {
   return WEATHER_COLORS[weather] ?? KIND_COLORS.weather;
+}
+
+/** The colour of a move, ability or weather: its type for a move, its own for a weather. */
+export function emblemHex(node: SceneNode): string {
+  const emblem = node.emblem;
+  if (emblem === null) return kindHex(node.kind);
+  switch (emblem.kind) {
+    case "move":
+      return typeHex(emblem.type);
+    case "ability":
+      return kindHex("ability");
+    case "weather":
+      return weatherHex(emblem.weather);
+    default:
+      return assertNever(emblem);
+  }
 }

@@ -1,4 +1,5 @@
-import type { EntityKind, EntityRef, Result, SearchResponse } from "../api/contract";
+import type { EntityKind, EntityRef, MoveResult, Result, SearchResponse } from "../api/contract";
+import { assertNever } from "./assertNever";
 import { displayName, refKey, refOf } from "./entities";
 import { centroid, onCircle, type Point, radiusAround } from "./geometry";
 
@@ -10,6 +11,16 @@ export type Emphasis = "idle" | "lit" | "front" | "dim";
 
 export type RingName = "Setter" | "Benefit" | "Protection" | "Mixed" | "Drawback";
 
+/** How a node other than a species is engraved: moves by type and damage class, abilities, weathers. */
+export type Emblem =
+  | {
+      readonly kind: "move";
+      readonly type: string;
+      readonly damageClass: MoveResult["damage_class"];
+    }
+  | { readonly kind: "ability" }
+  | { readonly kind: "weather"; readonly weather: string };
+
 export interface SceneNode {
   readonly id: string;
   readonly label: string;
@@ -20,6 +31,8 @@ export interface SceneNode {
   readonly emphasis: Emphasis;
   readonly rank: number | null;
   readonly ring: RingName | null;
+  /** Null for a species, drawn with its sprite. */
+  readonly emblem: Emblem | null;
 }
 
 export interface SceneLink {
@@ -79,6 +92,19 @@ export function allResults(response: SearchResponse): readonly Result[] {
   return response.sections.flatMap((section) => section.results);
 }
 
+function emblemOf(result: Result): Emblem | null {
+  switch (result.kind) {
+    case "pokemon":
+      return null;
+    case "move":
+      return { kind: "move", type: result.type, damageClass: result.damage_class };
+    case "ability":
+      return { kind: "ability" };
+    default:
+      return assertNever(result);
+  }
+}
+
 export function resultNode(result: Result, position: Point, emphasis: Emphasis): SceneNode {
   const ref = refOf(result);
   return {
@@ -90,6 +116,7 @@ export function resultNode(result: Result, position: Point, emphasis: Emphasis):
     emphasis,
     rank: result.rank,
     ring: null,
+    emblem: emblemOf(result),
   };
 }
 

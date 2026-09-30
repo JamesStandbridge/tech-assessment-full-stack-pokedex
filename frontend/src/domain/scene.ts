@@ -99,6 +99,7 @@ export function sceneFrame(places: Constellation, response: SearchResponse | nul
         emphasis: response === null ? "idle" : "dim",
         rank: null,
         ring: null,
+        emblem: null,
       }
     );
   });

@@ -1,16 +1,27 @@
-import { Color, InstancedBufferAttribute, Sprite, type Texture } from "three/webgpu";
+import {
+  type CanvasTexture,
+  Color,
+  InstancedBufferAttribute,
+  Sprite,
+  type Texture,
+} from "three/webgpu";
 
 import type { Point } from "../../../domain/geometry";
 import type { SceneFrame } from "../../../domain/scene";
 import type { SceneNode } from "../../../domain/sceneTypes";
 import { restingSpring, retarget, type Spring, springAt } from "../../../domain/spring";
 import { HIDDEN, type Look, lookOf } from "../looks";
-import { kindHex, weatherHex } from "../palette";
+import { emblemHex } from "../palette";
 import type { StarSeed } from "../protocol";
-import { LOOK_RATE, type StarBuffers, starMaterial } from "./starMaterial";
+import { emblemAtlas, engrave } from "./atlas";
+import {
+  EMBLEM_CELL,
+  EMBLEM_CELLS,
+  LOOK_RATE,
+  type StarBuffers,
+  starMaterial,
+} from "./starMaterial";
 
-/** Room for the moves, abilities and weather a reading adds to the species. */
-const EXTRA_SLOTS = 64;
 const RANK_DELAY = 0.02;
 const MAX_DELAY = 0.6;
 const DUST_DELAY = 0.4;
@@ -56,8 +67,10 @@ export class Stars {
   private readonly slots = new Map<string, number>();
   private highlighted: ReadonlySet<string> = new Set();
 
+  private readonly emblems: CanvasTexture<OffscreenCanvas> = emblemAtlas();
+
   constructor(seeds: readonly StarSeed[], atlas: Texture) {
-    this.capacity = seeds.length + EXTRA_SLOTS;
+    this.capacity = seeds.length + EMBLEM_CELLS;
     this.buffers = {
       from: buffer(this.capacity, 4),
       velocity: buffer(this.capacity, 3),
@@ -79,7 +92,7 @@ export class Stars {
       this.paint(slot, seed.color, slot);
     });
     for (let slot = seeds.length; slot < this.capacity; slot += 1) this.paint(slot, "#ffffff", -1);
-    this.object = new Sprite(starMaterial(this.buffers, atlas));
+    this.object = new Sprite(starMaterial(this.buffers, { sprites: atlas, emblems: this.emblems }));
     this.object.count = this.capacity;
     this.object.frustumCulled = false;
   }
@@ -90,7 +103,7 @@ export class Stars {
       if (!present.has(id) && !id.startsWith("pokemon:")) this.release(id, slot, time);
     }
     for (const node of frame.nodes) {
-      const slot = this.slots.get(node.id) ?? this.claim(node, frame.weather);
+      const slot = this.slots.get(node.id) ?? this.claim(node);
       if (slot === null) continue;
       this.nodes[slot] = node;
       this.springs[slot] = retarget(this.spring(slot), node.position, {
@@ -135,20 +148,19 @@ export class Stars {
     return this.springs[slot] ?? restingSpring({ x: 0, y: 0, z: 0 });
   }
 
-  private claim(node: SceneNode, weather: string | null): number | null {
+  private claim(node: SceneNode): number | null {
     if (node.kind === "pokemon") return null;
     const used = new Set(this.slots.values());
-    const first = this.capacity - EXTRA_SLOTS;
-    const slot = Array.from({ length: EXTRA_SLOTS }, (_, index) => first + index).find(
+    const first = this.capacity - EMBLEM_CELLS;
+    const slot = Array.from({ length: EMBLEM_CELLS }, (_, index) => first + index).find(
       (candidate) => !used.has(candidate),
     );
     if (slot === undefined) return null;
     this.slots.set(node.id, slot);
     this.springs[slot] = restingSpring(node.position);
     this.fades[slot] = { from: HIDDEN, to: HIDDEN, start: 0 };
-    const color =
-      node.kind === "weather" && weather !== null ? weatherHex(weather) : kindHex(node.kind);
-    this.paint(slot, color, -1);
+    if (node.emblem !== null) engrave(this.emblems, slot - first, node.emblem);
+    this.paint(slot, emblemHex(node), node.emblem === null ? -1 : EMBLEM_CELL + slot - first);
     return slot;
   }
 

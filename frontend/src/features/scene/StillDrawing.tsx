@@ -1,11 +1,12 @@
-import type { JSX } from "react";
+import { type JSX, useId } from "react";
 
 import type { SceneFrame } from "../../domain/scene";
 import type { SceneNode } from "../../domain/sceneTypes";
 import type { Theme } from "../../domain/theme";
 import { lookOf } from "./looks";
-import { kindHex, printedHex, weatherHex } from "./palette";
+import { emblemHex, printedHex } from "./palette";
 import type { StillView } from "./still";
+import { HALO_BLUR, StillEmblem } from "./StillEmblem";
 
 interface Drawing {
   readonly frame: SceneFrame;
@@ -90,9 +91,23 @@ interface StarProps {
   readonly radius: number;
   readonly color: string;
   readonly sprite: string | undefined;
+  readonly halo: string | null;
 }
 
-function Star({ node, at, radius, color, sprite }: StarProps): JSX.Element {
+function Star({ node, at, radius, color, sprite, halo }: StarProps): JSX.Element {
+  const side = Math.max(MIN_SPRITE, radius * 2 * SPRITE_SHARE);
+  if (node.emblem !== null && node.emphasis !== "dim") {
+    return (
+      <StillEmblem
+        emblem={node.emblem}
+        at={at}
+        side={side}
+        color={color}
+        opacity={OPACITY[node.emphasis]}
+        halo={halo}
+      />
+    );
+  }
   if (sprite === undefined) {
     return (
       <circle
@@ -104,7 +119,6 @@ function Star({ node, at, radius, color, sprite }: StarProps): JSX.Element {
       />
     );
   }
-  const side = Math.max(MIN_SPRITE, radius * 2 * SPRITE_SHARE);
   return (
     <image
       href={sprite}
@@ -120,15 +134,16 @@ function Star({ node, at, radius, color, sprite }: StarProps): JSX.Element {
 
 function Stars(props: StillDrawingProps): JSX.Element {
   const { frame, view, highlighted, colors, sprites, theme } = props;
+  const haloId = `halo${useId().replace(/[^\w-]/g, "")}`;
   const colorOf = (node: SceneNode): string =>
-    printedHex(
-      node.kind === "weather"
-        ? weatherHex(frame.weather ?? "")
-        : (colors.get(node.id) ?? kindHex(node.kind)),
-      theme,
-    );
+    printedHex(colors.get(node.id) ?? emblemHex(node), theme);
+  const haloOf = (node: SceneNode): string | null =>
+    node.emphasis === "front" || highlighted.has(node.id) ? haloId : null;
   return (
     <g>
+      <filter id={haloId} x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation={HALO_BLUR} />
+      </filter>
       {frame.nodes.map((node) => (
         <Star
           key={node.id}
@@ -137,6 +152,7 @@ function Stars(props: StillDrawingProps): JSX.Element {
           radius={view.radius(lookOf(node, highlighted.has(node.id)).size, node.position.z)}
           color={colorOf(node)}
           sprite={sprites.get(node.id)}
+          halo={haloOf(node)}
         />
       ))}
     </g>

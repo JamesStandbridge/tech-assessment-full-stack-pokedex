@@ -133,6 +133,7 @@ function weatherNode(weather: string): SceneNode {
     emphasis: "front",
     rank: null,
     ring: null,
+    emblem: { kind: "weather", weather },
   };
 }
 

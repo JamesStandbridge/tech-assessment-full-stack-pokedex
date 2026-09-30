@@ -10,8 +10,8 @@ import {
   TYPE_GLYPH_STROKE,
   TYPE_GLYPH_VIEWBOX,
   TYPE_GLYPHS,
-  TypeGlyph,
-} from "./typeGlyphs";
+} from "./typeGlyphPaths";
+import { TypeGlyph } from "./typeGlyphs";
 
 test("each of the eighteen types has a glyph of its own", () => {
   const drawings = POKEMON_TYPES.map((type: PokemonType) => TYPE_GLYPHS[type].join(" "));
