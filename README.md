@@ -175,6 +175,11 @@ Back button stays for searches.
 
 ## Validation
 
+The specifications are executable: each kind of claim has its own evidence
+and check.
+
+![From product claims to executable evidence](docs/validation.svg)
+
 - **Unit tests**: 417 backend, 95 tooling, 223 frontend (coverage of 90% or
   more required on the frontend domain and API layers).
 - **Acceptance**: 74 Gherkin scenarios against a running API, covering the

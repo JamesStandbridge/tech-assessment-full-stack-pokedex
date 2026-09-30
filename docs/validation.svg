@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 610" width="1000" height="610" role="img" aria-labelledby="title desc">
+  <title id="title">From product claims to executable evidence</title>
+  <desc id="desc">Five validation tracks connect requirements, the API contract, ranking judgments, blind assessments and interface specifications to executable checks. They converge in the full verification task.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="head"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+      .bg { fill: #ffffff; }
+      .heading { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-anchor: middle; }
+      .name { font-size: 14px; font-weight: 600; fill: #1f2328; text-anchor: middle; }
+      .sub { font-size: 12px; fill: #57606a; text-anchor: middle; }
+      .metric { font-size: 13px; font-weight: 650; text-anchor: middle; }
+      .flow { stroke: #8c959f; stroke-width: 1.6; fill: none; }
+      .head { fill: #8c959f; }
+      .box { fill: #ffffff; stroke-width: 1.4; }
+      .row-i { fill: #fbf5e6; stroke: #ecdcb0; }
+      .box-i { stroke: #c9962e; }
+      .label-i { fill: #9a6b12; }
+      .row-a { fill: #eaf6ef; stroke: #bfe0cc; }
+      .box-a { stroke: #3f9a68; }
+      .label-a { fill: #2c7a50; }
+      .row-u { fill: #eef0fb; stroke: #cdd2f2; }
+      .box-u { stroke: #5a62cf; }
+      .label-u { fill: #434ab8; }
+      .row-w { fill: #e7f4f6; stroke: #b7dce3; }
+      .box-w { stroke: #2f8fa3; }
+      .label-w { fill: #1d6f80; }
+      .gate { fill: #f6f8fa; stroke: #8c959f; stroke-width: 1.5; }
+
+      @media (prefers-color-scheme: dark) {
+        .bg { fill: #0d1117; }
+        .name { fill: #e6edf3; }
+        .sub { fill: #9da7b3; }
+        .flow { stroke: #6e7681; }
+        .head { fill: #6e7681; }
+        .box { fill: #161b22; }
+        .row-i { fill: #1d1a10; stroke: #4a3d1a; }
+        .box-i { stroke: #d2a445; }
+        .label-i { fill: #e0b458; }
+        .row-a { fill: #0f1d16; stroke: #1f4a33; }
+        .box-a { stroke: #4fb07c; }
+        .label-a { fill: #62c490; }
+        .row-u { fill: #14162a; stroke: #2e3366; }
+        .box-u { stroke: #7a82e6; }
+        .label-u { fill: #9aa0f0; }
+        .row-w { fill: #0e1c20; stroke: #1d4450; }
+        .box-w { stroke: #4eb0c4; }
+        .label-w { fill: #7dcedd; }
+        .gate { fill: #161b22; stroke: #6e7681; }
+      }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1000" height="610" rx="12"/>
+
+  <text class="heading label-a" x="215" y="28">CLAIM</text>
+  <text class="heading label-a" x="500" y="28">EXECUTABLE EVIDENCE</text>
+  <text class="heading label-a" x="785" y="28">CHECK</text>
+
+  <rect class="row-i" x="20" y="44" width="960" height="84" rx="12"/>
+  <rect class="box box-i" x="40" y="56" width="350" height="60" rx="9"/>
+  <text class="name" x="215" y="82">118 EARS requirements</text>
+  <text class="sub" x="215" y="101">one stable identifier for each behaviour</text>
+  <rect class="box box-i" x="410" y="56" width="180" height="60" rx="9"/>
+  <text class="name" x="500" y="82">Tagged Gherkin</text>
+  <text class="sub" x="500" y="101">74 API scenarios</text>
+  <rect class="box box-i" x="610" y="56" width="350" height="60" rx="9"/>
+  <text class="metric label-i" x="785" y="82">Acceptance suite</text>
+  <text class="sub" x="785" y="101">acceptance requirements traced to scenarios</text>
+  <path class="flow" d="M392 86 H408" marker-end="url(#arrow)"/>
+  <path class="flow" d="M592 86 H608" marker-end="url(#arrow)"/>
+
+  <rect class="row-a" x="20" y="140" width="960" height="84" rx="12"/>
+  <rect class="box box-a" x="40" y="152" width="350" height="60" rx="9"/>
+  <text class="name" x="215" y="178">OpenAPI contract</text>
+  <text class="sub" x="215" y="197">written before backend and frontend</text>
+  <rect class="box box-a" x="410" y="152" width="180" height="60" rx="9"/>
+  <text class="name" x="500" y="178">One schema</text>
+  <text class="sub" x="500" y="197">generated TS types</text>
+  <rect class="box box-a" x="610" y="152" width="350" height="60" rx="9"/>
+  <text class="metric label-a" x="785" y="178">Contract conformance</text>
+  <text class="sub" x="785" y="197">every live response schema-validated</text>
+  <path class="flow" d="M392 182 H408" marker-end="url(#arrow)"/>
+  <path class="flow" d="M592 182 H608" marker-end="url(#arrow)"/>
+
+  <rect class="row-u" x="20" y="236" width="960" height="84" rx="12"/>
+  <rect class="box box-u" x="40" y="248" width="350" height="60" rx="9"/>
+  <text class="name" x="215" y="274">Rule judgments and thresholds</text>
+  <text class="sub" x="215" y="293">grades fixed from the relevance definition</text>
+  <rect class="box box-u" x="410" y="248" width="180" height="60" rx="9"/>
+  <text class="name" x="500" y="274">Live ranking</text>
+  <text class="sub" x="500" y="293">cutoff at 10</text>
+  <rect class="box box-u" x="610" y="248" width="350" height="60" rx="9"/>
+  <text class="metric label-u" x="785" y="274">Mean nDCG@10: 0.993</text>
+  <text class="sub" x="785" y="293">the engine follows its stated rules</text>
+  <path class="flow" d="M392 278 H408" marker-end="url(#arrow)"/>
+  <path class="flow" d="M592 278 H608" marker-end="url(#arrow)"/>
+
+  <rect class="row-w" x="20" y="332" width="960" height="84" rx="12"/>
+  <rect class="box box-w" x="40" y="344" width="350" height="60" rx="9"/>
+  <text class="name" x="215" y="370">Pooled candidates</text>
+  <text class="sub" x="215" y="389">several rankers, shuffled and frozen</text>
+  <rect class="box box-w" x="410" y="344" width="180" height="60" rx="9"/>
+  <text class="name" x="500" y="370">Blind grades</text>
+  <text class="sub" x="500" y="389">rules and ranks hidden</text>
+  <rect class="box box-w" x="610" y="344" width="350" height="60" rx="9"/>
+  <text class="metric label-w" x="785" y="370">Condensed nDCG 0.846; kappa 0.833</text>
+  <text class="sub" x="785" y="389">pre-registered minimum: 0.80</text>
+  <path class="flow" d="M392 374 H408" marker-end="url(#arrow)"/>
+  <path class="flow" d="M592 374 H608" marker-end="url(#arrow)"/>
+
+  <rect class="row-a" x="20" y="428" width="960" height="84" rx="12"/>
+  <rect class="box box-a" x="40" y="440" width="350" height="60" rx="9"/>
+  <text class="name" x="215" y="466">Interface specifications</text>
+  <text class="sub" x="215" y="485">states, views, accessibility, workbench</text>
+  <rect class="box box-a" x="410" y="440" width="180" height="60" rx="9"/>
+  <text class="name" x="500" y="466">Playwright and axe</text>
+  <text class="sub" x="500" y="485">production build</text>
+  <rect class="box box-a" x="610" y="440" width="350" height="60" rx="9"/>
+  <text class="metric label-a" x="785" y="466">52 browser scenarios</text>
+  <text class="sub" x="785" y="485">both themes, desktop and narrow screens</text>
+  <path class="flow" d="M392 470 H408" marker-end="url(#arrow)"/>
+  <path class="flow" d="M592 470 H608" marker-end="url(#arrow)"/>
+
+  <path class="flow" d="M785 514 V532" marker-end="url(#arrow)"/>
+  <rect class="gate" x="300" y="540" width="400" height="50" rx="12"/>
+  <text class="name" x="500" y="562">just verify</text>
+  <text class="sub" x="500" y="580">specs, types, layers, tests, relevance, UI, Lighthouse, audit</text>
+</svg>
