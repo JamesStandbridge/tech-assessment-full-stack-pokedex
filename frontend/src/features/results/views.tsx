@@ -2,8 +2,7 @@ import type { ComponentType, JSX } from "react";
 
 import type { Reading } from "../../domain/reading";
 import { CriteriaView } from "./CriteriaView";
-import { AddToTeam } from "../team/TeamTray";
-import { chanceBadge, type Decoration, roleBadge } from "./decorations";
+import { chanceBadge, roleBadge } from "./decorations";
 import { NameView } from "./NameView";
 import { type ResultsViewProps, Sections } from "./Sections";
 
@@ -12,14 +11,7 @@ function EffectView(props: ResultsViewProps): JSX.Element {
 }
 
 function WeatherView(props: ResultsViewProps): JSX.Element {
-  const weather = props.response.interpretation.alternatives[0]?.weather?.weather ?? null;
-  const decorate: Decoration = (result) => (
-    <div className="flex flex-wrap items-center gap-2">
-      {roleBadge(result)}
-      {result.kind === "pokemon" ? <AddToTeam pokemon={result} weather={weather} /> : null}
-    </div>
-  );
-  return <Sections {...props} decorate={decorate} />;
+  return <Sections {...props} decorate={roleBadge} />;
 }
 
 function ExplorationView(props: ResultsViewProps): JSX.Element {

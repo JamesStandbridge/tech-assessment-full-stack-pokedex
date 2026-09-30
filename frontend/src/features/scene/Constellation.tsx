@@ -22,6 +22,8 @@ interface ConstellationProps {
   readonly onRun: (query: string) => void;
   /** Whether the results panel covers part of the sky. */
   readonly panel: boolean;
+  /** Whether the party or the bench covers part of the sky. */
+  readonly workbench: boolean;
 }
 
 interface Sky {
@@ -47,7 +49,7 @@ function useSky(species: readonly Species[], props: ConstellationProps): Sky {
     marks: marksOf(frame, typeClusters(species, places)),
     highlighted: spotlight === null ? new Set<string>() : neighbours(frame, spotlight),
     hovered: hovered === null ? null : (byId.get(hovered) ?? null),
-    inset: useInset(props.panel),
+    inset: useInset(props.panel, props.workbench),
     nodeOf: (id) => byId.get(id),
     focus: setFocused,
     hover: setHovered,

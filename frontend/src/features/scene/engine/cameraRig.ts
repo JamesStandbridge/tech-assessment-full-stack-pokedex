@@ -66,8 +66,12 @@ export class CameraRig {
   resize(viewport: Viewport, inset: Inset): void {
     const { width, height } = viewport;
     this.camera.aspect = width / Math.max(height, 1);
-    this.camera.setViewOffset(width, height, inset.right / 2, inset.bottom / 2, width, height);
-    this.freeShare = Math.min(1, Math.min(width - inset.right, height - inset.bottom) / height);
+    const across = (inset.right - inset.left) / 2;
+    this.camera.setViewOffset(width, height, across, inset.bottom / 2, width, height);
+    this.freeShare = Math.min(
+      1,
+      Math.min(width - inset.left - inset.right, height - inset.bottom) / height,
+    );
     this.camera.updateProjectionMatrix();
   }
 

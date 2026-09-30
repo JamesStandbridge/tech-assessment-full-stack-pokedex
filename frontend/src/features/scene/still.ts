@@ -25,13 +25,16 @@ export interface StillView {
  */
 export function stillView(frame: SceneFrame, space: Space): StillView {
   const { viewport, inset } = space;
-  const free = { width: viewport.width - inset.right, height: viewport.height - inset.bottom };
+  const free = {
+    width: viewport.width - inset.left - inset.right,
+    height: viewport.height - inset.bottom,
+  };
   const scale = Math.min(free.width, free.height) / (frame.camera.distance * FIELD);
   const target = frame.camera.target;
   const cue = (depth: number): number => Math.max(0.4, 1 + (depth - target.z) * DEPTH_CUE);
   return {
     project: (at) => ({
-      x: free.width / 2 + (at.x - target.x) * scale * cue(at.z),
+      x: inset.left + free.width / 2 + (at.x - target.x) * scale * cue(at.z),
       y: free.height / 2 - (at.y - target.y) * scale * cue(at.z),
     }),
     radius: (size, depth) => (size / 2) * scale * cue(depth),

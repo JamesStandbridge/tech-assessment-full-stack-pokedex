@@ -7,6 +7,8 @@ const PANEL_WIDTH = 432;
 const SHEET_SHARE = 0.58;
 /** The home cards along the bottom: one row when wide, stacked when narrow. */
 const HOME_SHARE = 0.22;
+/** The party and the bench: 26rem wide plus its margin, beside the sky only when the screen is wide. */
+const WORKBENCH_WIDTH = 432;
 const NARROW_HOME_SHARE = 0.4;
 const WIDE = "(min-width: 640px)";
 
@@ -20,7 +22,7 @@ function measure(): Screen {
 }
 
 /** The part of the viewport the results or the home cards cover, which the sky centers away from. */
-export function useInset(panel: boolean): Inset {
+export function useInset(panel: boolean, workbench: boolean): Inset {
   const [screen, setScreen] = useState<Screen>(measure);
   useEffect(() => {
     const update = (): void => {
@@ -31,11 +33,12 @@ export function useInset(panel: boolean): Inset {
       window.removeEventListener("resize", update);
     };
   }, []);
+  const left = workbench && screen.wide ? WORKBENCH_WIDTH : 0;
   if (!panel) {
     const share = screen.wide ? HOME_SHARE : NARROW_HOME_SHARE;
-    return { right: 0, bottom: Math.round(screen.height * share) };
+    return { left, right: 0, bottom: Math.round(screen.height * share) };
   }
   return screen.wide
-    ? { right: PANEL_WIDTH, bottom: 0 }
-    : { right: 0, bottom: Math.round(screen.height * SHEET_SHARE) };
+    ? { left, right: PANEL_WIDTH, bottom: 0 }
+    : { left, right: 0, bottom: Math.round(screen.height * SHEET_SHARE) };
 }

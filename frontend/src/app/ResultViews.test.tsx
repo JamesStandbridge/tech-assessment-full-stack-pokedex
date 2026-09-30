@@ -73,8 +73,8 @@ test("two chosen Pokémon get their stat profiles overlaid", async () => {
     new FakeApi().answerSearch("fast electric pokemon", fastElectricSearch),
     "fast electric pokemon",
   );
-  await userEvent.click(screen.getByRole("checkbox", { name: "Compare Electrode" }));
-  await userEvent.click(screen.getByRole("checkbox", { name: "Compare Raichu" }));
+  await userEvent.click(screen.getByRole("checkbox", { name: "Overlay Electrode" }));
+  await userEvent.click(screen.getByRole("checkbox", { name: "Overlay Raichu" }));
   expect(
     await screen.findByRole("img", { name: "Stat profiles of Electrode and Raichu" }),
   ).toBeVisible();

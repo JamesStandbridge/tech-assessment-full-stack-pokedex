@@ -30,22 +30,22 @@ async function urlHolds(query: string): Promise<void> {
   });
 }
 
-test("Pokémon added from a weather search share that weather in the team tray", async () => {
+test("Pokémon added from a weather search share that weather in the party", async () => {
   render(<App api={new FakeApi().answerSearch("rain team", rainTeamSearch)} />);
   await userEvent.type(
     screen.getByRole("combobox", { name: "Search the Pokédex" }),
     "rain team{Enter}",
   );
-  await userEvent.click(await screen.findByRole("button", { name: "Add Lapras to the team" }));
-  await userEvent.click(screen.getByRole("button", { name: "Add Squirtle to the team" }));
-  const tray = screen.getByRole("region", { name: "Team" });
-  expect(within(tray).getAllByRole("listitem")).toHaveLength(2);
-  expect(tray).toHaveTextContent("All of them help with rain");
-  for (const added of screen.getAllByRole("button", { name: "In the team" })) {
+  await userEvent.click(await screen.findByRole("button", { name: "Add Lapras to the party" }));
+  await userEvent.click(screen.getByRole("button", { name: "Add Squirtle to the party" }));
+  const party = screen.getByRole("region", { name: "Party" });
+  expect(within(party).getAllByRole("listitem")).toHaveLength(2);
+  expect(party).toHaveTextContent("All of them help with rain");
+  for (const added of screen.getAllByRole("button", { name: "In the party" })) {
     expect(added).toBeDisabled();
   }
-  await userEvent.click(within(tray).getByRole("button", { name: "Remove Lapras" }));
-  expect(within(tray).getAllByRole("listitem")).toHaveLength(1);
+  await userEvent.click(within(party).getByRole("button", { name: "Remove Lapras" }));
+  expect(within(party).getAllByRole("listitem")).toHaveLength(1);
   await urlHolds("rain team");
 });
 

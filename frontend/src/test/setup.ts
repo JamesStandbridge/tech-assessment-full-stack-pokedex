@@ -19,9 +19,16 @@ function noMatch(query: string): MediaQueryList {
   return list;
 }
 
+/** Longer than the throttle of nuqs, so a test's last address update lands before the next test. */
+const ADDRESS_FLUSH_MS = 60;
+
 window.matchMedia = noMatch;
+Element.prototype.scrollIntoView = (): void => undefined;
 window.ResizeObserver = StillObserver;
 
-afterEach(() => {
+afterEach(async () => {
   cleanup();
+  await new Promise((resolve) => setTimeout(resolve, ADDRESS_FLUSH_MS));
+  window.localStorage.clear();
+  window.history.replaceState(null, "", "/");
 });

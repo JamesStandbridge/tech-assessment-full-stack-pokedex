@@ -2,12 +2,13 @@ import { type JSX, type ReactNode, useId } from "react";
 
 import type { EntityRef, Result } from "../../api/contract";
 import { assertNever } from "../../domain/assertNever";
-import { displayName, refOf, resultSummary } from "../../domain/entities";
+import { displayName, refKey, refOf, resultSummary } from "../../domain/entities";
 import { reasonModel } from "../../domain/reasons";
 import { Button } from "../../ui/Button";
 import { Chip } from "../../ui/Chip";
 import { RemoteImage } from "../../ui/RemoteImage";
 import { typeColor } from "../colors";
+import { WorkbenchActions } from "../workbench/WorkbenchActions";
 
 interface ResultCardProps {
   readonly result: Result;
@@ -65,7 +66,9 @@ export function ResultCard({ result, onOpen, children }: ResultCardProps): JSX.E
   return (
     <article
       aria-labelledby={titleId}
-      className="rounded-card border-line bg-panel/80 shadow-glow flex gap-4 border p-4"
+      data-result={refKey(refOf(result))}
+      tabIndex={-1}
+      className="rounded-card border-line bg-panel/80 shadow-glow focus-visible:ring-focus flex gap-4 border p-4 outline-none focus-visible:ring-3"
     >
       {result.kind === "pokemon" ? (
         <RemoteImage src={result.sprite_url} alt={name} size={72} />
@@ -89,6 +92,7 @@ export function ResultCard({ result, onOpen, children }: ResultCardProps): JSX.E
           ))}
         </div>
         {children}
+        {result.kind === "pokemon" ? <WorkbenchActions name={result.name} /> : null}
         <Reasons result={result} onOpen={onOpen} />
       </div>
     </article>

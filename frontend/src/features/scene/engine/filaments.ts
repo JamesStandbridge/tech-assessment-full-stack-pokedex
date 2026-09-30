@@ -25,7 +25,7 @@ interface Strand {
   readonly target: string;
 }
 
-export const filamentUniforms = { time: uniform(0), opacity: uniform(0) };
+const filamentUniforms = { time: uniform(0), opacity: uniform(0) };
 
 function material(): LineBasicNodeMaterial {
   const progress = attribute<"float">("progress", "float");

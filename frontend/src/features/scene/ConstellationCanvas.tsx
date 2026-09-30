@@ -8,7 +8,7 @@ import type { FromWorker, Inset, Mark, StarSeed, ToWorker, Viewport } from "./pr
 import { MIN_FPS } from "./support";
 import { usePointer } from "./usePointer";
 
-export interface SceneEvents {
+interface SceneEvents {
   readonly onLabels: (positions: Float32Array) => void;
   readonly onHover: (id: string | null) => void;
   readonly onPick: (id: string) => void;

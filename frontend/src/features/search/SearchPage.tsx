@@ -5,9 +5,12 @@ import type { EntityRef, SearchResponse } from "../../api/contract";
 import { Spinner } from "../../ui/Spinner";
 import { Constellation } from "../scene/Constellation";
 import { Home } from "../states/Home";
-import { TeamProvider } from "../team/TeamContext";
-import { TeamTray } from "../team/TeamTray";
+import { Announcer } from "../workbench/Announcer";
+import { Shortcuts } from "../workbench/Shortcuts";
+import { WorkbenchColumn } from "../workbench/WorkbenchColumn";
+import { useWorkbench, WorkbenchProvider } from "../workbench/WorkbenchContext";
 import { EmptyOutcome, FailedSearch, InvalidQuery } from "../states/Outcomes";
+import { isEmptyWorkbench } from "../../domain/workbench";
 import { useSearchResults } from "./queries";
 import { SearchBox } from "./SearchBox";
 import { Understanding } from "./Understanding";
@@ -86,9 +89,6 @@ function Header({ controller }: { readonly controller: SearchController }): JSX.
       <div className="command-bar pointer-events-auto w-full max-w-xl sm:mx-auto">
         <SearchBox controller={controller} />
       </div>
-      <div className="pointer-events-auto">
-        <TeamTray />
-      </div>
     </header>
   );
 }
@@ -112,8 +112,8 @@ function Details(props: {
   );
 }
 
-/** The whole search screen: the sky of species, the command bar over it, and the answer beside it. */
-export function SearchPage(): JSX.Element {
+function Screen(): JSX.Element {
+  const workbench = useWorkbench();
   const controller = useSearchController();
   const [opened, setOpened] = useState<EntityRef | null>(null);
   const response = useShownResponse(controller.query);
@@ -123,24 +123,35 @@ export function SearchPage(): JSX.Element {
     if (hasQuery) void loadResultsRegion();
   }, [hasQuery]);
   return (
-    <TeamProvider>
-      <div data-ambience={ambience} className="ambience relative h-dvh overflow-hidden">
-        <main className="contents">
-          <Constellation
-            response={response}
-            panel={hasQuery}
-            onOpen={setOpened}
-            onRun={controller.run}
-          />
-          <Header controller={controller} />
-          {hasQuery ? (
-            <Panel controller={controller} onOpen={setOpened} />
-          ) : (
-            <Home onRun={controller.run} />
-          )}
-        </main>
-        <Details opened={opened} onOpen={setOpened} />
-      </div>
-    </TeamProvider>
+    <div data-ambience={ambience} className="ambience relative h-dvh overflow-hidden">
+      <main className="contents">
+        <Constellation
+          response={response}
+          panel={hasQuery}
+          workbench={!isEmptyWorkbench(workbench.workbench) || workbench.pending !== null}
+          onOpen={setOpened}
+          onRun={controller.run}
+        />
+        <Header controller={controller} />
+        <WorkbenchColumn />
+        {hasQuery ? (
+          <Panel controller={controller} onOpen={setOpened} />
+        ) : (
+          <Home onRun={controller.run} />
+        )}
+      </main>
+      <Details opened={opened} onOpen={setOpened} />
+      <Announcer />
+      <Shortcuts />
+    </div>
+  );
+}
+
+/** The whole search screen: the sky of species, the command bar over it, and the answer beside it. */
+export function SearchPage(): JSX.Element {
+  return (
+    <WorkbenchProvider>
+      <Screen />
+    </WorkbenchProvider>
   );
 }
