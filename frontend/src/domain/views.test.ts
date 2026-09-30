@@ -28,6 +28,15 @@ test("a stat whose highest value is zero gets empty bars", () => {
   expect(statBars(move, ["priority"], [move])).toEqual([{ stat: "priority", value: 0, share: 0 }]);
 });
 
+test("results without the stat, such as abilities, do not raise the highest value", () => {
+  const move = resultNamed(sunTeamSearch, "move", "thunder");
+  const ability = sectionOf(sunTeamSearch, "ability").results[0];
+  if (ability === undefined) throw new Error("no ability");
+  expect(statBars(move, ["power"], [move, ability])).toEqual([
+    { stat: "power", value: 110, share: 1 },
+  ]);
+});
+
 test("weather results are grouped by role, setters first and drawbacks last", () => {
   const abilities = roleGroups(sectionOf(sunTeamSearch, "ability"));
   expect(abilities[0]?.role).toBe("setter");

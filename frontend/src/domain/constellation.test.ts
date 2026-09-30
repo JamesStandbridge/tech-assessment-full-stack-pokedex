@@ -65,3 +65,29 @@ describe("constellation", () => {
     expect(Math.min(...gaps)).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+describe("constellation of degenerate skies", () => {
+  const [first] = species;
+  if (first === undefined) throw new Error("no species");
+
+  test("keeps apart species with the same profile, even when nothing tells them apart", () => {
+    const twins = [first, { ...first, name: "twin" }, { ...first, name: "triplet" }];
+    const sky = constellation(twins);
+    const points = [...sky.values()];
+    expect(points).toHaveLength(3);
+    for (const [index, a] of points.entries()) {
+      for (const b of points.slice(index + 1)) expect(distance(a, b)).toBeGreaterThan(0.8);
+    }
+  });
+
+  test("names no cluster for species without a type or without a place", () => {
+    const untyped = Array.from({ length: 4 }, (_, index) => ({
+      ...first,
+      name: `untyped-${String(index)}`,
+      types: [],
+    }));
+    const sky = constellation(untyped);
+    expect(typeClusters(untyped, sky).map((cluster) => cluster.type)).toEqual([""]);
+    expect(typeClusters(species, new Map())).toEqual([]);
+  });
+});

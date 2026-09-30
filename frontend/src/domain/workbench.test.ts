@@ -81,3 +81,27 @@ test("a saved workbench is read back, and anything else is ignored", () => {
   expect(parseWorkbench("42")).toBeNull();
   expect(parseWorkbench("{}")).toEqual(EMPTY_WORKBENCH);
 });
+
+test("an action that changes nothing returns the same workbench", () => {
+  const bench = applied([
+    { type: "compare", name: "seel" },
+    { type: "compare", name: "lapras" },
+    { type: "pin", name: "seel" },
+  ]);
+  expect(applyAction(EMPTY_WORKBENCH, { type: "remove", name: "lapras" })).toBe(EMPTY_WORKBENCH);
+  expect(applyAction(EMPTY_WORKBENCH, { type: "clear" })).toBe(EMPTY_WORKBENCH);
+  expect(applyAction(bench, { type: "compare", name: "seel" })).toBe(bench);
+  expect(applyAction(bench, { type: "uncompare", name: "absent" })).toBe(bench);
+  expect(applyAction(bench, { type: "pin", name: "seel" })).toBe(bench);
+  expect(applyAction(bench, { type: "replace", member: "absent", by: "goldeen" })).toBe(bench);
+  expect(applyAction(bench, { type: "uncompare", name: "lapras" }).reference).toBe("seel");
+  expect(applyAction(bench, { type: "pin", name: null }).reference).toBeNull();
+});
+
+test("the other actions are announced in words too", () => {
+  expect(describeAction({ type: "add", name: "lapras" })).toBe("Added Lapras to the party");
+  expect(describeAction({ type: "clear" })).toBe("Cleared the party");
+  expect(describeAction({ type: "compare", name: "seel" })).toBe("Compared Seel");
+  expect(describeAction({ type: "uncompare", name: "seel" })).toBe("Stopped comparing Seel");
+  expect(describeAction({ type: "pin", name: "seel" })).toBe("Pinned Seel as the reference");
+});
