@@ -5,11 +5,8 @@ import { Button } from "../../ui/Button";
 
 function Message(props: { readonly title: string; readonly children: ReactNode }): JSX.Element {
   return (
-    <section
-      aria-live="polite"
-      className="rounded-card border-line bg-panel/80 shadow-glow border p-6"
-    >
-      <h2 className="mb-2 text-xl font-semibold">{props.title}</h2>
+    <section aria-live="polite" className="border-rule border-l-2 py-1 pl-4">
+      <h2 className="font-display mb-2 text-2xl leading-tight font-semibold">{props.title}</h2>
       {props.children}
     </section>
   );
@@ -28,6 +25,7 @@ export function EmptyOutcome(props: {
           <li key={suggestion.query}>
             <Button
               variant="outline"
+              size="small"
               onPress={() => {
                 props.onRun(suggestion.query);
               }}

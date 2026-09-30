@@ -20,19 +20,21 @@ const MAX_BASE_STAT = 255;
 type Open = (ref: EntityRef) => void;
 
 function BaseStats({ detail }: { readonly detail: PokemonDetail }): JSX.Element {
+  const color = typeColor(detail.types[0] ?? "normal");
   const stats = Object.entries(detail.stats).flatMap(([name, value]) => {
     const label = Object.entries(STAT_LABELS).find(([stat]) => stat === name)?.[1];
     return label === undefined ? [] : [{ label, value }];
   });
   return (
     <div className="space-y-2">
+      <h3 className="catalogue text-muted">Base stats</h3>
       {stats.map((stat) => (
         <Bar
           key={stat.label}
           label={stat.label}
           value={stat.value}
           share={stat.value / MAX_BASE_STAT}
-          color="var(--color-accent)"
+          color={color}
         />
       ))}
     </div>
@@ -49,15 +51,17 @@ function PokemonBody({
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-5">
-        <RemoteImage src={detail.artwork_url} alt={displayName(detail.name)} size={160} eager />
-        <div className="space-y-2">
-          <p className="text-muted">{detail.genus}</p>
+        <div className="specimen p-2">
+          <RemoteImage src={detail.artwork_url} alt={displayName(detail.name)} size={160} eager />
+        </div>
+        <div className="min-w-0 flex-1 space-y-2">
+          <p className="font-display text-muted text-lg italic">{detail.genus}</p>
           <div className="flex gap-1">
             {detail.types.map((type) => (
               <Chip key={type} label={type} color={typeColor(type)} />
             ))}
           </div>
-          <p className="max-w-prose">{detail.description}</p>
+          <p className="max-w-prose text-sm leading-relaxed">{detail.description}</p>
         </div>
       </div>
       <BaseStats detail={detail} />
@@ -82,18 +86,18 @@ function MoveBody({
   ];
   return (
     <div className="space-y-4">
-      <p className="text-muted">
+      <p className="catalogue text-muted">
         {detail.type} · {detail.damage_class}
       </p>
-      <dl className="grid grid-cols-4 gap-2 text-center">
+      <dl className="border-rule divide-line grid grid-cols-4 divide-x border-y text-center">
         {facts.map(([label, value]) => (
-          <div key={label} className="bg-panel-raised rounded-xl p-2">
-            <dt className="text-muted text-xs">{label}</dt>
-            <dd className="font-mono">{value ?? "—"}</dd>
+          <div key={label} className="py-2">
+            <dt className="catalogue text-muted">{label}</dt>
+            <dd className="font-mono text-lg tabular-nums">{value ?? "—"}</dd>
           </div>
         ))}
       </dl>
-      <p>{detail.effect ?? detail.short_effect}</p>
+      <p className="text-sm leading-relaxed">{detail.effect ?? detail.short_effect}</p>
       <RelatedList title="Learned by" kind="pokemon" names={detail.learned_by} onOpen={onOpen} />
     </div>
   );
@@ -108,7 +112,7 @@ function AbilityBody({
 }): JSX.Element {
   return (
     <div className="space-y-4">
-      <p>{detail.effect ?? detail.short_effect}</p>
+      <p className="text-sm leading-relaxed">{detail.effect ?? detail.short_effect}</p>
       <RelatedList title="Pokémon" kind="pokemon" names={detail.pokemon} onOpen={onOpen} />
     </div>
   );

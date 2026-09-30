@@ -16,12 +16,17 @@ export function RelatedList({ title, kind, names, onOpen }: RelatedListProps): J
   if (names.length === 0) return null;
   return (
     <div>
-      <h3 className="text-muted mb-2 text-sm font-semibold tracking-wide uppercase">{title}</h3>
-      <ul aria-label={title} className="flex flex-wrap gap-2">
+      <h3 className="catalogue text-muted mb-2 flex items-baseline gap-2">
+        {title}
+        <span aria-hidden="true" className="leader flex-1" />
+        <span className="tabular-nums">{names.length}</span>
+      </h3>
+      <ul aria-label={title} className="flex flex-wrap gap-1.5">
         {names.map((name) => (
           <li key={name}>
             <Button
               variant="outline"
+              size="small"
               onPress={() => {
                 onOpen({ kind, name });
               }}

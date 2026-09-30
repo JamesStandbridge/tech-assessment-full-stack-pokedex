@@ -34,11 +34,12 @@ export function Announcer(): JSX.Element {
       {notice === null ? null : (
         <div
           key={notice.id}
-          className="panel flex items-center gap-3 rounded-full py-1 pr-1 pl-4 text-sm whitespace-nowrap"
+          className="plate motion-safe:animate-rise flex items-center gap-3 py-1 pr-1 pl-3 text-sm whitespace-nowrap"
         >
+          <span aria-hidden="true" className="bg-accent size-1.5 rotate-45" />
           <span>{notice.text}</span>
           {notice.undoable ? (
-            <Button variant="outline" onPress={undo}>
+            <Button variant="outline" size="small" onPress={undo}>
               Undo
             </Button>
           ) : null}

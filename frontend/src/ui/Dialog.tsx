@@ -5,13 +5,15 @@ import { Button } from "./Button";
 
 interface DialogProps {
   readonly title: string;
+  /** A catalogue label above the title, such as the kind of the entry. */
+  readonly eyebrow?: string;
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly children: ReactNode;
 }
 
 /** A modal dialog that traps the focus, closes on Escape and returns the focus on close. */
-export function Dialog({ title, isOpen, onClose, children }: DialogProps): JSX.Element {
+export function Dialog({ title, eyebrow, isOpen, onClose, children }: DialogProps): JSX.Element {
   return (
     <ModalOverlay
       isOpen={isOpen}
@@ -19,16 +21,25 @@ export function Dialog({ title, isOpen, onClose, children }: DialogProps): JSX.E
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      className="bg-ink/80 fixed inset-0 z-40 grid place-items-center p-4 backdrop-blur-sm"
+      className="bg-ink/85 fixed inset-0 z-40 grid place-items-center p-3 sm:p-6"
     >
-      <Modal className="rounded-card border-line bg-panel shadow-glow max-h-[90dvh] w-full max-w-2xl overflow-y-auto border">
-        <AriaDialog className="p-6 outline-none">
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <Heading slot="title" className="text-2xl font-semibold">
-              {title}
-            </Heading>
-            <Button slot="close" variant="outline">
+      <Modal className="plate motion-safe:data-[entering]:animate-rise max-h-[90dvh] w-full max-w-2xl overflow-y-auto">
+        <AriaDialog className="p-5 outline-none sm:p-7">
+          <div className="border-line mb-5 flex items-start justify-between gap-4 border-b pb-4">
+            <div className="min-w-0">
+              {eyebrow === undefined ? null : (
+                <p className="catalogue text-accent mb-1">{eyebrow}</p>
+              )}
+              <Heading
+                slot="title"
+                className="font-display text-3xl leading-none font-semibold sm:text-4xl"
+              >
+                {title}
+              </Heading>
+            </div>
+            <Button slot="close" variant="outline" size="small">
               Close
+              <kbd aria-hidden="true">Esc</kbd>
             </Button>
           </div>
           {children}

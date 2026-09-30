@@ -1,20 +1,29 @@
 import type { JSX } from "react";
 
 import type { Species } from "../../api/contract";
-import { type BenchCell, benchRows, signed } from "../../domain/bench";
+import { type BenchCell, type BenchRow, benchRows, signed } from "../../domain/bench";
 import { displayName } from "../../domain/entities";
 import { Button } from "../../ui/Button";
 import { RemoteImage } from "../../ui/RemoteImage";
 import { useContenders } from "./data";
 import { useWorkbench } from "./WorkbenchContext";
 
+function LeaderStar(): JSX.Element {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 10 10" className="text-accent mr-1 inline size-2.5">
+      <path d="M5 0Q5 5 10 5Q5 5 5 10Q5 5 0 5Q5 5 5 0Z" fill="currentColor" />
+    </svg>
+  );
+}
+
 function Cell({ cell }: { readonly cell: BenchCell }): JSX.Element {
   return (
     <td
       data-contender={cell.name}
       data-leader={cell.leader}
-      className={`px-1 py-1 text-right text-xs tabular-nums ${cell.leader ? "text-accent-soft font-semibold" : ""}`}
+      className={`px-1.5 py-1.5 text-right font-mono text-xs tabular-nums ${cell.leader ? "text-text" : "text-muted"}`}
     >
+      {cell.leader ? <LeaderStar /> : null}
       {cell.value}
       {cell.difference === null ? null : (
         <span className="text-muted block text-[0.65rem]">({signed(cell.difference)})</span>
@@ -31,10 +40,12 @@ function Contender(props: {
   const workbench = useWorkbench();
   const name = displayName(props.contender.name);
   return (
-    <th scope="col" data-contender={props.contender.name} className="px-1 py-1 align-bottom">
+    <th scope="col" data-contender={props.contender.name} className="px-1 pb-2 align-bottom">
       <div className="flex flex-col items-center gap-1">
-        <RemoteImage src={props.contender.sprite_url} alt="" size={32} />
-        <span className="text-xs">{name}</span>
+        <div className="specimen p-0.5">
+          <RemoteImage src={props.contender.sprite_url} alt="" size={36} />
+        </div>
+        <span className="font-display text-base leading-none font-semibold">{name}</span>
         <div className="flex">
           <Button
             variant={props.reference ? "primary" : "quiet"}
@@ -55,11 +66,28 @@ function Contender(props: {
               workbench.uncompare(props.contender.name);
             }}
           >
-            <span aria-hidden="true">x</span>
+            <span aria-hidden="true">&times;</span>
           </Button>
         </div>
       </div>
     </th>
+  );
+}
+
+function Row({ row }: { readonly row: BenchRow }): JSX.Element {
+  const total = row.stat === "total";
+  return (
+    <tr className={total ? "border-rule border-t-3 border-double" : "border-line border-t"}>
+      <th scope="row" className="py-1.5 pr-2 text-left font-normal">
+        <span className="flex items-baseline gap-2">
+          <span className={`catalogue ${total ? "text-text" : "text-muted"}`}>{row.label}</span>
+          <span aria-hidden="true" className="leader flex-1" />
+        </span>
+      </th>
+      {row.cells.map((cell) => (
+        <Cell key={cell.name} cell={cell} />
+      ))}
+    </tr>
   );
 }
 
@@ -69,12 +97,17 @@ export function Bench(): JSX.Element | null {
   const contenders = useContenders(workbench.bench);
   if (contenders.length === 0) return null;
   return (
-    <section
-      aria-label="Bench"
-      className="panel pointer-events-auto overflow-x-auto rounded-2xl p-3"
-    >
+    <section aria-label="Bench" className="plate pointer-events-auto overflow-x-auto p-3 sm:p-4">
       <table className="w-full text-sm">
-        <caption className="pb-2 text-left text-sm font-semibold">Bench</caption>
+        <caption className="pb-2 text-left">
+          <span className="border-line flex items-baseline justify-between border-b pb-2">
+            <span className="font-display text-xl font-semibold">Bench</span>
+            <span aria-hidden="true" className="catalogue text-muted">
+              <LeaderStar />
+              Leader
+            </span>
+          </span>
+        </caption>
         <thead>
           <tr>
             <td />
@@ -89,14 +122,7 @@ export function Bench(): JSX.Element | null {
         </thead>
         <tbody>
           {benchRows(contenders, workbench.reference).map((row) => (
-            <tr key={row.stat} className="border-line border-t">
-              <th scope="row" className="text-muted px-1 py-1 text-left text-xs font-medium">
-                {row.label}
-              </th>
-              {row.cells.map((cell) => (
-                <Cell key={cell.name} cell={cell} />
-              ))}
-            </tr>
+            <Row key={row.stat} row={row} />
           ))}
         </tbody>
       </table>

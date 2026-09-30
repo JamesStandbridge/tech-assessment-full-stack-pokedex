@@ -32,11 +32,12 @@ function CardHeader(props: {
 }): JSX.Element {
   const { pokemon, titleId, onOpen } = props;
   return (
-    <div className="flex items-center justify-between gap-2">
-      <h3 className="text-xl font-bold">
+    <div className="flex items-end justify-between gap-3">
+      <h3 className="font-display text-4xl leading-none font-semibold">
         <Button
           id={titleId}
-          variant="quiet"
+          variant="link"
+          size="inline"
           onPress={() => {
             onOpen(refOf(pokemon));
           }}
@@ -44,12 +45,14 @@ function CardHeader(props: {
           {displayName(pokemon.name)}
         </Button>
       </h3>
-      <span className="text-muted font-mono text-sm">#{String(pokemon.id).padStart(3, "0")}</span>
+      <span className="catalogue text-muted shrink-0 pb-1">
+        No. {String(pokemon.id).padStart(3, "0")}
+      </span>
     </div>
   );
 }
 
-/** The best match presented as a collectible card: artwork, genus and description (SYS-UI-009). */
+/** The best match presented as a collectible specimen plate: artwork, genus and description (SYS-UI-009). */
 export function HoloCard(props: {
   readonly pokemon: PokemonResult;
   readonly onOpen: (ref: EntityRef) => void;
@@ -62,20 +65,22 @@ export function HoloCard(props: {
       aria-labelledby={titleId}
       onPointerMove={tilt}
       onPointerLeave={rest}
-      className="holo-card shadow-glow relative mx-auto grid max-w-md gap-3 overflow-hidden rounded-[1.75rem] border-4 p-5"
-      style={{ borderColor: typeColor(pokemon.types[0] ?? "normal") }}
+      className="holo-card relative mx-auto grid max-w-md gap-3 overflow-hidden p-5"
+      style={{ borderTopColor: typeColor(pokemon.types[0] ?? "normal") }}
     >
       <CardHeader pokemon={pokemon} titleId={titleId} onOpen={onOpen} />
-      <div className="bg-panel-raised/70 grid place-items-center rounded-2xl p-3">
+      <div className="specimen grid place-items-center p-3">
         <RemoteImage src={pokemon.artwork_url} alt={name} size={220} eager />
       </div>
-      <div className="flex gap-1">
-        {pokemon.types.map((type) => (
-          <Chip key={type} label={type} color={typeColor(type)} />
-        ))}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex gap-1">
+          {pokemon.types.map((type) => (
+            <Chip key={type} label={type} color={typeColor(type)} />
+          ))}
+        </div>
+        <p className="font-display text-muted text-base italic">{pokemon.genus}</p>
       </div>
-      <p className="text-muted text-sm font-semibold">{pokemon.genus}</p>
-      <p className="text-sm leading-relaxed">{pokemon.description}</p>
+      <p className="border-line border-t pt-3 text-sm leading-relaxed">{pokemon.description}</p>
     </article>
   );
 }

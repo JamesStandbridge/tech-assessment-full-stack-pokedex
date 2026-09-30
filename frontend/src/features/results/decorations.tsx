@@ -41,9 +41,9 @@ export function chanceBadge(result: Result): JSX.Element | null {
   const chance = effectChance(result);
   if (chance === null) return null;
   return (
-    <p className="text-sm">
-      <span className="text-muted">Chance of success </span>
-      <span className="text-tone-effect font-mono text-lg font-semibold">
+    <p className="flex items-baseline gap-2">
+      <span className="catalogue text-muted">Chance of success</span>{" "}
+      <span className="text-tone-effect font-mono text-lg tabular-nums">
         {formatChance(chance)}
       </span>
     </p>
@@ -54,10 +54,10 @@ export function roleBadge(result: Result): JSX.Element | null {
   const role = weatherRole(result);
   if (role === null) return null;
   return (
-    <p className="border-line inline-flex items-center gap-2 rounded-full border px-3 py-0.5 text-sm">
+    <p className="catalogue rounded-control border-rule inline-flex items-center gap-2 border px-2 py-0.5">
       <span
         aria-hidden="true"
-        className="size-2 rounded-full"
+        className="size-1.5 rotate-45"
         style={{ backgroundColor: `var(--color-role-${role})` }}
       />
       {ROLE_LABELS[role]}

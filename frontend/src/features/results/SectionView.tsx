@@ -21,15 +21,16 @@ export function SectionView({ query, section, onOpen, decorate }: SectionViewPro
   const label = kindLabel(section.kind, 2);
   return (
     <section aria-labelledby={headingId} className="space-y-3">
-      <div className="flex items-baseline justify-between gap-4">
-        <h2 id={headingId} className="text-xl font-semibold">
+      <div className="border-rule flex items-baseline gap-3 border-b pb-1.5">
+        <h2 id={headingId} className="font-display text-2xl font-semibold">
           {label}
         </h2>
-        <p className="text-muted text-sm">
+        <span aria-hidden="true" className="leader flex-1" />
+        <p className="catalogue text-muted tabular-nums">
           {pages.results.length} of {pages.total}
         </p>
       </div>
-      <ul className="grid gap-3">
+      <ul className="divide-line -mt-1 divide-y">
         {pages.results.map((result) => (
           <li key={refKey(refOf(result))}>
             <ResultCard result={result} onOpen={onOpen}>
@@ -39,7 +40,12 @@ export function SectionView({ query, section, onOpen, decorate }: SectionViewPro
         ))}
       </ul>
       {pages.hasMore ? (
-        <Button variant="outline" isDisabled={pages.loadingMore} onPress={pages.loadMore}>
+        <Button
+          variant="outline"
+          size="small"
+          isDisabled={pages.loadingMore}
+          onPress={pages.loadMore}
+        >
           {pages.loadingMore ? "Loading…" : `Show more ${label}`}
         </Button>
       ) : null}

@@ -15,7 +15,7 @@ function BestMatch({ response, onOpen }: ResultsViewProps): JSX.Element | null {
   if (result === undefined) return null;
   return (
     <section aria-labelledby={headingId} className="space-y-3">
-      <h2 id={headingId} className="text-xl font-semibold">
+      <h2 id={headingId} className="catalogue text-accent">
         Best match
       </h2>
       {result.kind === "pokemon" ? (

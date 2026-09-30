@@ -18,8 +18,9 @@ export function WorkbenchColumn(): JSX.Element | null {
   const open = unfolded || pending !== null;
   return (
     <div className="pointer-events-none absolute top-28 left-3 z-30 max-h-[calc(100dvh-8rem)] w-[calc(100%-1.5rem)] space-y-2 overflow-y-auto sm:top-24 sm:left-4 sm:z-20 sm:w-[26rem]">
-      <div className="panel pointer-events-auto inline-flex rounded-full sm:hidden">
+      <div className="pointer-events-auto inline-flex sm:hidden">
         <Button
+          variant="outline"
           size="small"
           aria-expanded={open}
           aria-controls={contentId}

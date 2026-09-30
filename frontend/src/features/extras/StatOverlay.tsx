@@ -35,7 +35,8 @@ function Radar(props: {
         <polygon
           key={share}
           points={STATS.map((_, index) => point(index, share)).join(" ")}
-          className="stroke-line fill-none"
+          className="stroke-rule fill-none"
+          strokeDasharray={share === 1 ? undefined : "2 3"}
         />
       ))}
       {props.selected.map((pokemon, index) => (
@@ -57,15 +58,17 @@ function StatTable(props: {
   readonly names: readonly string[];
 }): JSX.Element {
   return (
-    <table className="text-sm">
-      <caption className="text-muted mb-2 text-left">Base stats of the selected Pokémon</caption>
+    <table className="w-full text-sm">
+      <caption className="catalogue text-muted mb-2 text-left">
+        Base stats of the selected Pokémon
+      </caption>
       <thead>
         <tr>
-          <th scope="col" className="text-left">
+          <th scope="col" className="catalogue text-muted text-left font-normal">
             Stat
           </th>
           {props.names.map((name) => (
-            <th key={name} scope="col" className="text-right">
+            <th key={name} scope="col" className="font-display text-right text-base font-semibold">
               {name}
             </th>
           ))}
@@ -73,12 +76,12 @@ function StatTable(props: {
       </thead>
       <tbody>
         {STATS.map((stat) => (
-          <tr key={stat}>
-            <th scope="row" className="text-muted text-left font-normal">
+          <tr key={stat} className="border-line border-t">
+            <th scope="row" className="text-muted py-1 text-left text-xs font-normal">
               {STAT_LABELS[stat]}
             </th>
             {props.selected.map((pokemon) => (
-              <td key={pokemon.name} className="text-right font-mono">
+              <td key={pokemon.name} className="py-1 text-right font-mono tabular-nums">
                 {pokemon.stats[stat]}
               </td>
             ))}
@@ -97,10 +100,7 @@ export function StatOverlay({
 }): JSX.Element {
   const names = selected.map((pokemon) => displayName(pokemon.name));
   return (
-    <section
-      aria-label="Stat comparison"
-      className="rounded-card border-line bg-panel/80 grid gap-4 border p-4 md:grid-cols-2"
-    >
+    <section aria-label="Stat comparison" className="plate grid gap-4 p-4">
       <Radar selected={selected} names={names} />
       <StatTable selected={selected} names={names} />
     </section>

@@ -33,13 +33,16 @@ function Option(props: {
     <li data-replacement={replacement.member}>
       <Button
         variant="outline"
+        size="small"
         onPress={() => {
           replace(replacement.member, newcomer);
         }}
       >
         Replace {displayName(replacement.member)} with {displayName(newcomer)}
       </Button>
-      <p className="text-muted px-2 text-xs">{tradeOf(replacement)}</p>
+      <p className="text-muted mt-0.5 font-mono text-[0.65rem] leading-snug">
+        {tradeOf(replacement)}
+      </p>
     </li>
   );
 }
@@ -62,10 +65,12 @@ export function ReplacePrompt(props: {
       role="group"
       aria-label={`Replace whom with ${name}?`}
       tabIndex={-1}
-      className="border-line space-y-2 border-t pt-2 outline-none"
+      className="border-accent space-y-2 border-l-2 pl-3 outline-none"
     >
-      <p className="text-sm font-semibold">The party is full. Replace whom with {name}?</p>
-      <ul className="space-y-1">
+      <p className="font-display text-lg leading-tight font-semibold">
+        The party is full. Replace whom with {name}?
+      </p>
+      <ul className="space-y-2">
         {newcomer === undefined
           ? null
           : replacements(props.members, newcomer).map((replacement) => (
@@ -76,7 +81,7 @@ export function ReplacePrompt(props: {
               />
             ))}
       </ul>
-      <Button variant="quiet" onPress={cancelReplacement}>
+      <Button variant="quiet" size="small" onPress={cancelReplacement}>
         Keep the party
       </Button>
     </div>

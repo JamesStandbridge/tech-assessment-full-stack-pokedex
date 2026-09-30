@@ -13,9 +13,10 @@ export function WorkbenchActions({ name }: { readonly name: string }): JSX.Eleme
   const inParty = party.includes(name);
   const onBench = bench.includes(name);
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       <Button
         variant="outline"
+        size="small"
         isDisabled={inParty}
         onPress={() => {
           workbench.add(name);
@@ -25,6 +26,7 @@ export function WorkbenchActions({ name }: { readonly name: string }): JSX.Eleme
       </Button>
       <Button
         variant="outline"
+        size="small"
         isDisabled={onBench || bench.length >= BENCH_SIZE}
         onPress={() => {
           workbench.compare(name);

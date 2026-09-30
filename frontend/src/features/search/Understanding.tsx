@@ -34,7 +34,7 @@ function Terms({ response }: { readonly response: SearchResponse }): JSX.Element
 function Notices({ notices }: { readonly notices: readonly Notice[] }): JSX.Element | null {
   if (notices.length === 0) return null;
   return (
-    <ul aria-label="Notices" className="text-muted space-y-1 text-sm">
+    <ul aria-label="Notices" className="text-muted border-rule space-y-1 border-l pl-3 text-sm">
       {notices.map((notice) => (
         <li key={notice.code}>{notice.message}</li>
       ))}
@@ -53,6 +53,7 @@ function Refinements(props: {
         <Button
           key={`${refinement.action}:${refinement.constraint}`}
           variant="outline"
+          size="small"
           onPress={() => {
             props.onRun(refinement.query);
           }}
@@ -68,10 +69,10 @@ function Refinements(props: {
 export function Understanding({ response, onRun }: UnderstandingProps): JSX.Element {
   const readings = readingNames(response);
   return (
-    <div className="space-y-3">
+    <div className="border-line space-y-3 border-b pb-4">
       <Terms response={response} />
       {readings.length > 0 ? (
-        <ul aria-label="Readings" className="text-muted flex flex-wrap gap-2 text-sm">
+        <ul aria-label="Readings" className="catalogue text-muted flex flex-wrap gap-x-3">
           {readings.map((reading) => (
             <li key={reading}>Read as {reading}</li>
           ))}

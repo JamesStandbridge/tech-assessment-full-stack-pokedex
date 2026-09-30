@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 
 import type { EntityRef } from "../../api/contract";
-import { displayName } from "../../domain/entities";
+import { displayName, kindLabel } from "../../domain/entities";
 import { Dialog } from "../../ui/Dialog";
 import { Spinner } from "../../ui/Spinner";
 import { DetailBody } from "./DetailBody";
@@ -23,7 +23,12 @@ function Content({ entity, onOpen }: Omit<EntityDialogProps, "onClose">): JSX.El
 /** The full entry of an entity, whose relations open in the same dialog. */
 export function EntityDialog({ entity, onOpen, onClose }: EntityDialogProps): JSX.Element {
   return (
-    <Dialog title={displayName(entity.name)} isOpen onClose={onClose}>
+    <Dialog
+      title={displayName(entity.name)}
+      eyebrow={`${kindLabel(entity.kind, 1)} entry`}
+      isOpen
+      onClose={onClose}
+    >
       <Content entity={entity} onOpen={onOpen} />
     </Dialog>
   );

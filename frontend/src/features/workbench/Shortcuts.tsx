@@ -13,18 +13,17 @@ export function Shortcuts(): JSX.Element {
   return (
     <Dialog
       title="Keyboard shortcuts"
+      eyebrow="Reference"
       isOpen={open}
       onClose={() => {
         setOpen(false);
       }}
     >
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+      <dl className="divide-line grid grid-cols-[auto_1fr] divide-y text-sm">
         {SHORTCUTS.map((shortcut) => (
-          <div key={shortcut.keys} className="contents">
+          <div key={shortcut.keys} className="col-span-2 grid grid-cols-subgrid gap-x-6 py-2">
             <dt>
-              <kbd className="border-line rounded border px-1.5 py-0.5 font-mono text-xs">
-                {shortcut.keys}
-              </kbd>
+              <kbd>{shortcut.keys}</kbd>
             </dt>
             <dd className="text-muted">{shortcut.action}</dd>
           </div>
