@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 
 import { Mark } from "../../ui/Mark";
+import { ThemeToggle } from "../theme/ThemeToggle";
 import { SearchBox } from "./SearchBox";
 import type { SearchController } from "./useSearchController";
 
@@ -37,6 +38,9 @@ export function Header({ controller }: { readonly controller: SearchController }
         <p className="catalogue text-muted hidden shrink-0 items-center gap-2 pt-3 xl:flex">
           Shortcuts <kbd>?</kbd>
         </p>
+        <div className="shrink-0 sm:pt-1">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

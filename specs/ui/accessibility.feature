@@ -9,6 +9,8 @@ Feature: Keep every view accessible
   - Camera flights and drifting particles can cause discomfort; the operating
     system setting for reduced motion must win.
   - A narrow phone screen must not need horizontal scrolling.
+  - A theme applied once the application has loaded flashes the other one
+    first; contrast must hold in both themes.
 
   Background:
     Given I open the Pokédex
@@ -54,6 +56,27 @@ Feature: Keep every view accessible
       | put the opponent to sleep |
       | rain team                 |
       | xyzzy                     |
+
+  @should @SYS-UI-032
+  Scenario: The theme follows the system until the user chooses one
+    Given I prefer a light color scheme
+    Then the page is drawn in the light theme
+    When I choose the dark theme
+    And I reload the page
+    Then the page is drawn in the dark theme from its first paint
+
+  @should @SYS-UI-032
+  Scenario Outline: The light theme has no detectable accessibility violation
+    Given I prefer a light color scheme
+    When I search for "<query>"
+    Then the page is drawn in the light theme
+    And the page has no accessibility violations
+
+    Examples:
+      | query                 |
+      | bulba                 |
+      | fast electric pokemon |
+      | rain team             |
 
   @should @SYS-UI-021
   Scenario: A narrow screen needs no horizontal scrolling

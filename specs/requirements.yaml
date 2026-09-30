@@ -821,6 +821,14 @@ requirements:
     priority: should
     verification: ui-test
 
+  - id: SYS-UI-032
+    need: null
+    template: ubiquitous
+    statement: The web interface shall offer a light and a dark theme, follow the colour scheme preference of the operating system until the user chooses one, keep that choice on the device, and draw the first paint in the chosen theme.
+    source: product
+    priority: should
+    verification: ui-test
+
   # Guardrails for every visual feature that ships
 
   - id: SYS-A11Y-001

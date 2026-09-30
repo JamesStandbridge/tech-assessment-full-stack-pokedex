@@ -2,19 +2,23 @@ import optimizeLocales from "@react-aria/optimize-locales-plugin";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { createHash } from "node:crypto";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
+
+import { THEME_BOOT_SCRIPT } from "./src/features/theme/boot";
 
 const apiTarget = process.env["POKEDEX_API_URL"] ?? "http://127.0.0.1:8000";
 const proxy = { "/api": { target: apiTarget, changeOrigin: false } };
 const ARTWORK_HOST = "https://raw.githubusercontent.com";
 /** The one stylesheet React Aria's usePress injects: touch-action on pressable elements. */
 const REACT_ARIA_PRESSABLE_STYLE = "'sha256-38RhXrc7EdReTKsOm23ZPOCUgniTUUcjky8QOOrQx6o='";
+const THEME_BOOT_HASH = `'sha256-${createHash("sha256").update(THEME_BOOT_SCRIPT).digest("base64")}'`;
 
 /** Scripts, styles and requests stay on the origin; images and the sprites of the scene may also come from the artwork host. */
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  "script-src 'self'",
+  `script-src 'self' ${THEME_BOOT_HASH}`,
   `style-src 'self' ${REACT_ARIA_PRESSABLE_STYLE}`,
   `img-src 'self' ${ARTWORK_HOST} data:`,
   `connect-src 'self' ${ARTWORK_HOST}`,
@@ -45,8 +49,17 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
+/** The theme is set before the first paint, so the page never flashes the other one. */
+function themeBoot(): Plugin {
+  return {
+    name: "theme-boot",
+    transformIndexHtml: () => [{ tag: "script", children: THEME_BOOT_SCRIPT, injectTo: "head" }],
+  };
+}
+
 export default defineConfig({
   plugins: [
+    themeBoot(),
     react(),
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
