@@ -117,6 +117,16 @@ Then("no sound has played", async ({ page }) => {
 
 Then("the page has no accessibility violations", async ({ page }) => {
   await expect(page.getByRole("main")).toBeVisible();
+  // Contrast is only meaningful once entrance fades have settled.
+  await page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .every(
+        (animation) =>
+          animation.playState !== "running" ||
+          animation.effect?.getComputedTiming().endTime === Infinity,
+      ),
+  );
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations.map((violation) => violation.id)).toEqual([]);
 });

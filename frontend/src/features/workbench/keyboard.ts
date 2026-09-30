@@ -15,14 +15,14 @@ export const SHORTCUTS: readonly Shortcut[] = [
   { keys: "Ctrl+Z or Cmd+Z", action: "Undo the last change to the party or the bench" },
   { keys: "Shift+Ctrl+Z, Shift+Cmd+Z or Ctrl+Y", action: "Redo it" },
   { keys: "?", action: "List the keyboard shortcuts" },
-  { keys: "Escape", action: "Close a dialog or keep the party as it is" },
+  { keys: "Escape", action: "Close a dialog, keep the party as it is, or clear the search" },
 ];
 
 const RESULT = "[data-result]";
 const POKEMON = "pokemon:";
 
 /** Text fields keep their own keys, Ctrl+Z included; dialogs keep theirs (SYS-UI-026). */
-function ignored(target: EventTarget | null): boolean {
+export function ignored(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   return (
     target.isContentEditable ||
@@ -59,7 +59,7 @@ function currentPokemon(): string | null {
   return key.startsWith(POKEMON) ? key.slice(POKEMON.length) : null;
 }
 
-function focusSearch(): void {
+export function focusSearch(): void {
   document.querySelector<HTMLInputElement>('form[role="search"] input')?.focus();
 }
 

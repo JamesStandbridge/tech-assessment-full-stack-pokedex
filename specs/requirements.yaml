@@ -705,6 +705,14 @@ requirements:
     priority: should
     verification: ui-test
 
+  - id: SYS-UI-034
+    need: query-understanding
+    template: event-driven
+    statement: When the user presses the clear control of the results, or Escape outside a dialog and an open list of suggestions, the web interface shall empty the search box and the query in the page URL, close the results and show the whole constellation with the focus in the search box.
+    source: product
+    priority: should
+    verification: ui-test
+
   # Visual extras
 
   - id: SYS-UI-009

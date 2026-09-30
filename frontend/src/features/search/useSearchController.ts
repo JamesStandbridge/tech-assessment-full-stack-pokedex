@@ -16,6 +16,8 @@ export interface SearchController {
   readonly submit: () => void;
   /** Run a query given by the interface, such as an example or a refinement. */
   readonly run: (query: string) => void;
+  /** Empty the search box and the URL query, as a new history entry, back to the home sky. */
+  readonly clear: () => void;
 }
 
 interface PauseTimer {
@@ -51,12 +53,27 @@ function useFollowUrl(query: string, onChange: () => void): void {
   }
 }
 
+interface UrlQuery {
+  readonly query: string;
+  /** Write the trimmed text as the URL query, removing it when empty. */
+  readonly commit: (value: string, history: "push" | "replace") => void;
+}
+
+function useUrlQuery(): UrlQuery {
+  const [query, setQuery] = useQueryState("q", parseAsString.withDefault(""));
+  const commit = (value: string, history: "push" | "replace"): void => {
+    const trimmed = value.trim();
+    void setQuery(trimmed === "" ? null : trimmed, { history });
+  };
+  return { query, commit };
+}
+
 /**
  * Keep the query in the URL (SYS-UI-007): a pause in typing replaces the history
  * entry, a deliberate search pushes a new one (ADR 10).
  */
 export function useSearchController(): SearchController {
-  const [query, setQuery] = useQueryState("q", parseAsString.withDefault(""));
+  const { query, commit } = useUrlQuery();
   const [input, setInput] = useState(query);
   const [typing, setTyping] = useState(false);
   const timer = usePauseTimer();
@@ -66,10 +83,6 @@ export function useSearchController(): SearchController {
       setTyping(false);
     }
   });
-  const commit = (value: string, history: "push" | "replace"): void => {
-    const trimmed = value.trim();
-    void setQuery(trimmed === "" ? null : trimmed, { history });
-  };
   const type = (value: string): void => {
     setInput(value);
     setTyping(true);
@@ -91,6 +104,9 @@ export function useSearchController(): SearchController {
     run,
     submit: () => {
       run(input);
+    },
+    clear: () => {
+      run("");
     },
   };
 }

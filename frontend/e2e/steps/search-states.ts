@@ -47,6 +47,31 @@ When("I retry the search", async ({ page }) => {
   await page.getByRole("button", { name: "Retry" }).click();
 });
 
+When(
+  /^I clear the search (with its control|with Escape outside the field|with Escape in the search box)$/,
+  async ({ page, pokedex }, how: string) => {
+    if (how === "with its control") {
+      await page.getByRole("button", { name: "Clear search" }).click();
+      return;
+    }
+    if (how === "with Escape in the search box") await pokedex.searchBox().focus();
+    else {
+      await page.evaluate(() => {
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      });
+    }
+    await page.keyboard.press("Escape");
+  },
+);
+
+Then("the page URL holds no query", async ({ page }) => {
+  await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBeNull();
+});
+
+Then("the constellation shows the whole sky", async ({ pokedex }) => {
+  await expect(pokedex.constellation()).toHaveAttribute("data-layout", "atlas");
+});
+
 Then("I see an example for each kind of question:", async ({ page }, table: DataTable) => {
   for (const row of table.hashes()) {
     const region = page.getByRole("region", { name: row["question"] ?? "" });

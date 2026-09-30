@@ -57,6 +57,25 @@ Feature: Show every state of a search
     And I retry the search
     Then I see results
 
+  @should @SYS-UI-034
+  Scenario Outline: Clearing the search gives the whole sky back
+    When I search for "bulba"
+    And I clear the search <how>
+    Then the search box contains ""
+    And the page URL holds no query
+    And I see an example for each kind of question:
+      | question           | query     |
+      | Recover a name     | bulba     |
+      | Explore a strategy | rain team |
+    And the constellation shows the whole sky
+    And the search box has the focus
+
+    Examples:
+      | how                           |
+      | with its control              |
+      | with Escape outside the field |
+      | with Escape in the search box |
+
   @SYS-UI-003
   Scenario: Missing artwork shows a placeholder and the page stays usable
     Given entity images cannot be loaded

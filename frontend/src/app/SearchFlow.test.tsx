@@ -5,6 +5,7 @@ import { beforeEach, expect, test } from "vitest";
 import { App } from "./App";
 import { ApiError } from "../api/errors";
 import { FakeApi } from "../test/FakeApi";
+import { bulbaSearch } from "../test/recorded/bulbaSearch";
 import { emptySearch } from "../test/recorded/emptySearch";
 import { pikachuDetail } from "../test/recorded/pikachuDetail";
 import { psychicSearch } from "../test/recorded/psychicSearch";
@@ -15,7 +16,7 @@ beforeEach(() => {
 });
 
 /** The URL is written asynchronously; a test ends once it holds the query it ran. */
-async function urlHolds(query: string): Promise<void> {
+async function urlHolds(query: string | null): Promise<void> {
   await waitFor(() => {
     expect(new URL(window.location.href).searchParams.get("q")).toBe(query);
   });
@@ -87,5 +88,58 @@ test("a result opens its details, whose relations open in turn", async () => {
   await userEvent.click(within(moves).getByRole("button", { name: "Spore" }));
   const dialog = await screen.findByRole("dialog", { name: "Spore" });
   expect(await within(dialog).findByText("Missing.")).toBeVisible();
+  await urlHolds("put the opponent to sleep");
+});
+
+async function searchBulba(): Promise<void> {
+  render(<App api={new FakeApi().answerSearch("bulba", bulbaSearch)} />);
+  await userEvent.type(box(), "bulba{Enter}");
+  await screen.findByRole("region", { name: "Results" });
+  await urlHolds("bulba");
+}
+
+async function expectHome(): Promise<void> {
+  await urlHolds(null);
+  expect(box()).toHaveValue("");
+  expect(screen.queryByRole("region", { name: "Results" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "rain team" })).toBeVisible();
+}
+
+test("the clear control closes the answer and returns to the home sky", async () => {
+  await searchBulba();
+  await userEvent.click(screen.getByRole("button", { name: "Clear search" }));
+  await expectHome();
+  expect(box()).toHaveFocus();
+});
+
+test("Escape outside a text field clears the search and focuses the search box", async () => {
+  await searchBulba();
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  await userEvent.keyboard("{Escape}");
+  await expectHome();
+  expect(box()).toHaveFocus();
+});
+
+test("Escape in the search box clears the text and the query", async () => {
+  await searchBulba();
+  expect(box()).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expectHome();
+});
+
+test("Escape in an open entry closes it without clearing the search", async () => {
+  const api = new FakeApi()
+    .answerSearch("put the opponent to sleep", sleepSearch)
+    .answerEntity(pikachuDetail);
+  render(<App api={api} />);
+  await userEvent.type(box(), "put the opponent to sleep{Enter}");
+  const moves = await screen.findByRole("region", { name: "Moves" });
+  await userEvent.click(within(moves).getByRole("button", { name: "Spore" }));
+  await screen.findByRole("dialog", { name: "Spore" });
+  await userEvent.keyboard("{Escape}");
+  await waitFor(() => {
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+  expect(screen.getByRole("region", { name: "Results" })).toBeVisible();
   await urlHolds("put the opponent to sleep");
 });

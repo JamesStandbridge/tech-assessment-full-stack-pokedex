@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import type { JSX, KeyboardEvent } from "react";
 
 import { type ComboOption, ComboBox } from "../../ui/ComboBox";
 import { useSuggestions } from "./queries";
@@ -20,10 +20,16 @@ export function SearchBox({ controller }: SearchBoxProps): JSX.Element {
     const item = items.find((candidate) => `${candidate.kind}:${candidate.label}` === option.id);
     if (item !== undefined) controller.run(item.query);
   };
+  const clearOnEscape = (event: KeyboardEvent<HTMLFormElement>): void => {
+    if (event.key !== "Escape" || !(event.target instanceof HTMLInputElement)) return;
+    if (event.target.getAttribute("aria-expanded") === "true") return;
+    if (controller.input !== "" || controller.query !== "") controller.clear();
+  };
   return (
     <form
       role="search"
       className="flex w-full items-center gap-2"
+      onKeyDownCapture={clearOnEscape}
       onSubmit={(event) => {
         event.preventDefault();
       }}
