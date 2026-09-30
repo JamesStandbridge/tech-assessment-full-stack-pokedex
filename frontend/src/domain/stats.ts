@@ -60,6 +60,10 @@ const MOVE_STATS: Readonly<Record<StatName, (move: MoveResult) => number | null>
   priority: (move) => move.priority,
 };
 
+export function pokemonStat(stats: Stats, stat: StatName): number | null {
+  return POKEMON_STATS[stat](stats);
+}
+
 /** Return the value of a stat for a result, or null when that kind has no such stat. */
 export function statValue(result: Result, stat: StatName): number | null {
   switch (result.kind) {
