@@ -13,7 +13,7 @@ const BASE =
   "data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-3 data-[focus-visible]:outline-rubric " +
   "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45";
 
-const ACTION = "label px-3 py-2 rounded-[2px]";
+const ACTION = "label px-3 py-2 rounded-[2px] whitespace-nowrap shrink-0";
 
 const VARIANTS: Readonly<Record<Variant, string>> = {
   primary: `${ACTION} bg-ink text-paper data-[hovered]:bg-rubric-deep`,

@@ -5,11 +5,9 @@ import { Button } from "../../ui/Button";
 
 function Message(props: { readonly title: string; readonly children: ReactNode }): JSX.Element {
   return (
-    <section
-      aria-live="polite"
-      className="rounded-card border-line bg-panel/80 shadow-glow border p-6"
-    >
-      <h2 className="mb-2 text-xl font-semibold">{props.title}</h2>
+    <section aria-live="polite" className="border-ink max-w-2xl border-t pt-5">
+      <p className="label text-rubric mb-2">Erratum</p>
+      <h2 className="mb-3 text-3xl">{props.title}</h2>
       {props.children}
     </section>
   );
@@ -22,12 +20,13 @@ export function EmptyOutcome(props: {
 }): JSX.Element {
   return (
     <Message title="No match in the Pokédex">
-      <p className="text-muted">{props.response.explanation}</p>
-      <ul aria-label="Suggestions" className="mt-4 flex flex-wrap gap-2">
+      <p className="text-ink-soft italic">{props.response.explanation}</p>
+      <p className="label text-ink-soft mt-5 mb-1">Try instead</p>
+      <ul aria-label="Suggestions" className="space-y-1">
         {props.response.suggestions.map((suggestion) => (
           <li key={suggestion.query}>
             <Button
-              variant="outline"
+              variant="link"
               onPress={() => {
                 props.onRun(suggestion.query);
               }}
@@ -44,7 +43,7 @@ export function EmptyOutcome(props: {
 export function InvalidQuery({ message }: { readonly message: string }): JSX.Element {
   return (
     <Message title="This query cannot be searched">
-      <p className="text-muted">{message}</p>
+      <p className="text-ink-soft italic">{message}</p>
     </Message>
   );
 }
@@ -55,7 +54,7 @@ export function FailedSearch(props: {
 }): JSX.Element {
   return (
     <Message title="The search failed">
-      <p className="text-muted mb-4">{props.message} Check the connection, then retry.</p>
+      <p className="text-ink-soft mb-4 italic">{props.message} Check the connection, then retry.</p>
       <Button variant="primary" onPress={props.onRetry}>
         Retry
       </Button>

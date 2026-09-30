@@ -7,9 +7,10 @@ import { Home } from "../states/Home";
 import { TeamProvider } from "../team/TeamContext";
 import { TeamTray } from "../team/TeamTray";
 import { EmptyOutcome, FailedSearch, InvalidQuery } from "../states/Outcomes";
+import { Masthead } from "./Masthead";
 import { useSearchResults } from "./queries";
 import { SearchBox } from "./SearchBox";
-import { Understanding } from "./Understanding";
+import { Terms, Understanding } from "./Understanding";
 import { type SearchController, useSearchController } from "./useSearchController";
 
 const loadResultsRegion = () => import("../results/ResultsRegion");
@@ -39,23 +40,24 @@ function Outcome(props: {
     return <FailedSearch message={error.message} onRetry={() => void search.refetch()} />;
   }
   const response = search.data;
+  if (response === undefined) return <Spinner label="Searching…" />;
   return (
-    <div className="space-y-6">
-      {search.isFetching ? <Spinner label="Searching…" /> : null}
-      {response === undefined ? null : (
-        <>
-          <Understanding response={response} onRun={controller.run} />
-          {response.outcome === "empty" ? (
-            <EmptyOutcome response={response} onRun={controller.run} />
-          ) : (
-            <ResultsRegion
-              response={response}
-              outdated={search.isPlaceholderData}
-              onOpen={onOpen}
-            />
-          )}
-        </>
-      )}
+    <div className="grid gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1fr)_14rem]">
+      <div className="min-w-0 space-y-6">
+        <Terms response={response} />
+        {search.isFetching ? <Spinner label="Searching…" /> : null}
+        {response.outcome === "empty" ? (
+          <EmptyOutcome response={response} onRun={controller.run} />
+        ) : (
+          <ResultsRegion response={response} outdated={search.isPlaceholderData} onOpen={onOpen} />
+        )}
+      </div>
+      <aside
+        aria-label="Notes on the query"
+        className="lg:border-rule lg:col-start-2 lg:row-start-1 lg:border-l lg:pl-6"
+      >
+        <Understanding response={response} onRun={controller.run} />
+      </aside>
     </div>
   );
 }
@@ -79,15 +81,13 @@ export function SearchPage(): JSX.Element {
   return (
     <TeamProvider>
       <div data-ambience={ambience} className="ambience min-h-dvh">
-        <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10">
-          <header className="space-y-5">
-            <h1 className="text-3xl font-bold tracking-tight">
-              <span className="text-accent">Pokédex</span> Search
-            </h1>
-            <SearchBox controller={controller} />
-            <TeamTray />
-          </header>
-          <Outcome controller={controller} onOpen={setOpened} />
+        <div className="mx-auto flex w-full max-w-[78rem] flex-col gap-8 px-5 pt-8 pb-40 sm:px-10">
+          <Masthead />
+          <SearchBox controller={controller} />
+          <TeamTray />
+          <main>
+            <Outcome controller={controller} onOpen={setOpened} />
+          </main>
           {opened === null ? null : (
             <Suspense fallback={<Spinner label="Loading the entry…" />}>
               <EntityDialog
@@ -99,7 +99,7 @@ export function SearchPage(): JSX.Element {
               />
             </Suspense>
           )}
-        </main>
+        </div>
       </div>
     </TeamProvider>
   );
