@@ -39,14 +39,11 @@ function QuestionCard(props: {
   const headingId = useId();
   const { question, onRun } = props;
   return (
-    <section
-      aria-labelledby={headingId}
-      className="rounded-card border-line bg-panel/80 shadow-glow border p-5"
-    >
-      <h2 id={headingId} className="text-lg font-semibold">
+    <section aria-labelledby={headingId} className="panel pointer-events-auto rounded-2xl p-4">
+      <h2 id={headingId} className="text-sm font-semibold">
         {question.title}
       </h2>
-      <p className="text-muted mt-1 mb-4 text-sm">{question.description}</p>
+      <p className="text-muted mt-1 mb-3 text-xs leading-relaxed">{question.description}</p>
       <Button
         variant="outline"
         onPress={() => {
@@ -62,10 +59,16 @@ function QuestionCard(props: {
 /** The four supported kinds of question, each with an example that runs (SYS-UI-004). */
 export function Home({ onRun }: { readonly onRun: (query: string) => void }): JSX.Element {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {QUESTIONS.map((question) => (
-        <QuestionCard key={question.title} question={question} onRun={onRun} />
-      ))}
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 space-y-4 p-4 sm:p-6">
+      <p className="text-muted mx-auto max-w-xl text-center text-sm text-balance">
+        The 151 species, placed by likeness of stats and types. Ask a question and the sky
+        rearranges around the answer.
+      </p>
+      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-3 lg:grid-cols-4">
+        {QUESTIONS.map((question) => (
+          <QuestionCard key={question.title} question={question} onRun={onRun} />
+        ))}
+      </div>
     </div>
   );
 }

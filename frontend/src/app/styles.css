@@ -46,6 +46,38 @@
     }
   }
 
+  .panel {
+    background: rgb(18 24 41 / 0.86);
+    border: 1px solid rgb(255 255 255 / 0.07);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .scene-label {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    color: var(--color-text);
+    background: rgb(11 15 26 / 0.62);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.8);
+    will-change: transform;
+  }
+
+  .scene-label[data-highlighted="true"] {
+    color: var(--color-ink);
+    background: var(--color-focus);
+    text-shadow: none;
+  }
+
+  .scene-mark {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgb(154 166 196 / 0.75);
+    transform-origin: center;
+    will-change: transform;
+  }
+
   .ambience {
     background-image: var(--ambience-none);
     background-attachment: fixed;

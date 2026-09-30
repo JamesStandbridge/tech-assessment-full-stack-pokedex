@@ -81,14 +81,16 @@ test("two chosen Pokémon get their stat profiles overlaid", async () => {
   expect(screen.getByRole("table")).toHaveTextContent("Speed150110");
 });
 
-test("a weather strategy is drawn as a graph with the same relations as a list", async () => {
+test("a weather strategy is drawn in the constellation with the same relations as a list", async () => {
   await search(new FakeApi().answerSearch("rain team", rainTeamSearch), "rain team");
-  const graph = await screen.findByRole("figure", { name: "Relation graph" });
-  const relations = screen.getByRole("list", { name: "Relations" });
-  expect(relations).toHaveTextContent("Rain → Swift Swim");
+  const sky = await screen.findByRole("figure", { name: "Constellation" });
+  const relations = await within(sky).findByRole("list", { name: "Relations" });
+  await waitFor(() => {
+    expect(relations).toHaveTextContent("Rain → Swift Swim");
+  });
   expect(within(relations).getAllByRole("listitem")).toHaveLength(
-    graph.querySelectorAll("line").length,
+    sky.querySelectorAll("line").length,
   );
-  await userEvent.click(within(graph).getByRole("button", { name: "Swift Swim" }));
+  await userEvent.click(within(sky).getByRole("button", { name: "Swift Swim" }));
   expect(await screen.findByRole("dialog", { name: "Swift Swim" })).toBeVisible();
 });

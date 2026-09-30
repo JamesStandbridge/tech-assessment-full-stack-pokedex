@@ -6,5 +6,5 @@ import { App } from "./App";
 
 test("the page names the product", () => {
   render(<App api={new FakeApi()} />);
-  expect(screen.getByRole("heading", { level: 1, name: "Pokédex Search" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { level: 1, name: "Pokédex Constellation" })).toBeInTheDocument();
 });

@@ -1,8 +1,9 @@
 import { type JSX, lazy, Suspense, useEffect, useState } from "react";
 
 import { ApiError } from "../../api/errors";
-import type { EntityRef } from "../../api/contract";
+import type { EntityRef, SearchResponse } from "../../api/contract";
 import { Spinner } from "../../ui/Spinner";
+import { Constellation } from "../scene/Constellation";
 import { Home } from "../states/Home";
 import { TeamProvider } from "../team/TeamContext";
 import { TeamTray } from "../team/TeamTray";
@@ -30,7 +31,6 @@ function Outcome(props: {
 }): JSX.Element | null {
   const { controller, onOpen } = props;
   const search = useSearchResults(controller.query);
-  if (controller.query === "") return <Home onRun={controller.run} />;
   if (search.isError) {
     const error = search.error;
     if (error instanceof ApiError && error.kind === "invalid") {
@@ -60,46 +60,86 @@ function Outcome(props: {
   );
 }
 
-/** The weather of the current reading sets the page ambience (SYS-UI-010). */
-function useAmbience(query: string): string {
+/** The response the sky follows: none on the home page, the current one otherwise. */
+function useShownResponse(query: string): SearchResponse | null {
   const search = useSearchResults(query);
-  const plan = search.data?.interpretation.alternatives[0];
-  return plan?.weather?.weather ?? "none";
+  return query === "" ? null : (search.data ?? null);
 }
 
-/** The whole search screen: the box, the outcome of the query in the URL, and the details. */
+function Panel(props: {
+  readonly controller: SearchController;
+  readonly onOpen: (ref: EntityRef) => void;
+}): JSX.Element {
+  return (
+    <div className="panel pointer-events-auto absolute right-0 bottom-0 left-0 z-20 max-h-[58dvh] overflow-y-auto rounded-t-3xl p-4 sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none sm:w-[26rem] sm:rounded-3xl sm:p-5">
+      <Outcome {...props} />
+    </div>
+  );
+}
+
+function Header({ controller }: { readonly controller: SearchController }): JSX.Element {
+  return (
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-30 flex flex-col items-center gap-3 p-3 sm:flex-row sm:items-start sm:p-5">
+      <h1 className="pointer-events-auto text-lg font-bold tracking-tight whitespace-nowrap sm:pt-2">
+        <span className="text-accent-soft">Pokédex</span> Constellation
+      </h1>
+      <div className="command-bar pointer-events-auto w-full max-w-xl sm:mx-auto">
+        <SearchBox controller={controller} />
+      </div>
+      <div className="pointer-events-auto">
+        <TeamTray />
+      </div>
+    </header>
+  );
+}
+
+function Details(props: {
+  readonly opened: EntityRef | null;
+  readonly onOpen: (ref: EntityRef | null) => void;
+}): JSX.Element | null {
+  const { opened, onOpen } = props;
+  if (opened === null) return null;
+  return (
+    <Suspense fallback={<Spinner label="Loading the entry…" />}>
+      <EntityDialog
+        entity={opened}
+        onOpen={onOpen}
+        onClose={() => {
+          onOpen(null);
+        }}
+      />
+    </Suspense>
+  );
+}
+
+/** The whole search screen: the sky of species, the command bar over it, and the answer beside it. */
 export function SearchPage(): JSX.Element {
   const controller = useSearchController();
   const [opened, setOpened] = useState<EntityRef | null>(null);
-  const ambience = useAmbience(controller.query);
+  const response = useShownResponse(controller.query);
+  const ambience = response?.interpretation.alternatives[0]?.weather?.weather ?? "none";
   const hasQuery = controller.query !== "";
   useEffect(() => {
     if (hasQuery) void loadResultsRegion();
   }, [hasQuery]);
   return (
     <TeamProvider>
-      <div data-ambience={ambience} className="ambience min-h-dvh">
-        <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10">
-          <header className="space-y-5">
-            <h1 className="text-3xl font-bold tracking-tight">
-              <span className="text-accent">Pokédex</span> Search
-            </h1>
-            <SearchBox controller={controller} />
-            <TeamTray />
-          </header>
-          <Outcome controller={controller} onOpen={setOpened} />
-          {opened === null ? null : (
-            <Suspense fallback={<Spinner label="Loading the entry…" />}>
-              <EntityDialog
-                entity={opened}
-                onOpen={setOpened}
-                onClose={() => {
-                  setOpened(null);
-                }}
-              />
-            </Suspense>
+      <div data-ambience={ambience} className="ambience relative h-dvh overflow-hidden">
+        <main className="contents">
+          <Constellation
+            response={response}
+            panel={hasQuery}
+            onOpen={setOpened}
+            onRun={controller.run}
+          />
+          <Header controller={controller} />
+          {hasQuery ? (
+            <Panel controller={controller} onOpen={setOpened} />
+          ) : (
+            <Home onRun={controller.run} />
           )}
         </main>
+        <Details opened={opened} onOpen={setOpened} />
       </div>
     </TeamProvider>
   );
