@@ -1,49 +1,16 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 import { Then, When } from "../fixtures";
+import {
+  LABEL_TOLERANCE,
+  openSky,
+  settledSpots,
+  type Spot,
+  sightingOf,
+  spotOf,
+  spotsOf,
+} from "../sky";
 import { nodeLabel, type PokedexWorld } from "../world";
-
-interface Spot {
-  readonly x: number;
-  readonly y: number;
-}
-
-/** Where each star stood before the view moved, and how far apart the stars were before a zoom. */
-interface Sighting {
-  readonly spots: Map<string, Spot>;
-  spread: number;
-}
-
-const sightings = new WeakMap<Page, Sighting>();
-
-function sightingOf(page: Page): Sighting {
-  const known = sightings.get(page);
-  if (known !== undefined) return known;
-  const fresh: Sighting = { spots: new Map(), spread: 0 };
-  sightings.set(page, fresh);
-  return fresh;
-}
-
-/** The label of a star sits under it; the star itself is just above the label. */
-async function spotOf(label: Locator): Promise<Spot> {
-  await expect(label).toBeVisible();
-  const box = await label.boundingBox();
-  if (box === null) throw new Error("The star has no label on screen");
-  return { x: box.x + box.width / 2, y: box.y - 8 };
-}
-
-const LABEL_TOLERANCE = 1;
-/** Two readings of the stars this far apart match once the sky has settled into its frame. */
-const SETTLE_MS = 250;
-
-async function spotsOf(pokedex: PokedexWorld): Promise<Map<string, Spot>> {
-  const spots = new Map<string, Spot>();
-  for (const label of await pokedex.constellation().locator("button[data-node]").all()) {
-    const node = await label.getAttribute("data-node");
-    if (node !== null) spots.set(node, await spotOf(label));
-  }
-  return spots;
-}
 
 Then("the constellation shows {int} species", async ({ pokedex }, count: number) => {
   await expect(pokedex.constellation()).toHaveAttribute("data-species", String(count));
@@ -117,15 +84,8 @@ When(
   async ({ page, pokedex }, dx: number, dy: number) => {
     const sighting = sightingOf(page);
     await expect(pokedex.star("ability:swift-swim")).toBeVisible();
-    await expect(async () => {
-      const before = await spotsOf(pokedex);
-      await page.waitForTimeout(SETTLE_MS);
-      expect(await spotsOf(pokedex)).toEqual(before);
-      for (const [node, spot] of before) sighting.spots.set(node, spot);
-    }).toPass();
-    const box = await pokedex.constellation().boundingBox();
-    if (box === null) throw new Error("The constellation is not on screen");
-    const start = { x: box.x + box.width / 3, y: box.y + box.height / 2 };
+    for (const [node, spot] of await settledSpots(page)) sighting.spots.set(node, spot);
+    const start = await openSky(page, pokedex);
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
     await page.mouse.move(start.x + dx, start.y + dy, { steps: 10 });
@@ -133,24 +93,22 @@ When(
   },
 );
 
-async function expectShift(page: Page, pokedex: PokedexWorld, shift: Spot): Promise<void> {
+async function expectShift(page: Page, shift: Spot): Promise<void> {
   const spots = sightingOf(page).spots;
   expect(spots.size).toBeGreaterThan(0);
   await expect(async () => {
+    const now = await spotsOf(page);
     for (const [node, before] of spots) {
-      const after = await spotOf(pokedex.star(node));
+      const after = now.get(node) ?? { x: Number.NaN, y: Number.NaN };
       expect(Math.abs(after.x - before.x - shift.x)).toBeLessThanOrEqual(LABEL_TOLERANCE);
       expect(Math.abs(after.y - before.y - shift.y)).toBeLessThanOrEqual(LABEL_TOLERANCE);
     }
   }).toPass();
 }
 
-Then(
-  "the stars have moved by {int} and {int} pixels",
-  async ({ page, pokedex }, x: number, y: number) => {
-    await expectShift(page, pokedex, { x, y });
-  },
-);
+Then("the stars have moved by {int} and {int} pixels", async ({ page }, x: number, y: number) => {
+  await expectShift(page, { x, y });
+});
 
 async function spreadOf(pokedex: PokedexWorld): Promise<number> {
   const first = await spotOf(pokedex.star("ability:swift-swim"));
@@ -175,7 +133,7 @@ When("I recenter the constellation", async ({ pokedex }) => {
 });
 
 Then("the stars are back in place", async ({ page, pokedex }) => {
-  await expectShift(page, pokedex, { x: 0, y: 0 });
+  await expectShift(page, { x: 0, y: 0 });
   await expect(pokedex.constellation().getByRole("button", { name: "Recenter" })).toHaveCount(0);
 });
 

@@ -7,6 +7,7 @@ import { readingOf } from "./reading";
 import { hubStaging, ringStaging } from "./sceneRelations";
 import { axisStaging, focusStaging, litStaging } from "./sceneStaging";
 import {
+  lens,
   NO_STAGE,
   type SceneAxis,
   type SceneCamera,
@@ -32,25 +33,60 @@ export interface SceneFrame {
 const DUST_SPREAD = 1.7;
 const DUST_DEPTH = 14;
 /** The home sky is framed on this share of the species along each axis; the others may reach the edges. */
-const HOME_SHARE = 0.9;
-const HOME_AIR = 1.2;
+const HOME_SHARE = 0.98;
+/** A margin of this share of the free area on every side of the bulk. */
+const HOME_MARGIN = 0.09;
+const HOME_AIR = 1 / (1 - 2 * HOME_MARGIN);
 const MIN_HOME_REACH = 1;
+/** The distance depends on how near stars look, which depends on the distance: a few passes settle it. */
+const HOME_PASSES = 4;
 
-function reach(values: readonly number[]): number {
-  const sorted = values.map(Math.abs).sort((a, b) => a - b);
-  const bulk = sorted[Math.floor(HOME_SHARE * (sorted.length - 1))] ?? 0;
-  return Math.max(MIN_HOME_REACH, bulk * HOME_AIR);
+/** Where the bulk of the species lies along one axis, and how far it spreads from there. */
+interface Span {
+  readonly middle: number;
+  readonly half: number;
 }
 
-/** Frame the bulk of the home sky with a little air, as wide as it spreads. */
+function span(values: readonly number[]): Span {
+  const sorted = [...values].sort((a, b) => a - b);
+  const last = sorted.length - 1;
+  const low = sorted[Math.round(((1 - HOME_SHARE) / 2) * last)] ?? 0;
+  const high = sorted[Math.round(((1 + HOME_SHARE) / 2) * last)] ?? 0;
+  return {
+    middle: (low + high) / 2,
+    half: Math.max(MIN_HOME_REACH, ((high - low) / 2) * HOME_AIR),
+  };
+}
+
+interface Spread {
+  readonly across: Span;
+  readonly up: Span;
+}
+
+/** How the bulk spreads on screen, in units at the target, seen from the front at a distance. */
+function spreadAt(points: readonly Point[], distance: number): Spread {
+  return {
+    across: span(points.map((place) => place.x * lens(distance, place.z))),
+    up: span(points.map((place) => place.y * lens(distance, place.z))),
+  };
+}
+
+function distanceOf(spread: Spread): number {
+  return (2 * spread.up.half) / VIEW_HEIGHT;
+}
+
+/** Frame the bulk of the home sky as the camera sees it, centered, with a margin, as wide as it spreads. */
 export function homeCamera(places: Constellation): SceneCamera {
   const points = [...places.values()];
-  const halfWidth = reach(points.map((place) => place.x));
-  const halfHeight = reach(points.map((place) => place.y));
+  const distance = Array.from({ length: HOME_PASSES }).reduce<number>(
+    (current) => distanceOf(spreadAt(points, current)),
+    Number.MAX_VALUE,
+  );
+  const spread = spreadAt(points, distance);
   return {
-    target: point(0, 0, 0),
-    distance: (2 * halfHeight) / VIEW_HEIGHT,
-    aspect: halfWidth / halfHeight,
+    target: point(spread.across.middle, spread.up.middle, 0),
+    distance: distanceOf(spread),
+    aspect: spread.across.half / spread.up.half,
   };
 }
 

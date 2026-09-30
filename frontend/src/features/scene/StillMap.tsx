@@ -1,4 +1,12 @@
-import { type JSX, type RefObject, useEffect, useRef, useState } from "react";
+import {
+  type JSX,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import { assertNever } from "../../domain/assertNever";
 import type { SceneFrame } from "../../domain/scene";
@@ -35,29 +43,47 @@ interface StillMapProps {
   readonly onNavigate: (move: (pan: Pan) => Pan) => void;
 }
 
+const UNSIZED: Viewport = { width: 1, height: 1, pixelRatio: 1 };
+const sizes = new WeakMap<Element, Viewport>();
+
+/** The size of the map, the same object while it does not change, as an external store needs. */
+function sizeOf(element: Element | null): Viewport {
+  if (element === null) return UNSIZED;
+  const box = element.getBoundingClientRect();
+  const width = Math.max(1, box.width);
+  const height = Math.max(1, box.height);
+  const known = sizes.get(element);
+  if (known?.width === width && known.height === height) return known;
+  const fresh = { width, height, pixelRatio: 1 };
+  sizes.set(element, fresh);
+  return fresh;
+}
+
+/** The map's size, read as soon as it is mounted rather than on the first resize the browser reports. */
 function useViewport(): {
   readonly ref: RefObject<HTMLDivElement | null>;
+  readonly attach: (element: HTMLDivElement | null) => void;
   readonly viewport: Viewport;
 } {
   const ref = useRef<HTMLDivElement>(null);
-  const [viewport, setViewport] = useState<Viewport>({ width: 1, height: 1, pixelRatio: 1 });
-  useEffect(() => {
-    const element = ref.current;
-    if (element === null) return;
-    const observer = new ResizeObserver(() => {
-      const box = element.getBoundingClientRect();
-      setViewport({
-        width: Math.max(1, box.width),
-        height: Math.max(1, box.height),
-        pixelRatio: 1,
-      });
-    });
-    observer.observe(element);
-    return () => {
-      observer.disconnect();
-    };
+  const [host, setHost] = useState<HTMLDivElement | null>(null);
+  const attach = useCallback((element: HTMLDivElement | null): void => {
+    ref.current = element;
+    setHost(element);
   }, []);
-  return { ref, viewport };
+  const subscribe = useCallback(
+    (notify: () => void): (() => void) => {
+      if (host === null) return () => undefined;
+      const observer = new ResizeObserver(notify);
+      observer.observe(host);
+      return () => {
+        observer.disconnect();
+      };
+    },
+    [host],
+  );
+  const viewport = useSyncExternalStore(subscribe, () => sizeOf(host));
+  return { ref, attach, viewport };
 }
 
 /** Any drag pans the map; the wheel and a pinch zoom it around the pointer. */
@@ -90,7 +116,7 @@ function follow(gesture: Gesture, props: StillMapProps, view: StillView): void {
 /** The constellation as a still front view, for browsers and users the scene does not suit (SYS-UI-025). */
 export function StillMap(props: StillMapProps): JSX.Element {
   const { frame, marks, highlighted, inset, pan, hovered, onLabels } = props;
-  const { ref, viewport } = useViewport();
+  const { ref, attach, viewport } = useViewport();
   const { theme } = useTheme();
   const view = stillView(frame, { viewport, inset });
   useGestures(ref, (gesture) => {
@@ -102,7 +128,7 @@ export function StillMap(props: StillMapProps): JSX.Element {
   const transform = `translate(${String(pan.x)} ${String(pan.y)}) scale(${String(pan.scale)})`;
   return (
     <div
-      ref={ref}
+      ref={attach}
       aria-hidden="true"
       className={`absolute inset-0 touch-none ${cursorOf(hovered !== null)}`}
     >

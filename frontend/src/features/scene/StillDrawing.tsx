@@ -145,15 +145,16 @@ function Stars(props: StillDrawingProps): JSX.Element {
         <feGaussianBlur stdDeviation={HALO_BLUR} />
       </filter>
       {frame.nodes.map((node) => (
-        <Star
-          key={node.id}
-          node={node}
-          at={view.project(node.position)}
-          radius={view.radius(lookOf(node, highlighted.has(node.id)).size, node.position.z)}
-          color={colorOf(node)}
-          sprite={sprites.get(node.id)}
-          halo={haloOf(node)}
-        />
+        <g key={node.id} data-node={node.id}>
+          <Star
+            node={node}
+            at={view.project(node.position)}
+            radius={view.radius(lookOf(node, highlighted.has(node.id)).size, node.position.z)}
+            color={colorOf(node)}
+            sprite={sprites.get(node.id)}
+            halo={haloOf(node)}
+          />
+        </g>
       ))}
     </g>
   );

@@ -84,6 +84,13 @@ export const NO_STAGE = {
 
 /** Height the camera sees at a distance of one, with its vertical field of 46 degrees. */
 export const VIEW_HEIGHT = 2 * Math.tan((23 * Math.PI) / 180);
+/** No star is drawn as if closer to the camera than this share of its distance. */
+const NEAREST_SHARE = 0.25;
+
+/** How much larger than at the target a point this far in front of it looks, seen from a distance. */
+export function lens(distance: number, depth: number): number {
+  return distance / Math.max(distance * NEAREST_SHARE, distance - depth);
+}
 
 const FIT_MARGIN = 3;
 const MIN_DISTANCE = 12;

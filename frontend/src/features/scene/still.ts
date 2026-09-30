@@ -1,10 +1,9 @@
 import type { Point } from "../../domain/geometry";
 import { namedNodes, type SceneFrame } from "../../domain/scene";
-import { type SceneNode, VIEW_HEIGHT } from "../../domain/sceneTypes";
+import { lens, type SceneNode, VIEW_HEIGHT } from "../../domain/sceneTypes";
 import { lookOf } from "./looks";
 import type { Inset, Mark, Viewport } from "./protocol";
 
-const DEPTH_CUE = 0.02;
 const MIN_SCALE = 0.4;
 const MAX_SCALE = 6;
 const MIN_PICK_RADIUS = 10;
@@ -49,7 +48,7 @@ export function stillView(frame: SceneFrame, space: Space): StillView {
   const { distance, aspect } = frame.camera;
   const scale = Math.min(free.width / aspect, free.height) / (distance * VIEW_HEIGHT);
   const target = frame.camera.target;
-  const cue = (depth: number): number => Math.max(0.4, 1 + (depth - target.z) * DEPTH_CUE);
+  const cue = (depth: number): number => lens(distance, depth - target.z);
   return {
     project: (at) => ({
       x: inset.left + free.width / 2 + (at.x - target.x) * scale * cue(at.z),
