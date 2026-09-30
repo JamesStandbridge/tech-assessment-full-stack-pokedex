@@ -18,8 +18,8 @@ const BASE =
   "data-[focus-visible]:ring-offset-ink data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45";
 
 const SIZES: Readonly<Record<Size, string>> = {
-  regular: "min-h-9 px-3.5 py-1.5 text-sm",
-  small: "min-h-7 px-2 py-0.5 text-xs",
+  regular: "min-h-10 px-4 py-2 text-sm",
+  small: "min-h-8 px-2.5 py-1 text-[0.8125rem]",
   inline: "text-left",
 };
 

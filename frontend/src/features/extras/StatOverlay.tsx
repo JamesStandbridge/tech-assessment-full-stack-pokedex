@@ -3,6 +3,7 @@ import type { JSX } from "react";
 import type { PokemonResult } from "../../api/contract";
 import { displayName } from "../../domain/entities";
 import { STAT_LABELS } from "../../domain/stats";
+import { Panel } from "../../ui/Panel";
 
 const SIZE = 280;
 const CENTER = SIZE / 2;
@@ -100,9 +101,16 @@ export function StatOverlay({
 }): JSX.Element {
   const names = selected.map((pokemon) => displayName(pokemon.name));
   return (
-    <section aria-label="Stat comparison" className="plate grid gap-4 p-4">
-      <Radar selected={selected} names={names} />
-      <StatTable selected={selected} names={names} />
-    </section>
+    <Panel
+      label="Stat comparison"
+      eyebrow="Overlay"
+      title="Stat profiles"
+      count={String(selected.length)}
+    >
+      <div className="grid gap-4">
+        <Radar selected={selected} names={names} />
+        <StatTable selected={selected} names={names} />
+      </div>
+    </Panel>
   );
 }

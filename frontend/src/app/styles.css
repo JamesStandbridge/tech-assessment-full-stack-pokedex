@@ -5,7 +5,7 @@
 
 @utility catalogue {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   line-height: 1rem;
   letter-spacing: var(--tracking-catalogue);
   text-transform: uppercase;
@@ -17,6 +17,54 @@
     color: var(--color-text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  @media (min-width: 80rem) {
+    html {
+      font-size: 106.25%;
+    }
+  }
+
+  @media (min-width: 105rem) {
+    html {
+      font-size: 112.5%;
+    }
+  }
+
+  @supports (scrollbar-color: auto) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-line) transparent;
+    }
+
+    *:hover,
+    *:focus-within {
+      scrollbar-color: var(--color-rule) transparent;
+    }
+  }
+
+  @supports not (scrollbar-color: auto) {
+    ::-webkit-scrollbar {
+      width: 0.5rem;
+      height: 0.5rem;
+    }
+
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: var(--radius-control);
+      background-color: var(--color-line);
+      background-clip: padding-box;
+    }
+
+    *:hover::-webkit-scrollbar-thumb,
+    *:focus-within::-webkit-scrollbar-thumb {
+      background-color: var(--color-rule);
+    }
   }
 
   body {
@@ -43,7 +91,7 @@
     border-bottom-width: 2px;
     border-radius: var(--radius-control);
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     color: var(--color-muted);
   }
 }
@@ -81,6 +129,12 @@
       right bottom;
     background-repeat: no-repeat;
     box-shadow: var(--shadow-plate);
+  }
+
+  .scroll-area {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
   }
 
   /* The frame of a sprite or an artwork, with a centre tick on each side. */

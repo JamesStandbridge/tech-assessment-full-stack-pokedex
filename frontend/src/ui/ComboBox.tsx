@@ -32,12 +32,12 @@ function OptionList(): JSX.Element {
       offset={6}
       className="plate motion-safe:data-[entering]:animate-rise w-(--trigger-width) p-1"
     >
-      <ListBox className="max-h-72 overflow-y-auto outline-none">
+      <ListBox className="scroll-area max-h-72 outline-none">
         {(option: ComboOption) => (
           <ListBoxItem
             id={option.id}
             textValue={option.label}
-            className="rounded-control data-[focused]:border-accent data-[focused]:bg-panel-raised cursor-pointer border-l-2 border-transparent px-3 py-2 text-sm outline-none"
+            className="rounded-control data-[focused]:border-accent data-[focused]:bg-panel-raised cursor-pointer border-l-2 border-transparent px-3 py-2 outline-none"
           >
             {option.label}
           </ListBoxItem>

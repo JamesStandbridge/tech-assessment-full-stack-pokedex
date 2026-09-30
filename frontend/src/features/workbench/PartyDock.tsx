@@ -4,7 +4,9 @@ import type { Species } from "../../api/contract";
 import { displayName } from "../../domain/entities";
 import { PARTY_SIZE } from "../../domain/workbench";
 import { Button } from "../../ui/Button";
+import { Panel } from "../../ui/Panel";
 import { RemoteImage } from "../../ui/RemoteImage";
+import { TypeBadge } from "../../ui/TypeBadge";
 import { useContenders, useSharedWeathers } from "./data";
 import { ReplacePrompt } from "./ReplacePrompt";
 import { useWorkbench } from "./WorkbenchContext";
@@ -14,13 +16,20 @@ function Member(props: { readonly member: Species; readonly onRemove: () => void
   return (
     <li
       data-member={props.member.name}
-      className="specimen flex min-w-0 items-center gap-1 py-0.5 pr-0.5 pl-1"
+      className="specimen relative flex min-w-0 flex-col items-center gap-1 px-1 pt-1 pb-2"
     >
-      <RemoteImage src={props.member.sprite_url} alt={name} size={32} />
-      <span className="min-w-0 flex-1 truncate text-xs">{name}</span>
-      <Button variant="quiet" size="small" aria-label={`Remove ${name}`} onPress={props.onRemove}>
-        <span aria-hidden="true">&times;</span>
-      </Button>
+      <span className="absolute top-0.5 right-0.5">
+        <Button variant="quiet" size="small" aria-label={`Remove ${name}`} onPress={props.onRemove}>
+          <span aria-hidden="true">&times;</span>
+        </Button>
+      </span>
+      <RemoteImage src={props.member.sprite_url} alt={name} size={48} />
+      <span className="w-full truncate text-center text-sm">{name}</span>
+      <span className="flex gap-0.5">
+        {props.member.types.map((type) => (
+          <TypeBadge key={type} type={type} compact />
+        ))}
+      </span>
     </li>
   );
 }
@@ -29,7 +38,7 @@ function EmptySlot({ position }: { readonly position: number }): JSX.Element {
   return (
     <li
       aria-hidden="true"
-      className="rounded-control border-line text-muted grid min-h-10 place-items-center border border-dashed font-mono text-[0.65rem]"
+      className="rounded-control border-line text-muted grid min-h-28 place-items-center border border-dashed font-mono text-xs"
     >
       {String(position).padStart(2, "0")}
     </li>
@@ -39,7 +48,7 @@ function EmptySlot({ position }: { readonly position: number }): JSX.Element {
 function Shared({ party }: { readonly party: readonly string[] }): JSX.Element {
   const shared = useSharedWeathers(party);
   return (
-    <p className="font-display text-muted text-sm italic">
+    <p className="font-display text-muted text-base italic">
       {shared.length > 0
         ? `All of them help with ${shared.join(" and ")}`
         : "No weather shared yet"}
@@ -78,14 +87,12 @@ export function PartyDock(): JSX.Element | null {
   const members = useContenders(party);
   if (party.length === 0 && workbench.pending === null) return null;
   return (
-    <section aria-label="Party" className="plate pointer-events-auto space-y-2 p-3 sm:p-4">
-      <div className="border-line flex items-baseline justify-between gap-3 border-b pb-2">
-        <h2 className="flex items-baseline gap-2">
-          <span className="font-display text-xl font-semibold">Party</span>{" "}
-          <span className="catalogue text-muted tabular-nums">
-            {party.length}/{PARTY_SIZE}
-          </span>
-        </h2>
+    <Panel
+      label="Party"
+      eyebrow="Team"
+      title="Party"
+      count={`${String(party.length)}/${String(PARTY_SIZE)}`}
+      actions={
         <Button
           variant="quiet"
           size="small"
@@ -94,12 +101,15 @@ export function PartyDock(): JSX.Element | null {
         >
           Clear the party
         </Button>
+      }
+    >
+      <div className="space-y-3">
+        <Shared party={party} />
+        <Slots members={members} />
+        {workbench.pending === null ? null : (
+          <ReplacePrompt newcomer={workbench.pending} members={members} />
+        )}
       </div>
-      <Shared party={party} />
-      <Slots members={members} />
-      {workbench.pending === null ? null : (
-        <ReplacePrompt newcomer={workbench.pending} members={members} />
-      )}
-    </section>
+    </Panel>
   );
 }

@@ -13,7 +13,7 @@ interface ChipProps {
 export function Chip({ label, color, description, dashed = false }: ChipProps): JSX.Element {
   return (
     <span
-      className={`rounded-control bg-ink text-text inline-flex items-center gap-1.5 border px-2 py-0.5 text-xs ${
+      className={`rounded-control bg-ink text-text inline-flex items-center gap-1.5 border px-2 py-0.5 text-sm ${
         dashed ? "border-dashed line-through decoration-1" : "border-solid"
       }`}
       style={{ borderColor: `color-mix(in oklab, ${color} 55%, transparent)` }}
