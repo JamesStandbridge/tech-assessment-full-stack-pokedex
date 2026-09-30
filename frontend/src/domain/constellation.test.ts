@@ -54,6 +54,14 @@ describe("constellation", () => {
   test("names the clusters of the most common primary types, largest first", () => {
     const clusters = typeClusters(species, places);
     expect(clusters[0]?.type).toBe("water");
-    expect(clusters.every((cluster) => cluster.size >= 5)).toBe(true);
+    expect(clusters.map((cluster) => cluster.size)).toEqual(
+      [...clusters.map((cluster) => cluster.size)].sort((a, b) => b - a),
+    );
+  });
+
+  test("keeps the names of clusters apart", () => {
+    const centers = typeClusters(species, places).map((cluster) => cluster.center);
+    const gaps = centers.flatMap((a, index) => centers.slice(index + 1).map((b) => distance(a, b)));
+    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(4.5);
   });
 });

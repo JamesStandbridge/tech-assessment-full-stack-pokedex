@@ -67,7 +67,7 @@ export const NO_STAGE = {
   weather: null,
 } as const satisfies Partial<Staging>;
 
-const FIT_MARGIN = 2.4;
+const FIT_MARGIN = 3;
 const MIN_DISTANCE = 12;
 
 export function allResults(response: SearchResponse): readonly Result[] {

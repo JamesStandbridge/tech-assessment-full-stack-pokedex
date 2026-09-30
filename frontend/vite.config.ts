@@ -11,13 +11,13 @@ const ARTWORK_HOST = "https://raw.githubusercontent.com";
 /** The one stylesheet React Aria's usePress injects: touch-action on pressable elements. */
 const REACT_ARIA_PRESSABLE_STYLE = "'sha256-38RhXrc7EdReTKsOm23ZPOCUgniTUUcjky8QOOrQx6o='";
 
-/** Scripts, styles and requests stay on the origin; images may also come from the artwork host. */
+/** Scripts, styles and requests stay on the origin; images and the sprites of the scene may also come from the artwork host. */
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self'",
   `style-src 'self' ${REACT_ARIA_PRESSABLE_STYLE}`,
   `img-src 'self' ${ARTWORK_HOST} data:`,
-  "connect-src 'self'",
+  `connect-src 'self' ${ARTWORK_HOST}`,
   "font-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -56,6 +56,7 @@ export default defineConfig({
   server: { host: "127.0.0.1", port: 5173, strictPort: true, proxy },
   preview: { host: "127.0.0.1", port: 4173, strictPort: true, proxy, headers: SECURITY_HEADERS },
   build: { target: "es2023", sourcemap: true },
+  worker: { format: "es" },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],

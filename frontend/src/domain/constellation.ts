@@ -1,5 +1,5 @@
 import type { Species, Stats } from "../api/contract";
-import { centroid, type Point } from "./geometry";
+import { centroid, distance, type Point } from "./geometry";
 import { centerColumns, type Matrix, principalAxes, projection } from "./pca";
 
 /** Where every species sits in the constellation, by name. */
@@ -24,7 +24,9 @@ const TYPE_WEIGHT = 1.6;
 const EXTENTS: readonly number[] = [15, 10, 7];
 const MIN_GAP = 0.9;
 const SEPARATION_PASSES = 30;
-const MIN_CLUSTER = 5;
+const MIN_CLUSTER = 3;
+const NEIGHBOURHOOD = 5;
+const LABEL_GAP = 4.5;
 
 function standardized(species: readonly Species[], stat: keyof Stats): readonly number[] {
   const values = species.map((one) => one.stats[stat]);
@@ -112,22 +114,43 @@ export function constellation(species: readonly Species[]): Constellation {
   );
 }
 
-/** Return the named groups of the home view: the species of each primary type. */
+function densestGroup(members: readonly Point[]): readonly Point[] {
+  const around = (center: Point): readonly Point[] =>
+    members.filter((other) => distance(center, other) <= NEIGHBOURHOOD);
+  return members.reduce<readonly Point[]>((best, member) => {
+    const group = around(member);
+    return group.length > best.length ? group : best;
+  }, []);
+}
+
+/**
+ * Return the named groups of the home view: where the species of each primary
+ * type gather most densely, largest first, without two names on top of each other.
+ */
 export function typeClusters(
   species: readonly Species[],
   places: Constellation,
 ): readonly Cluster[] {
-  const groups = new Map<string, Species[]>();
+  const groups = new Map<string, Point[]>();
   for (const one of species) {
     const type = one.types[0] ?? "";
-    groups.set(type, [...(groups.get(type) ?? []), one]);
+    const place = places.get(one.name);
+    if (place !== undefined) groups.set(type, [...(groups.get(type) ?? []), place]);
   }
-  return [...groups.entries()]
-    .filter(([, members]) => members.length >= MIN_CLUSTER)
-    .map(([type, members]) => ({
-      type,
-      size: members.length,
-      center: centroid(members.flatMap((one) => places.get(one.name) ?? [])),
+  const candidates = [...groups.entries()]
+    .map(([type, members]) => ({ type, members, core: densestGroup(members) }))
+    .filter((group) => group.core.length >= MIN_CLUSTER)
+    .map((group) => ({
+      type: group.type,
+      size: group.members.length,
+      center: centroid(group.core),
     }))
     .sort((a, b) => b.size - a.size || a.type.localeCompare(b.type));
+  return candidates.reduce<readonly Cluster[]>(
+    (kept, cluster) =>
+      kept.some((other) => distance(other.center, cluster.center) < LABEL_GAP)
+        ? kept
+        : [...kept, cluster],
+    [],
+  );
 }
