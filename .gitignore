@@ -1,10 +1,12 @@
 /data/
+.env
 .venv/
 __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .hypothesis/
+.env
 .process-compose.sock
 .process-compose.log
 .flox/telemetry_id

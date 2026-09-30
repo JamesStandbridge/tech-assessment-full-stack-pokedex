@@ -1,228 +1,273 @@
-# Technical Exercise — The Pokédex Search Engine
+# Pokédex search
 
-## Context
+A search engine over the published `pokedex.json` snapshot (151 Pokémon, 164
+moves, 114 abilities). You type a question in plain English; the API reads it
+as a set of constraints, ranks the matching Pokémon, moves and abilities, and
+says why each one matched. The interface shows the 151 species as a
+constellation that rearranges itself for each query, next to an accessible
+results panel, a party of six and a comparison bench.
 
-Professor Chen leads a growing research lab whose Pokédex has become difficult
-to use. It contains information about Pokémon, moves, abilities, types, stats,
-and relationships, but finding useful information still requires knowing
-exactly where to look and what something is called.
+The brief is kept in [`candidate-resources/`](candidate-resources/), with the
+dataset's provenance and checksum.
 
-The Pokédex is used by people with different levels of knowledge. An experienced
-researcher may look for a specific move, while a new trainer may remember only
-part of a name, a characteristic, an effect, or a gameplay intent. A query may
-also be relevant to several kinds of entities.
+## Setup, run and test
 
-Your challenge is not only to display data. It is to decide which search
-problems to solve, what makes a result relevant, and how to turn those decisions
-into a coherent full-stack product.
+Requirements: [flox](https://flox.dev), or mise, just and process-compose
+installed another way. flox installs those three, then mise installs the
+runtimes pinned in `mise.toml` (Python 3.14, uv, Node 24, pnpm).
 
-## Expected effort
+```sh
+flox activate        # tools and runtimes
+just setup           # dependencies, then download data/pokedex.json and verify its SHA-256
+just dev             # API on http://127.0.0.1:8000, interface on http://127.0.0.1:5173
+```
 
-This exercise is designed to take approximately **8–12 hours of focused work**.
-This estimate is guidance to help you size your solution, not a monitored time
-limit. You will receive a separate calendar deadline, normally about one week.
+`just serve` and `just web` start the two processes separately. No
+environment variable is required; the optional overrides are listed in
+[`backend/.env.example`](backend/.env.example). The data stays in `data/`,
+which is not committed.
 
-AI-assisted development tools are allowed and expected to accelerate
-implementation. Prioritise a coherent, understandable, and validated product
-within the expected effort rather than expanding the scope unnecessarily.
-Explain what you would do next with more time.
+| Command | What it runs |
+|---|---|
+| `just test` | Backend, tooling and frontend unit tests, with coverage thresholds on the frontend |
+| `just check` | Lint, type checks, layer rules, unit tests, bundle size, spec consistency |
+| `just acceptance` | The Gherkin scenarios of `specs/features` against a fresh API |
+| `just relevance` | nDCG against the rule judgments and the blind assessor grades |
+| `just ui` | The Playwright scenarios of `specs/ui` against the production build |
+| `just verify` | All of the above, plus timing budgets, Lighthouse and a dependency audit |
 
-## The mission
+`just ui` and `just lighthouse` need Chromium once:
+`cd frontend && pnpm exec playwright install chromium`. The suites that need an
+API start their own on port 8001, so a running dev server is never tested.
 
-Build a full-stack web application in which users submit a query and obtain
-useful results from the provided Pokémon data.
+## User needs
 
-The minimum is deliberately small: a working frontend, a backend retrieval
-flow, meaningful results, tests, and clear documentation. Beyond that
-foundation, choose the user needs and product scope that best demonstrate your
-judgment and technical depth.
+All four situations of the brief are supported, and they can be combined in
+one query.
 
-## Illustrative search challenges
+| Need | Example | What the product does |
+|---|---|---|
+| Recover a partly remembered name | `bulba` | Exact, prefix, infix, then typo-tolerant name match; the best match opens as a card |
+| Compare candidates on criteria | `fast electric pokemon` | Type filter, ranking by the stat asked for, stat bars, a bench to compare up to four side by side |
+| Find a way to cause an effect | `put the opponent to sleep` | Moves and abilities that do it, ranked by chance of success; Pokémon with the move or ability they get it through |
+| Explore a weather strategy | `rain team` | Abilities, moves and Pokémon grouped by role (benefit, protection, drawback), with the relations drawn in the scene |
 
-The following situations progress from a focused lookup to broader,
-exploratory needs.
+Left out on purpose: evolution chains, items, type matchups and damage
+calculation (absent from the snapshot or out of scope), competitive team
+advice, languages other than English. Queries the parser cannot read are
+answered honestly: ignored words are listed, and an empty result explains why
+and suggests queries that work. An in-app guide ("How to ask") lists what can
+and cannot be asked.
 
-1. **Recover something partially remembered.** A new trainer saw a Pokémon
-   whose name began with `bulba`, but cannot remember the full name. They want
-   to find it quickly and confirm that it is the Pokémon they had in mind.
-2. **Find and compare candidates from practical criteria.** A trainer has one
-   place left in their team and wants a fast Electric-type Pokémon. They need
-   useful candidates and enough comparable information to make a choice.
-3. **Discover an answer without knowing its vocabulary.** A trainer wants a
-   way to put an opponent to sleep, but does not know which moves, abilities,
-   or Pokémon can help. They need results that make the relevant relationship
-   understandable.
-4. **Explore a strategy spanning connected information.** An experienced
-   trainer is building a rain-oriented team. They want to discover ways to
-   take advantage of rain, Pokémon that benefit from it, and useful related
-   options, without searching each category separately.
+## Architecture and data flow
 
-These are product situations, not an exhaustive acceptance test or a required
-feature list. Your application does not need to solve all four. State which
-needs you support, what you deliberately leave out, and show how the submitted
-product helps its intended users.
+```text
+data/pokedex.json ─ checksum ─> index builder ─> in-memory SearchIndex
+                                  └ EffectClassifier: effect texts -> facts (effect, target, chance, weather role)
 
-## Minimum requirements
+query ─> QueryParser ─> SearchPlan(s) ─> SearchIndex ─> Ranker ─> sections with reasons ─> JSON
+                                                                                             │
+React app <─ TanStack Query <─ /api/search, /api/suggest, /api/entities, /api/species ───────┘
+   ├ results panel: one view per reading (name, criteria, effect, weather)
+   ├ constellation: three.js WebGPU in a worker, SVG still map as fallback
+   └ party and bench: one reducer with undo history, stored in the URL
+```
 
-### R1 — Frontend search experience
+- **Backend** (`backend/`, FastAPI): `domain` holds the entities and the plan,
+  `core` the parser, the effect lexicon and the ranking rules, `application`
+  the use cases behind ports, `infrastructure` the dataset loader and the
+  in-memory index, `api` the HTTP layer. Layer rules are enforced by
+  import-linter. Input is validated (2 to 200 characters); errors come back as
+  `{"error": {"code", "message"}}` with no stack trace.
+- **Contract**: [`specs/api/openapi.yaml`](specs/api/openapi.yaml) was written
+  before the code. The frontend types are generated from it, and the acceptance
+  suite validates every response against it.
+- **Frontend** (`frontend/`, React 19, Vite, Tailwind, React Aria): the
+  interface never re-parses the query; it picks its view from the
+  interpretation the API returns. The query and the workbench live in the URL,
+  so any screen can be shared.
+- **Tooling** (`tooling/`): dataset download and checksum, spec validation,
+  acceptance steps, relevance evaluation and pooling for blind assessment.
 
-Provide a usable web interface where a user can enter a query and inspect
-results. Include understandable loading, empty, and error states.
+## Five representative queries
 
-You decide how results and supporting information should be presented.
+Results from the published snapshot.
 
-### R2 — Backend retrieval
+| Query | Top results | What it shows |
+|---|---|---|
+| `bulba` | bulbasaur, "name starts with the query" | Prefix match. `bulbsaur` also finds it, because typo tolerance only applies when nothing matches literally |
+| `fast electric pokemon` | electrode (speed 150), jolteon (130), raichu (110), electabuzz (105), voltorb (100); 9 in all | "fast" sorts by base speed and is never matched as text; the type is a filter |
+| `put the opponent to sleep` | Moves: spore 100%, sleep-powder 75%, lovely-kiss 75%, hypnosis 60%, sing 55%. Ability: effect-spore 10%. Pokémon: paras and parasect through spore first, 32 in all | Intent without vocabulary. Rest is excluded, since it puts the user to sleep, and so are abilities that prevent sleep |
+| `rain team` | Abilities: swift-swim, rain-dish, dry-skin, hydration as benefits; cloud-nine as a drawback. Moves: thunder (benefit), solar-beam (drawback). 73 Pokémon, each with the move or ability that links it to rain | Relations across three kinds of entity, plus a notice that nothing in this snapshot sets rain |
+| `water pokemon that can put the opponent to sleep` | poliwag, poliwhirl, poliwrath (hypnosis, 60%), lapras (sing, 55%) | Constraints of two needs combined in one conjunctive plan |
 
-The frontend must retrieve results through a backend or server-side API. Define
-and document the contract that fits your product.
+Two controlled cases: `psychic` is ambiguous (a type and a move name), and
+the summary names both readings above Psychic-type Pokémon and moves;
+`chikorita` is not in the snapshot and returns an empty outcome with an
+explanation and example queries.
 
-The backend must:
+## Decisions and trade-offs
 
-- accept a user query;
-- retrieve results from the provided dataset;
-- return enough information for the frontend to render the chosen experience;
-- validate invalid or empty input; and
-- handle unexpected failures without exposing raw stack traces or secrets.
+The full reasoning is in 13 short records in [`docs/adr`](docs/adr).
 
-Choose and document the interface that fits your application.
+**Relevance is defined per need, from structured data**
+([ADR 2](docs/adr/0002-relevance-definition.md),
+[ADR 4](docs/adr/0004-search-models.md)). The four needs are different
+problems: spelling, attribute values, what an effect does to whom, and
+relations between entities. I measured a naive full-text search on the judged
+queries first: mean nDCG@10 of 0.55, against a target of 0.90. So each kind of
+constraint gets its own model: tiered string matching for names, filters and
+sorts for types and stats, extracted facts for effects, a weighted relation
+graph for weather. A query becomes one conjunctive plan. BM25 over species
+descriptions is kept only as a fallback. Embeddings were considered and set
+aside: cosine similarity barely separates "cause sleep" from "prevent sleep",
+which is exactly the distinction the intent need depends on.
 
-### R3 — Search scope and relevance
+**Effects are turned into facts at indexing time**
+([ADR 5](docs/adr/0005-search-architecture.md)). A versioned rule lexicon
+reads each short effect and records the effect, its target and its chance.
+Pokémon inherit the facts of their moves and abilities, so "which Pokémon can
+cause sleep" is a filter, not a join. The lexicon is hand-written, which is
+fine for 278 moves and abilities but would not be for a larger corpus; the port is there
+so a batch language model could replace it, as long as it produces the same
+facts.
 
-Implement a coherent search experience over Pokémon data. At minimum, the
-application must return useful results for one clearly supported kind of user
-need.
+**Only the index depends on volume.** Parser, ranking rules and contract do
+not change with the number of entities. At 429 entities the index is in
+memory; at a million it would be a PostgreSQL (`pg_trgm`) or OpenSearch
+adapter behind the same `SearchIndex` port. An external engine now would have
+made local review harder for no gain.
 
-You decide what information is searchable, which kinds of results belong
-together, and what makes a result useful. The experience should behave
-deliberately when a request is ambiguous, unsupported, or has no useful result.
-Document the scope and the product decisions behind it.
+**The snapshot is followed exactly**
+([ADR 3](docs/adr/0003-dataset-fidelity.md)). It mixes eras: generation I
+moves, modern types, abilities from generation III on. I did not correct it
+with game knowledge. When a strategy depends on a missing mechanic, such as
+anything that sets rain, the response carries a notice instead of inventing
+the fact.
 
-### R4 — Data and reproducibility
+**Specs before code** ([ADR 1](docs/adr/0001-specification-layers.md)).
+Requirements are written once in EARS form (`specs/requirements.yaml`, 118
+entries), hard rules as Gherkin scenarios tagged with those requirements, and
+ranking quality as graded judgments. A tool checks that every requirement is
+covered. This cost time early on, and it is what let the ranking change many
+times without the tests being rewritten.
 
-Use the published [`pokedex.json` snapshot](https://biolevatestatics.blob.core.windows.net/biolevate-tech-assessments/pokedex/pokedex.json)
-as the common baseline. Download instructions, its checksum, schema, and
-provenance are documented in
-[`candidate-resources/`](candidate-resources/). You may transform or prepare it
-locally.
+**Relevance is checked by someone other than its author**
+([ADR 7](docs/adr/0007-relevance-validation.md)). Judgments derived from my
+own rules score 1.00 by construction, so they only prove consistency. I pooled
+the candidates of several rankers and had them graded blind by a separate
+agent that could not see the rules, scores or ranks. The minimum score was
+fixed before any grading. Each grading round brought new queries and the loop
+did not converge, so the sheet was frozen; later queries count as regression
+evidence, not as an independent measure.
 
-You may supplement it with another data source or optional service, provided:
+**The interface shows the dataset as a whole**
+([ADR 12](docs/adr/0012-constellation-on-webgpu.md)). A first interface was a
+search box over cards, and a first redesign turned out to be the same layout
+with a new skin; I reverted it. The constellation places the 151 species by
+their stats and types, and each reading moves them: the best match comes
+forward, candidates line up on a stat axis, carriers gather around a move,
+Pokémon form rings around a weather. It runs in a worker so the page stays
+responsive, and the results panel keeps every result in the DOM, so screen
+readers and tests never depend on the canvas. The cost is complexity and a
+lazy-loaded 3D chunk; the fallbacks (WebGL2, then an SVG still map for reduced
+motion, slow devices or lost contexts) are part of that cost.
 
-- the baseline application remains reviewable without paid access;
-- setup, credentials, costs, quotas, and availability constraints are
-  documented; and
-- reviewers can reproduce the demonstrated queries without access to your
-  local state.
+**Undo instead of confirmations**
+([ADR 13](docs/adr/0013-workbench-and-undo-history.md)). Removing from the
+party or the bench happens at once and can be undone with Ctrl+Z. The browser's
+Back button stays for searches.
 
-### R5 — Automated tests and evaluation
+## Validation
 
-Add automated tests for the behaviour you consider most important. At minimum,
-cover:
+- **Unit tests**: 417 backend, 95 tooling, 223 frontend (coverage of 90% or
+  more required on the frontend domain and API layers).
+- **Acceptance**: 74 Gherkin scenarios against a running API, covering the
+  brief's required cases (successful retrieval, empty and invalid input,
+  no-result fallback) and hard rules such as "rest never answers a request to
+  put the target to sleep".
+- **Relevance**: `just relevance` reports a mean nDCG@10 of 0.993 against the
+  rule judgments and 0.846 against the blind grades (pre-registered minimum
+  0.80), with a weighted kappa of 0.833 between the two.
+- **Interface**: 52 Playwright scenarios, axe checks in both themes,
+  Lighthouse budgets, and a size limit on the initial JavaScript.
 
-- one successful backend retrieval;
-- invalid or empty input;
-- a no-result or controlled fallback case; and
-- one important search behaviour claimed by your solution.
+## Limitations and next steps
 
-The last test should make your definition of relevance observable. It does not
-need to match a company-provided expected result set.
+- Some assessor queries still score poorly. `pokemon immune to ground moves`
+  scores 0 because type immunities are not modelled; `freeze the opponent`
+  scores 0.66 on Pokémon, and a few disagreements (starmie, tentacool and
+  tentacruel for rain) are still to be settled by a human.
+- The blind assessor was a language model. A human assessor on the frozen
+  sheet would make the relevance claim stronger.
+- The effect lexicon is hand-written. Next: a batch model that produces the
+  same facts, checked against the current ones.
+- The constellation needs a reasonably recent GPU to be pleasant; weaker
+  machines get the still map. Sprites load from PokéAPI URLs, so they need a
+  network connection; the search does not.
+- With more time: type matchups as data, which would unlock immunity and
+  coverage queries; team suggestions from the party (missing types, shared
+  weaknesses); a `SearchIndex` adapter on PostgreSQL to prove the scaling
+  argument.
 
-### R6 — Local execution
+## How the project went
 
-The application and tests must run locally from documented commands. Do not
-commit secrets or generated dependency directories. Include an `.env.example`
-when environment variables are required and any scripts needed to prepare or
-load the data.
+About 12 hours of work over two days. The commit history follows these steps.
 
-### R7 — Submission documentation
+**Day 1: framing, specs, backend**
 
-Provide an up-to-date project `README` containing:
+1. Read the brief, downloaded the snapshot and listed its gaps (mixed eras, no
+   rain setter, long effects citing mechanics outside the file). Decided to
+   support all four needs.
+2. Before any code: for each need, example queries, what must and must not
+   come back, and the traps. This became the three spec layers of ADR 1, the
+   OpenAPI contract and the graded judgments.
+3. Thought about the UX before freezing the contract, because the interface
+   needs the interpretation as data (term roles, canonical query,
+   refinements). The contract was extended accordingly.
+4. Chose the retrieval models by measuring the naive baseline (ADR 4), then
+   the architecture with scaling in mind (ADR 5), then the stack (ADR 6).
+5. Blind assessment of pooled candidates (ADR 7). Adjudicating the widest
+   disagreements corrected two rules. After three rounds the sheet was frozen.
+6. Backend built layer by layer, test first: domain, query plans, effect facts,
+   ranking, API, BM25 fallback.
 
-- setup, run, and test commands;
-- a description of the architecture and end-to-end data flow;
-- the user needs you chose to support and how the product serves them;
-- important decisions, trade-offs, and alternatives considered;
-- known limitations and what you would do next;
-- the approximate time you spent;
-- five representative queries, their relevant results, and what each query
-  demonstrates;
-- how you validated correctness and relevance; and
-- the AI-tool disclosure described below, if applicable.
+**Day 2: environment, interface, iteration**
 
-Keep the decision and trade-off write-up concise; approximately 500–800 words
-is enough, excluding setup instructions and query examples.
-
-## Product expectations
-
-Whatever scope you choose, aim for a product that:
-
-- helps its intended users make progress rather than merely exposing raw data;
-- provides enough context to understand why a result may be useful;
-- behaves consistently for the needs it claims to support;
-- remains understandable when different kinds of information appear together;
-- handles unsupported or uncertain requests honestly; and
-- demonstrates its value through representative queries and tests.
-
-We are interested in how you frame and solve the product problem. We do not
-expect every submission to offer the same features or use the same approach.
-Additional product care, such as accessibility or responsive design, is
-welcome but not required.
-
-## Technical freedom
-
-There is no prescribed technology stack or implementation approach. Choose
-tools that fit your intended experience and that you can explain.
-
-The implementation may be as simple or specialised as the supported product
-needs justify. External paid services must be optional and must have a
-functional local or free fallback for review.
-
-## Out of scope
-
-You are not expected to build:
-
-- authentication, user accounts, or an administration interface;
-- data editing or continuous synchronisation with PokéAPI;
-- production deployment, CI/CD, monitoring, or cloud infrastructure;
-- exhaustive support for every Pokémon generation or entity type;
-- localisation; or
-- exhaustive test coverage.
-
-You may deliberately omit any of the more ambitious product situations.
-Document the omission instead of submitting an unfinished feature.
-
-## Deliverables
-
-Send a Git repository link or a zip archive containing:
-
-- the complete source code;
-- the documentation and configuration described in R7; and
-- all files needed to run the application and its tests.
+7. Development environment: flox, mise, just and process-compose, so a fresh
+   clone runs with three commands.
+8. Frontend libraries and engineering standards (ADR 9 to 11), UI scenarios in
+   Gherkin, then a first interface with one view per reading.
+9. The first interface worked but looked generic, and a first redesign only
+   reskinned it; it was reverted. Started again from the question "what is
+   this dataset?", which led to the constellation (ADR 12) and the workbench
+   with undo (ADR 13), specified before being built.
+10. Iterations from hands-on use: manual navigation of the scene (turn, pan,
+    zoom, click), voice search removed, a visual identity with
+    light and dark themes, type badges told apart by shape as well as colour,
+    a query guide, compact results, and a motion setting that can override
+    the system's reduced-motion preference.
 
 ## Use of AI tools
 
-You may use AI-assisted tools. If you do, include a short disclosure stating:
+I used Cursor agents throughout: to draft specs and ADRs from my decisions,
+write the code and tests, run the checks, and compare design options. A
+separate agent served as the blind relevance assessor, with no access to the
+rules or the code.
 
-- which tools you used;
-- what you used them for;
-- how you reviewed or validated their output; and
-- one example of an important suggestion you changed or rejected, if
-  applicable.
+Review: changes went through `just verify` or the relevant part of it, and the
+layer rules, strict type checks and coverage thresholds block the most common
+shortcuts of generated code. I reviewed the ADRs and the ranking rules myself
+and tried every interface change in the browser.
 
-Use of AI is not evaluated negatively. You remain responsible for understanding
-and being able to explain every part of your submission.
+Changed or rejected suggestions:
 
-## What we assess
-
-We assess:
-
-- quality and coherence of the end-to-end product;
-- usefulness and depth of the search experience within the scope you chose;
-- full-stack architecture, data modelling, and error handling;
-- code quality and maintainability;
-- usefulness of tests and search evaluation;
-- prioritisation within the expected effort; and
-- clarity of documentation and trade-offs.
-
-The detailed scoring guide is internal, but there are no hidden assessment
-dimensions. A focused product that solves one difficult user need well can be
-stronger than a broad collection of unfinished features.
+- The agent proposed limiting criteria search to speed, the stat named in the
+  brief. I rejected it: every base stat, the base stat total and derived
+  stats such as bulk can be asked for and sorted on.
+- Its first interface redesign kept the same layout with a new skin. I stopped
+  it, reverted the commits and asked for a redesign starting from the UX, which
+  became the constellation.
+- It kept proposing new candidates to grade after each engine change. I
+  stopped the loop and froze the assessment sheet, so the relevance score
+  measures the engine rather than a moving target.
