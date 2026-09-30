@@ -2,10 +2,13 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test, vi } from "vitest";
 
+import { THEME_INKS } from "../features/theme/boot";
 import { FakeApi } from "../test/FakeApi";
 import { App } from "./App";
 
 const STORAGE_KEY = "pokedex:theme";
+const LIGHT_INK = THEME_INKS.light;
+const DARK_INK = THEME_INKS.dark;
 
 function mediaList(query: string, light: boolean) {
   return Object.assign(new EventTarget(), {
@@ -80,4 +83,33 @@ test("a stored choice is restored, and the keyboard moves between the choices", 
   expect(option("Dark")).toBeChecked();
   expect(theme()).toBe("dark");
   expect(window.localStorage.getItem(STORAGE_KEY)).toBe("dark");
+});
+
+function browserBar(scheme: "light" | "dark"): HTMLMetaElement {
+  const meta = document.createElement("meta");
+  meta.name = "theme-color";
+  meta.media = `(prefers-color-scheme: ${scheme})`;
+  meta.content = scheme === "light" ? LIGHT_INK : DARK_INK;
+  document.head.append(meta);
+  return meta;
+}
+
+test("the browser bar keeps to each color scheme until the user picks a theme", async () => {
+  systemScheme(false);
+  const light = browserBar("light");
+  const dark = browserBar("dark");
+  render(<App api={new FakeApi()} />);
+  expect(light.content).toBe(LIGHT_INK);
+  expect(dark.content).toBe(DARK_INK);
+  await userEvent.click(option("Light"));
+  expect(light.content).toBe(LIGHT_INK);
+  expect(dark.content).toBe(LIGHT_INK);
+  await userEvent.click(option("Dark"));
+  expect(light.content).toBe(DARK_INK);
+  expect(dark.content).toBe(DARK_INK);
+  await userEvent.click(option("System"));
+  expect(light.content).toBe(LIGHT_INK);
+  expect(dark.content).toBe(DARK_INK);
+  light.remove();
+  dark.remove();
 });

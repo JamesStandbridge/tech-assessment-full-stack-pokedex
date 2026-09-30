@@ -1,5 +1,6 @@
 import type { EntityKind } from "../../api/contract";
 import type { Theme } from "../../domain/theme";
+import { THEME_INKS } from "../theme/boot";
 
 /** The type colors of ui/tokens.css, as literals: the worker cannot read CSS variables. */
 const TYPE_COLORS: Readonly<Record<string, string>> = {
@@ -37,14 +38,11 @@ const WEATHER_COLORS: Readonly<Record<string, string>> = {
   hail: "#dff3ff",
 };
 
-/** The ink of each theme in ui/tokens.css and ui/light.css, which the sky is cleared to. */
-const SKY_COLORS: Readonly<Record<Theme, string>> = { dark: "#0b0f1a", light: "#f3eee3" };
-
 /** How much darker a colour is printed on the light sky than it glows on the night one. */
 export const PRINT_SHADE = 0.55;
 
 export function skyHex(theme: Theme): string {
-  return SKY_COLORS[theme];
+  return THEME_INKS[theme];
 }
 
 export function printedHex(hex: string, theme: Theme): string {

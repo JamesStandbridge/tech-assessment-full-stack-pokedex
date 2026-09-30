@@ -6,7 +6,12 @@ import { createHash } from "node:crypto";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
-import { THEME_BOOT_SCRIPT } from "./src/features/theme/boot";
+import {
+  DARK_QUERY,
+  LIGHT_QUERY,
+  THEME_BOOT_SCRIPT,
+  THEME_INKS,
+} from "./src/features/theme/boot.ts";
 
 const apiTarget = process.env["POKEDEX_API_URL"] ?? "http://127.0.0.1:8000";
 const proxy = { "/api": { target: apiTarget, changeOrigin: false } };
@@ -49,11 +54,21 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
-/** The theme is set before the first paint, so the page never flashes the other one. */
+/** The theme and the browser bar are set before the first paint, so the page never flashes the other theme. */
 function themeBoot(): Plugin {
   return {
     name: "theme-boot",
-    transformIndexHtml: () => [{ tag: "script", children: THEME_BOOT_SCRIPT, injectTo: "head" }],
+    transformIndexHtml: () => [
+      ...[
+        { media: LIGHT_QUERY, content: THEME_INKS.light },
+        { media: DARK_QUERY, content: THEME_INKS.dark },
+      ].map((attrs) => ({
+        tag: "meta",
+        attrs: { name: "theme-color", ...attrs },
+        injectTo: "head" as const,
+      })),
+      { tag: "script", children: THEME_BOOT_SCRIPT, injectTo: "head" },
+    ],
   };
 }
 

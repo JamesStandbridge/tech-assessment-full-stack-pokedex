@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 
+import { THEME_INKS } from "../../src/features/theme/boot";
 import { Given, Then, When } from "../fixtures";
 
 const THEMES = { light: "Light", dark: "Dark" } as const;
@@ -15,7 +16,9 @@ Given("I prefer a {word} color scheme", async ({ page }, word: string) => {
     document.addEventListener("readystatechange", () => {
       if (document.readyState !== "interactive") return;
       const first = document.documentElement.dataset["theme"] ?? "";
-      Object.assign(window, { __pokedexFirstTheme: first });
+      const bars = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')];
+      const bar = [...new Set(bars.map((meta) => meta.content))].join(" ");
+      Object.assign(window, { __pokedexFirstTheme: first, __pokedexFirstBar: bar });
     });
   });
 });
@@ -35,8 +38,11 @@ Then(
   "the page is drawn in the {word} theme from its first paint",
   async ({ page }, word: string) => {
     const theme = themeOf(word);
-    const first = await page.evaluate(() => String(Reflect.get(window, "__pokedexFirstTheme")));
-    expect(first).toBe(theme);
+    const first = await page.evaluate(() => ({
+      theme: String(Reflect.get(window, "__pokedexFirstTheme")),
+      bar: String(Reflect.get(window, "__pokedexFirstBar")),
+    }));
+    expect(first).toEqual({ theme, bar: THEME_INKS[theme] });
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
   },
 );
