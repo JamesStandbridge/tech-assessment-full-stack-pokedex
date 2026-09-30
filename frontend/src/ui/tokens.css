@@ -43,6 +43,26 @@
   --color-type-steel: #b7b7ce;
   --color-type-fairy: #d685ad;
 
+  /* Type colours toned towards the text, so every glyph keeps its contrast on a plate. */
+  --color-tint-normal: color-mix(in oklab, var(--color-type-normal) 70%, var(--color-text));
+  --color-tint-fire: color-mix(in oklab, var(--color-type-fire) 70%, var(--color-text));
+  --color-tint-water: color-mix(in oklab, var(--color-type-water) 70%, var(--color-text));
+  --color-tint-electric: color-mix(in oklab, var(--color-type-electric) 70%, var(--color-text));
+  --color-tint-grass: color-mix(in oklab, var(--color-type-grass) 70%, var(--color-text));
+  --color-tint-ice: color-mix(in oklab, var(--color-type-ice) 70%, var(--color-text));
+  --color-tint-fighting: color-mix(in oklab, var(--color-type-fighting) 70%, var(--color-text));
+  --color-tint-poison: color-mix(in oklab, var(--color-type-poison) 70%, var(--color-text));
+  --color-tint-ground: color-mix(in oklab, var(--color-type-ground) 70%, var(--color-text));
+  --color-tint-flying: color-mix(in oklab, var(--color-type-flying) 70%, var(--color-text));
+  --color-tint-psychic: color-mix(in oklab, var(--color-type-psychic) 70%, var(--color-text));
+  --color-tint-bug: color-mix(in oklab, var(--color-type-bug) 70%, var(--color-text));
+  --color-tint-rock: color-mix(in oklab, var(--color-type-rock) 70%, var(--color-text));
+  --color-tint-ghost: color-mix(in oklab, var(--color-type-ghost) 70%, var(--color-text));
+  --color-tint-dragon: color-mix(in oklab, var(--color-type-dragon) 70%, var(--color-text));
+  --color-tint-dark: color-mix(in oklab, var(--color-type-dark) 70%, var(--color-text));
+  --color-tint-steel: color-mix(in oklab, var(--color-type-steel) 70%, var(--color-text));
+  --color-tint-fairy: color-mix(in oklab, var(--color-type-fairy) 70%, var(--color-text));
+
   --color-tone-entity: #ffd23f;
   --color-tone-kind: #7cc4ff;
   --color-tone-type: #ff9f5a;

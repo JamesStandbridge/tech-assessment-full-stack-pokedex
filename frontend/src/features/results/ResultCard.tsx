@@ -5,9 +5,8 @@ import { assertNever } from "../../domain/assertNever";
 import { displayName, kindLabel, refKey, refOf, resultSummary } from "../../domain/entities";
 import { reasonModel } from "../../domain/reasons";
 import { Button } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
 import { RemoteImage } from "../../ui/RemoteImage";
-import { typeColor } from "../colors";
+import { TypeBadge } from "../../ui/TypeBadge";
 import { WorkbenchActions } from "../workbench/WorkbenchActions";
 
 interface ResultCardProps {
@@ -35,7 +34,7 @@ function Reasons(props: {
   readonly onOpen: (ref: EntityRef) => void;
 }): JSX.Element {
   return (
-    <ul aria-label="Why it matches" className="text-muted space-y-1 text-xs leading-relaxed">
+    <ul aria-label="Why it matches" className="text-muted space-y-1 text-sm leading-relaxed">
       {props.result.reasons.map((reason) => {
         const model = reasonModel(reason);
         const related = model.related;
@@ -117,7 +116,7 @@ export function ResultCard({ result, onOpen, children }: ResultCardProps): JSX.E
         <Title result={result} titleId={titleId} onOpen={onOpen} />
         <div className="flex flex-wrap gap-1">
           {types(result).map((type) => (
-            <Chip key={type} label={type} color={typeColor(type)} />
+            <TypeBadge key={type} type={type} />
           ))}
         </div>
         {children}

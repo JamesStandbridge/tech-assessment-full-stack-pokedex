@@ -3,8 +3,8 @@ import { type JSX, type PointerEvent, useId } from "react";
 import type { EntityRef, PokemonResult } from "../../api/contract";
 import { displayName, refOf } from "../../domain/entities";
 import { Button } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
 import { RemoteImage } from "../../ui/RemoteImage";
+import { TypeBadge } from "../../ui/TypeBadge";
 import { typeColor } from "../colors";
 
 const MAX_TILT_DEG = 10;
@@ -75,7 +75,7 @@ export function HoloCard(props: {
       <div className="flex items-center justify-between gap-2">
         <div className="flex gap-1">
           {pokemon.types.map((type) => (
-            <Chip key={type} label={type} color={typeColor(type)} />
+            <TypeBadge key={type} type={type} />
           ))}
         </div>
         <p className="font-display text-muted text-base italic">{pokemon.genus}</p>

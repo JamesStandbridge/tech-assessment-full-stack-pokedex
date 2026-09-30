@@ -11,8 +11,8 @@ import { assertNever } from "../../domain/assertNever";
 import { displayName } from "../../domain/entities";
 import { STAT_LABELS } from "../../domain/stats";
 import { Bar } from "../../ui/Bar";
-import { Chip } from "../../ui/Chip";
 import { RemoteImage } from "../../ui/RemoteImage";
+import { TypeBadge } from "../../ui/TypeBadge";
 import { typeColor } from "../colors";
 import { RelatedList } from "./RelatedList";
 
@@ -58,10 +58,10 @@ function PokemonBody({
           <p className="font-display text-muted text-lg italic">{detail.genus}</p>
           <div className="flex gap-1">
             {detail.types.map((type) => (
-              <Chip key={type} label={type} color={typeColor(type)} />
+              <TypeBadge key={type} type={type} />
             ))}
           </div>
-          <p className="max-w-prose text-sm leading-relaxed">{detail.description}</p>
+          <p className="max-w-prose leading-relaxed">{detail.description}</p>
         </div>
       </div>
       <BaseStats detail={detail} />
@@ -86,8 +86,9 @@ function MoveBody({
   ];
   return (
     <div className="space-y-4">
-      <p className="catalogue text-muted">
-        {detail.type} · {detail.damage_class}
+      <p className="flex items-center gap-2">
+        <TypeBadge type={detail.type} />
+        <span className="catalogue text-muted">{detail.damage_class}</span>
       </p>
       <dl className="border-rule divide-line grid grid-cols-4 divide-x border-y text-center">
         {facts.map(([label, value]) => (
