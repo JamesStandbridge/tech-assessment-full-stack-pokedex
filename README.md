@@ -102,95 +102,40 @@ explanation and example queries.
 
 ## Mathematics and algorithms
 
-There is no single relevance score across the product. A name distance, a
-base stat and a weather relation do not live on comparable scales. The parser
-therefore builds one or more typed `SearchPlan`s, and each constraint keeps its
-own retrieval model.
+There is no universal relevance score: spelling, speed and a weather relation
+measure different things. The parser builds a typed `SearchPlan`, then applies
+one small algorithm to each constraint.
 
 ![One query, one model per constraint](docs/retrieval.svg)
 
-**Conjunctive retrieval.** Within one plan, candidate sets intersect:
-
-$$
-R = R_{\text{kind}} \cap R_{\text{type}} \cap R_{\text{stat}}
-    \cap R_{\text{effect}} \cap R_{\text{weather}}
-$$
-
-A result must satisfy every constraint. Truly ambiguous readings become
-separate plans; their scores are never added because the scales are unrelated.
-The final deterministic tie-breaker is the dataset identifier.
-
-**Names.** Matching proceeds in tiers: exact, prefix, infix, then fuzzy.
-Fuzzy matching only runs when no literal match exists and uses
-Damerau-Levenshtein distance, which counts insertions, deletions,
-substitutions and adjacent transpositions. The bound is one edit for terms up
-to five characters and two beyond that. Results sort by tier, edit distance,
-length difference, then identifier.
-
-**Stats.** Types and numeric bounds are Boolean filters. One requested stat
-sorts by its raw value. Several stats cannot be averaged directly because
-their distributions differ, so each value is converted to a mid-rank
-percentile:
-
-$$
-p(x) =
-\frac{
-  \left\lvert \{v \mid v < x\} \right\rvert
-  + \left\lvert \{v \mid v \leq x\} \right\rvert
-}{2N}
-$$
-
-The rank is the mean of the requested percentiles. Derived values are explicit:
-`total` is the sum of the six base stats, `bulk = hp + defense +
-special-defense`, and `offense = max(attack, special-attack)`.
-
-**Effects.** Effect text is classified once at indexing time into a fact:
-effect, target, mode and probability. For a move:
-
-$$
-P(\text{effect}) = P(\text{move hits}) \times P(\text{effect}\mid\text{hit})
-$$
-
-Missing accuracy or effect chance means 100%, as in the snapshot. A Pokémon
-inherits the facts of its moves and abilities and ranks by its best source,
-then by the number of distinct sources. This is why Spore (100%) comes before
-Sleep Powder (75%), and why effects on the user do not answer a request about
-the opponent.
-
-**Weather.** Weather strategy is a weighted relation graph. A benefit adds
-`1`, protection or a mixed relation `0.5`, and a drawback `-0.5`; relations
-through moves count half. Setters always rank first, then Pokémon sort by the
-sum of their relation weights. Moves and abilities sort by their best role.
-
-**Description fallback.** Words unexplained by a structured constraint use
-BM25 over species descriptions. BM25 combines inverse document frequency with
-saturating, length-normalised term frequency. It is deliberately a fallback:
-lexical similarity alone does not model prefixes, polarity, targets or typed
-relations.
-
-**Constellation.** Each species starts as a feature vector of six standardised
-base stats plus one-hot types weighted by `1.6`. The centred matrix is
-projected onto its first three principal axes, found by power iteration with
-deflation. For Euclidean distances this is the classical multidimensional
-scaling solution used here. Fixed initial vectors and axis orientation make
-the result deterministic; a bounded separation pass only moves points that
-would overlap.
-
-**Evaluation.** Ranking quality uses normalised discounted cumulative gain:
-
-$$
-\operatorname{DCG}@k = \sum_{i=1}^{k}
-\frac{2^{g_i}-1}{\log_2(i+1)},
-\qquad
-\operatorname{nDCG}@k =
-\frac{\operatorname{DCG}@k}{\operatorname{IDCG}@k}
-$$
-
-The exponential gain makes a grade-3 result substantially more valuable than
-a grade-2 result, while the logarithmic discount rewards putting it near the
-top. Blind grades use condensed nDCG: unjudged candidates are removed rather
-than assumed irrelevant. Quadratic-weighted Cohen's kappa measures agreement
-between the rule grades and the blind assessor.
+- **Constraints intersect.** A Water Pokémon that can cause sleep must satisfy
+  both conditions. Ambiguous readings stay in separate plans because their
+  scores cannot be meaningfully added.
+- **Names use Damerau-Levenshtein distance.** Exact, prefix and infix matches
+  come first. Only when none exists does fuzzy matching allow one or two edits,
+  including swapped adjacent letters.
+- **Stats use filters, sorts and percentiles.** One stat sorts by its raw value.
+  Several stats are converted to percentile ranks before averaging, so a point
+  of HP is not treated as equivalent to a point of Speed. `bulk` is explicitly
+  `hp + defense + special-defense`.
+- **Effects use probability.** Text is classified once into effect, target and
+  chance. A move scores as `accuracy × effect chance`; a Pokémon takes the best
+  move or ability it can use. This puts Spore (100%) before Sleep Powder (75%)
+  and excludes effects aimed at the user.
+- **Weather uses a weighted graph.** Benefits score `+1`, protection and mixed
+  effects `+0.5`, and drawbacks `-0.5`; relations through moves count half.
+  Setters always come first.
+- **BM25 is a fallback.** It ranks unexplained description words through
+  length-normalised term frequency and inverse document frequency. It is not
+  used where structured facts are available.
+- **The constellation uses PCA / classical MDS.** Six standardised stats and
+  one-hot types form each species vector. Projection onto the first three
+  principal axes places similar species near one another. Fixed initial values
+  make the layout deterministic.
+- **Quality uses nDCG@10.** Relevant results gain more value near the top of
+  the list; the score is divided by the ideal ordering, giving a value from 0
+  to 1. Condensed nDCG ignores unjudged candidates, while weighted Cohen's
+  kappa measures agreement between rule-based and blind grades.
 
 ## Decisions and trade-offs
 
