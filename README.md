@@ -61,17 +61,11 @@ and cannot be asked.
 
 ## Architecture and data flow
 
-```text
-data/pokedex.json ─ checksum ─> index builder ─> in-memory SearchIndex
-                                  └ EffectClassifier: effect texts -> facts (effect, target, chance, weather role)
+![Architecture and data flow](docs/architecture.svg)
 
-query ─> QueryParser ─> SearchPlan(s) ─> SearchIndex ─> Ranker ─> sections with reasons ─> JSON
-                                                                                             │
-React app <─ TanStack Query <─ /api/search, /api/suggest, /api/entities, /api/species ───────┘
-   ├ results panel: one view per reading (name, criteria, effect, weather)
-   ├ constellation: three.js WebGPU in a worker, SVG still map as fallback
-   └ party and bench: one reducer with undo history, stored in the URL
-```
+Besides `/api/search`, the API serves `/api/suggest` for suggestions while
+typing, `/api/entities/{kind}/{name}` for a detail card, `/api/species` for the
+constellation, and `/api/health`.
 
 - **Backend** (`backend/`, FastAPI): `domain` holds the entities and the plan,
   `core` the parser, the effect lexicon and the ranking rules, `application`
