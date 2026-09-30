@@ -1,11 +1,9 @@
 import type { Point } from "../../domain/geometry";
 import { namedNodes, type SceneFrame } from "../../domain/scene";
-import type { SceneNode } from "../../domain/sceneTypes";
+import { type SceneNode, VIEW_HEIGHT } from "../../domain/sceneTypes";
 import { lookOf } from "./looks";
 import type { Inset, Mark, Viewport } from "./protocol";
 
-/** Height the scene camera sees at a distance of one, with its vertical field of 46 degrees. */
-const FIELD = 2 * Math.tan((23 * Math.PI) / 180);
 const DEPTH_CUE = 0.02;
 const MIN_SCALE = 0.4;
 const MAX_SCALE = 6;
@@ -48,7 +46,8 @@ export function stillView(frame: SceneFrame, space: Space): StillView {
     width: viewport.width - inset.left - inset.right,
     height: viewport.height - inset.top - inset.bottom,
   };
-  const scale = Math.min(free.width, free.height) / (frame.camera.distance * FIELD);
+  const { distance, aspect } = frame.camera;
+  const scale = Math.min(free.width / aspect, free.height) / (distance * VIEW_HEIGHT);
   const target = frame.camera.target;
   const cue = (depth: number): number => Math.max(0.4, 1 + (depth - target.z) * DEPTH_CUE);
   return {

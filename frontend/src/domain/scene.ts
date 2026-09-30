@@ -15,6 +15,7 @@ import {
   type SceneNode,
   type SceneRing,
   type Staging,
+  VIEW_HEIGHT,
 } from "./sceneTypes";
 
 export interface SceneFrame {
@@ -28,17 +29,34 @@ export interface SceneFrame {
   readonly weather: string | null;
 }
 
-const HOME_CAMERA: SceneCamera = { target: point(0, 0, 0), distance: 24 };
 const DUST_SPREAD = 1.7;
 const DUST_DEPTH = 14;
+/** The home sky is framed on this share of the species along each axis; the others may reach the edges. */
+const HOME_SHARE = 0.9;
+const HOME_AIR = 1.2;
+const MIN_HOME_REACH = 1;
 
-const HOME: Staging = {
-  ...NO_STAGE,
-  layout: "atlas",
-  nodes: [],
-  camera: HOME_CAMERA,
-  scatter: false,
-};
+function reach(values: readonly number[]): number {
+  const sorted = values.map(Math.abs).sort((a, b) => a - b);
+  const bulk = sorted[Math.floor(HOME_SHARE * (sorted.length - 1))] ?? 0;
+  return Math.max(MIN_HOME_REACH, bulk * HOME_AIR);
+}
+
+/** Frame the bulk of the home sky with a little air, as wide as it spreads. */
+export function homeCamera(places: Constellation): SceneCamera {
+  const points = [...places.values()];
+  const halfWidth = reach(points.map((place) => place.x));
+  const halfHeight = reach(points.map((place) => place.y));
+  return {
+    target: point(0, 0, 0),
+    distance: (2 * halfHeight) / VIEW_HEIGHT,
+    aspect: halfWidth / halfHeight,
+  };
+}
+
+function home(places: Constellation): Staging {
+  return { ...NO_STAGE, layout: "atlas", nodes: [], camera: homeCamera(places), scatter: false };
+}
 
 function dust(place: Point): Point {
   return point(place.x * DUST_SPREAD, place.y * DUST_SPREAD, place.z * DUST_SPREAD - DUST_DEPTH);
@@ -67,7 +85,7 @@ function staging(places: Constellation, response: SearchResponse): Staging {
  * there is none: the engine springs towards it, the still map draws it.
  */
 export function sceneFrame(places: Constellation, response: SearchResponse | null): SceneFrame {
-  const stage = response === null ? HOME : staging(places, response);
+  const stage = response === null ? home(places) : staging(places, response);
   const staged = new Map(stage.nodes.map((node) => [node.id, node]));
   const sky = [...places.entries()].map(([name, place]): SceneNode => {
     const id = `pokemon:${name}`;

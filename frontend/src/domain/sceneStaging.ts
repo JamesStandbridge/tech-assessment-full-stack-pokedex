@@ -74,7 +74,7 @@ export function focusStaging(places: Constellation, response: SearchResponse): S
     camera:
       best === undefined
         ? framing(nodes.map((node) => node.position))
-        : { target: best.position, distance: FOCUS_DISTANCE },
+        : { target: best.position, distance: FOCUS_DISTANCE, aspect: 1 },
     scatter: false,
   };
 }
@@ -135,7 +135,7 @@ export function axisStaging(places: Constellation, response: SearchResponse): St
       min: x.min,
       max: x.max,
     },
-    camera: { target: point(0, 0, 0), distance: AXIS_DISTANCE },
+    camera: { target: point(0, 0, 0), distance: AXIS_DISTANCE, aspect: 1 },
     scatter: true,
   };
 }

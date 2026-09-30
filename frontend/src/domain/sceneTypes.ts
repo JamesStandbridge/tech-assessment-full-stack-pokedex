@@ -32,6 +32,8 @@ export interface SceneLink {
 export interface SceneCamera {
   readonly target: Point;
   readonly distance: number;
+  /** Width over height of what the camera frames: the height is what it sees at its distance. */
+  readonly aspect: number;
 }
 
 export interface SceneAxis {
@@ -67,6 +69,9 @@ export const NO_STAGE = {
   weather: null,
 } as const satisfies Partial<Staging>;
 
+/** Height the camera sees at a distance of one, with its vertical field of 46 degrees. */
+export const VIEW_HEIGHT = 2 * Math.tan((23 * Math.PI) / 180);
+
 const FIT_MARGIN = 3;
 const MIN_DISTANCE = 12;
 
@@ -100,5 +105,6 @@ export function circlePositions(count: number, radius: number, center: Point): r
 /** Frame a set of points: aim at their center, far enough to see them all. */
 export function framing(points: readonly Point[]): SceneCamera {
   const target = centroid(points);
-  return { target, distance: Math.max(MIN_DISTANCE, radiusAround(target, points) * FIT_MARGIN) };
+  const distance = Math.max(MIN_DISTANCE, radiusAround(target, points) * FIT_MARGIN);
+  return { target, distance, aspect: 1 };
 }

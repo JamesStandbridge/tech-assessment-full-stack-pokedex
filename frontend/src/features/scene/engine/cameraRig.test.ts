@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, test } from "vitest";
 import { NO_INSET } from "../protocol";
 import { CameraRig } from "./cameraRig";
 
-const FLAT = { target: { x: 0, y: 0, z: 0 }, distance: 30 };
-const OTHER = { target: { x: 10, y: 0, z: 0 }, distance: 30 };
+const FLAT = { target: { x: 0, y: 0, z: 0 }, distance: 30, aspect: 1 };
+const OTHER = { target: { x: 10, y: 0, z: 0 }, distance: 30, aspect: 1 };
 
 function settle(rig: CameraRig, seconds = 10): void {
   for (let step = 0; step < seconds * 20; step += 1) rig.update(0.05);

@@ -8,7 +8,7 @@ import { sleepSearch } from "../test/recorded/sleepSearch";
 import { speciesList } from "../test/recorded/speciesList";
 import { constellation } from "./constellation";
 import { ORIGIN } from "./geometry";
-import { linkLabel, namedNodes, type SceneFrame, sceneFrame } from "./scene";
+import { homeCamera, linkLabel, namedNodes, type SceneFrame, sceneFrame } from "./scene";
 import { axisStaging } from "./sceneStaging";
 import { circlePositions, type SceneNode } from "./sceneTypes";
 
@@ -38,6 +38,29 @@ function planned(response: SearchResponse, plan: Partial<SearchPlan>): SearchRes
     interpretation: { ...response.interpretation, alternatives: [{ ...first, ...plan }, ...rest] },
   };
 }
+
+describe("the home sky", () => {
+  test("is framed on the bulk of the species, as wide as they spread", () => {
+    const camera = homeCamera(places);
+    const visible = camera.distance * 2 * Math.tan((23 * Math.PI) / 180);
+    const inside = [...places.values()].filter(
+      (place) =>
+        Math.abs(place.y) <= visible / 2 && Math.abs(place.x) <= (visible * camera.aspect) / 2,
+    );
+    expect(camera.aspect).toBeGreaterThan(1.2);
+    expect(inside.length / places.size).toBeGreaterThan(0.85);
+    expect(inside.length).toBeLessThan(places.size);
+    expect(sceneFrame(places, null).camera).toEqual(camera);
+  });
+
+  test("of an empty sky still has a frame", () => {
+    expect(homeCamera(new Map())).toEqual({
+      target: ORIGIN,
+      distance: 2 / (2 * Math.tan((23 * Math.PI) / 180)),
+      aspect: 1,
+    });
+  });
+});
 
 describe("the name reading", () => {
   test("without a best match frames every match, none in front", () => {

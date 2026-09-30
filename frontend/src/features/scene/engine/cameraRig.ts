@@ -13,7 +13,8 @@ const MAX_ZOOM = 2.5;
 const MAX_ELEVATION = 1.2;
 const REST_ELEVATION = 0.12;
 const SETTLE = 0.001;
-const MIN_FREE_SHARE = 0.3;
+/** The camera never backs away further than this factor to fit the part of the viewport left free. */
+const MAX_FIT = 1 / 0.3;
 
 function ease(current: number, goal: number, share: number): number {
   return current + (goal - current) * share;
@@ -43,20 +44,23 @@ export class CameraRig {
   private azimuth = 0;
   private elevation = REST_ELEVATION;
   private zoomFactor = 1;
+  private aspect = 1;
   private orbiting = true;
   private navigated = false;
-  private freeShare = 1;
   private height = 1;
+  private free = { width: 1, height: 1 };
 
   setGoal(goal: SceneCamera, orbiting: boolean): void {
     const { x, y, z } = goal.target;
     const same =
       this.goalTarget.equals(this.aim.set(x, y, z)) &&
       this.goalDistance === goal.distance &&
+      this.aspect === goal.aspect &&
       this.orbiting === orbiting;
     if (same) return;
     this.goalTarget.set(x, y, z);
     this.goalDistance = goal.distance;
+    this.aspect = goal.aspect;
     this.orbiting = orbiting;
     this.recenter();
   }
@@ -101,10 +105,10 @@ export class CameraRig {
     const across = (inset.right - inset.left) / 2;
     const down = (inset.bottom - inset.top) / 2;
     this.camera.setViewOffset(width, height, across, down, width, height);
-    this.freeShare = Math.min(
-      1,
-      Math.min(width - inset.left - inset.right, height - inset.top - inset.bottom) / height,
-    );
+    this.free = {
+      width: Math.max(1, width - inset.left - inset.right),
+      height: Math.max(1, height - inset.top - inset.bottom),
+    };
     this.camera.updateProjectionMatrix();
   }
 
@@ -114,7 +118,7 @@ export class CameraRig {
     this.target.lerp(this.aim.copy(this.goalTarget).add(this.offset), shareOf(EASE_RATE, delta));
     this.distance = ease(
       this.distance,
-      (this.goalDistance * this.zoomFactor) / Math.max(this.freeShare, MIN_FREE_SHARE),
+      this.goalDistance * this.zoomFactor * this.fit(),
       shareOf(EASE_RATE, delta),
     );
     if (!this.navigated) this.rest(delta);
@@ -128,6 +132,12 @@ export class CameraRig {
     this.camera.updateMatrixWorld();
     const turning = this.orbiting && !this.navigated;
     return turning || before.distanceTo(this.camera.position) > SETTLE;
+  }
+
+  /** How much further than its goal the camera stands so that the frame fits the free part. */
+  private fit(): number {
+    const across = (this.aspect * this.height) / this.free.width;
+    return Math.min(MAX_FIT, Math.max(across, this.height / this.free.height));
   }
 
   /** Turn the home sky, or bring the camera back in front of a flat layout. */

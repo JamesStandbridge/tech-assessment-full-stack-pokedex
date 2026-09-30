@@ -103,7 +103,7 @@ export function hubStaging(response: SearchResponse): Staging {
     layout: "hubs",
     nodes: [...hubs, ...pokemon],
     links,
-    camera: { target: ORIGIN, distance: HUBS_DISTANCE },
+    camera: { target: ORIGIN, distance: HUBS_DISTANCE, aspect: 1 },
     scatter: true,
   };
 }
@@ -183,7 +183,7 @@ export function ringStaging(response: SearchResponse): Staging | null {
     ],
     rings,
     weather,
-    camera: { target: ORIGIN, distance: widest * RING_DISTANCE_FACTOR },
+    camera: { target: ORIGIN, distance: widest * RING_DISTANCE_FACTOR, aspect: 1 },
     scatter: true,
   };
 }
