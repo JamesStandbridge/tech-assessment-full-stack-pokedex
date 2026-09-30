@@ -7,7 +7,7 @@ Feature: Keep every view accessible
   - A scene drawn on a canvas is invisible to a screen reader and out of
     reach of the keyboard; its elements must exist in the page as well.
   - Camera flights and drifting particles can cause discomfort; the operating
-    system setting for reduced motion must win.
+    system setting for reduced motion wins until the user chooses otherwise.
   - A narrow phone screen must not need horizontal scrolling.
   - A theme applied once the application has loaded flashes the other one
     first; contrast must hold in both themes.
@@ -56,6 +56,24 @@ Feature: Keep every view accessible
       | put the opponent to sleep |
       | rain team                 |
       | xyzzy                     |
+
+  @should @SYS-UI-036
+  Scenario: Motion follows the system until the user chooses, and the choice is kept
+    Given I prefer reduced motion
+    Then the constellation is a still map
+    And motion on the page is reduced
+    When I choose animated motion
+    Then motion on the page is full
+    And the constellation is drawn with motion
+    When I reload the page
+    Then motion on the page is full
+    And the constellation is drawn with motion
+    When I choose still motion
+    Then the constellation is a still map
+    And motion on the page is reduced
+    When I reload the page
+    Then the constellation is a still map
+    And motion on the page is reduced
 
   @should @SYS-UI-032
   Scenario: The theme follows the system until the user chooses one

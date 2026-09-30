@@ -2,20 +2,20 @@ import type { JSX } from "react";
 import { type Key, ToggleButton, ToggleButtonGroup } from "react-aria-components";
 
 import { assertNever } from "../../domain/assertNever";
-import { THEME_PREFERENCES, type ThemePreference } from "../../domain/theme";
-import { useTheme } from "./useTheme";
+import { MOTION_PREFERENCES, type MotionPreference } from "../../domain/motion";
+import { useMotion } from "./useMotion";
 
-const LABELS: Readonly<Record<ThemePreference, string>> = {
+const LABELS: Readonly<Record<MotionPreference, string>> = {
   system: "System",
-  light: "Light",
-  dark: "Dark",
+  animated: "Animated",
+  still: "Still",
 };
 
-function themeKey(preference: ThemePreference): string {
-  return `theme-${preference}`;
+function motionKey(preference: MotionPreference): string {
+  return `motion-${preference}`;
 }
 
-function Icon({ preference }: { readonly preference: ThemePreference }): JSX.Element {
+function Icon({ preference }: { readonly preference: MotionPreference }): JSX.Element {
   const common = {
     "aria-hidden": true,
     viewBox: "0 0 24 24",
@@ -29,17 +29,17 @@ function Icon({ preference }: { readonly preference: ThemePreference }): JSX.Ele
           <path d="M8 20h8M12 16v4" />
         </svg>
       );
-    case "light":
+    case "animated":
       return (
         <svg {...common}>
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          <path d="M4 15a8 8 0 0 1 16 0" />
+          <path d="M7 15a5 5 0 0 1 10 0" />
         </svg>
       );
-    case "dark":
+    case "still":
       return (
         <svg {...common}>
-          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+          <path d="M8 5v14M16 5v14" />
         </svg>
       );
     default:
@@ -47,30 +47,33 @@ function Icon({ preference }: { readonly preference: ThemePreference }): JSX.Ele
   }
 }
 
-function chosen(keys: ReadonlySet<Key>): ThemePreference | undefined {
-  return THEME_PREFERENCES.find((preference) => keys.has(themeKey(preference)));
+function chosen(keys: ReadonlySet<Key>): MotionPreference | undefined {
+  return MOTION_PREFERENCES.find((preference) => keys.has(motionKey(preference)));
 }
 
-/** Choose the system, light or dark theme; arrow keys move between the three. */
-export function ThemeToggle(): JSX.Element {
-  const { preference, choose } = useTheme();
+/** Choose system, animated or still motion; choosing animated again retries a failed scene. */
+export function MotionToggle(): JSX.Element {
+  const { preference, choose } = useMotion();
   return (
     <ToggleButtonGroup
-      aria-label="Theme"
+      aria-label="Motion"
       selectionMode="single"
       disallowEmptySelection
-      selectedKeys={[themeKey(preference)]}
+      selectedKeys={[motionKey(preference)]}
       onSelectionChange={(keys) => {
         const next = chosen(keys);
         if (next !== undefined) choose(next);
       }}
       className="rounded-control border-line bg-panel pointer-events-auto flex gap-0.5 border p-0.5"
     >
-      {THEME_PREFERENCES.map((option) => (
+      {MOTION_PREFERENCES.map((option) => (
         <ToggleButton
           key={option}
-          id={themeKey(option)}
+          id={motionKey(option)}
           aria-label={LABELS[option]}
+          onPress={() => {
+            choose(option);
+          }}
           className="rounded-control text-muted data-[hovered]:text-text data-[selected]:bg-panel-raised data-[selected]:text-text grid size-8 cursor-pointer place-items-center transition-colors"
         >
           <Icon preference={option} />

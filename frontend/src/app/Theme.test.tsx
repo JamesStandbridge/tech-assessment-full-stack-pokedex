@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test, vi } from "vitest";
 
@@ -44,7 +44,7 @@ function theme(): string | undefined {
 }
 
 function option(name: string): HTMLElement {
-  return screen.getByRole("radio", { name });
+  return within(screen.getByRole("radiogroup", { name: "Theme" })).getByRole("radio", { name });
 }
 
 afterEach(() => {

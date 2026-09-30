@@ -2,6 +2,8 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
 
+import { resetMotionStore } from "../features/motion/useMotion";
+
 class StillObserver implements ResizeObserver {
   readonly disconnect = (): void => undefined;
   readonly observe = (): void => undefined;
@@ -33,5 +35,7 @@ afterEach(async () => {
   cleanup();
   await new Promise((resolve) => setTimeout(resolve, ADDRESS_FLUSH_MS));
   window.localStorage.clear();
+  resetMotionStore();
+  delete document.documentElement.dataset["motion"];
   window.history.replaceState(null, "", "/");
 });

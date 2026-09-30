@@ -1,7 +1,7 @@
 import type { JSX, ReactNode } from "react";
 
 import { Mark } from "../../ui/Mark";
-import { ThemeToggle } from "../theme/ThemeToggle";
+import { DisplayPreferences } from "../motion/DisplayPreferences";
 import { QueryGuide } from "./guide/QueryGuide";
 import type { GuideSectionId } from "./guide/section";
 import { SearchBox } from "./SearchBox";
@@ -25,9 +25,6 @@ function Wordmark(): JSX.Element {
 
 function Command(props: {
   readonly controller: SearchController;
-  readonly guideOpen: boolean;
-  readonly guideSection: GuideSectionId | null;
-  readonly onGuideOpenChange: (open: boolean) => void;
   readonly children?: ReactNode;
 }): JSX.Element {
   return (
@@ -41,15 +38,32 @@ function Command(props: {
           /
         </kbd>
       </div>
-      <div className="pointer-events-auto flex flex-wrap items-center gap-x-3">
-        <QueryGuide
-          open={props.guideOpen}
-          section={props.guideSection}
-          onOpenChange={props.onGuideOpenChange}
-          onRun={props.controller.run}
-        />
-        {props.children}
-      </div>
+      {props.children === undefined || props.children === null ? null : (
+        <div className="pointer-events-auto mt-2 sm:mt-2.5">{props.children}</div>
+      )}
+    </div>
+  );
+}
+
+function Tools(props: {
+  readonly controller: SearchController;
+  readonly guideOpen: boolean;
+  readonly guideSection: GuideSectionId | null;
+  readonly onGuideOpenChange: (open: boolean) => void;
+}): JSX.Element {
+  return (
+    <div className="pointer-events-auto flex shrink-0 items-center gap-4 sm:pt-1">
+      <QueryGuide
+        open={props.guideOpen}
+        section={props.guideSection}
+        onOpenChange={props.onGuideOpenChange}
+        onRun={props.controller.run}
+      />
+      <p className="catalogue text-muted hidden items-center gap-2 xl:flex">
+        Shortcuts <kbd>?</kbd>
+      </p>
+      <span aria-hidden="true" className="bg-line hidden h-5 w-px sm:block" />
+      <DisplayPreferences />
     </div>
   );
 }
@@ -70,13 +84,8 @@ export function Header(props: {
       <div aria-hidden="true" className="chart-edge h-2" />
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2.5 px-3 pt-2 pb-3 sm:flex-nowrap sm:items-start sm:gap-6 sm:px-5 sm:pt-3">
         <Wordmark />
-        <Command {...props} />
-        <p className="catalogue text-muted hidden shrink-0 items-center gap-2 pt-3 xl:flex">
-          Shortcuts <kbd>?</kbd>
-        </p>
-        <div className="shrink-0 sm:pt-1">
-          <ThemeToggle />
-        </div>
+        <Command controller={props.controller}>{props.children}</Command>
+        <Tools {...props} />
       </div>
     </header>
   );

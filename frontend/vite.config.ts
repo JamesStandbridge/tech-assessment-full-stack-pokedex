@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
+import { MOTION_BOOT_SCRIPT } from "./src/features/motion/boot.ts";
 import {
   DARK_QUERY,
   LIGHT_QUERY,
@@ -19,11 +20,12 @@ const ARTWORK_HOST = "https://raw.githubusercontent.com";
 /** The one stylesheet React Aria's usePress injects: touch-action on pressable elements. */
 const REACT_ARIA_PRESSABLE_STYLE = "'sha256-38RhXrc7EdReTKsOm23ZPOCUgniTUUcjky8QOOrQx6o='";
 const THEME_BOOT_HASH = `'sha256-${createHash("sha256").update(THEME_BOOT_SCRIPT).digest("base64")}'`;
+const MOTION_BOOT_HASH = `'sha256-${createHash("sha256").update(MOTION_BOOT_SCRIPT).digest("base64")}'`;
 
 /** Scripts, styles and requests stay on the origin; images and the sprites of the scene may also come from the artwork host. */
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  `script-src 'self' ${THEME_BOOT_HASH}`,
+  `script-src 'self' ${THEME_BOOT_HASH} ${MOTION_BOOT_HASH}`,
   `style-src 'self' ${REACT_ARIA_PRESSABLE_STYLE}`,
   `img-src 'self' ${ARTWORK_HOST} data:`,
   `connect-src 'self' ${ARTWORK_HOST}`,
@@ -68,6 +70,7 @@ function themeBoot(): Plugin {
         injectTo: "head" as const,
       })),
       { tag: "script", children: THEME_BOOT_SCRIPT, injectTo: "head" },
+      { tag: "script", children: MOTION_BOOT_SCRIPT, injectTo: "head" },
     ],
   };
 }

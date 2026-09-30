@@ -845,6 +845,14 @@ requirements:
     priority: should
     verification: ui-test
 
+  - id: SYS-UI-036
+    need: null
+    template: ubiquitous
+    statement: The web interface shall offer an animated and a still motion setting, follow the reduced-motion preference of the operating system until the user chooses one, keep that choice on the device, draw the constellation and the interface from that choice even when it overrides reduced motion or reduced data, and return to the still map after an animated drawing fails until the user chooses animated again.
+    source: product
+    priority: should
+    verification: ui-test
+
   # Guardrails for every visual feature that ships
 
   - id: SYS-A11Y-001

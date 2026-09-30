@@ -1,5 +1,6 @@
-/** Which renderer draws the constellation: the GPU scene, or the still map (SYS-UI-025). */
-export type Renderer = "scene" | "still";
+import type { Renderer } from "../../domain/motion";
+
+export type { Renderer };
 
 interface DataSaver {
   readonly saveData: boolean;
@@ -15,12 +16,6 @@ function savesData(): boolean {
   return "connection" in navigator && isDataSaver(navigator.connection);
 }
 
-export const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia(REDUCED_MOTION).matches;
-}
-
 function hasGpu(): boolean {
   if ("gpu" in navigator && navigator.gpu !== undefined) return true;
   return document.createElement("canvas").getContext("webgl2") !== null;
@@ -34,10 +29,14 @@ function canDrawOffscreen(): boolean {
   );
 }
 
-/** Pick the renderer once, from what the browser offers and what the user prefers. */
-export function preferredRenderer(): Renderer {
-  if (prefersReducedMotion() || savesData() || !canDrawOffscreen() || !hasGpu()) return "still";
-  return "scene";
+export interface SceneEnvironment {
+  readonly savesData: boolean;
+  readonly capable: boolean;
+}
+
+/** What the browser can draw with, read once for the visit. */
+export function sceneEnvironment(): SceneEnvironment {
+  return { savesData: savesData(), capable: canDrawOffscreen() && hasGpu() };
 }
 
 /** Below this frame rate over the first second, the scene gives way to the still map. */

@@ -1,30 +1,31 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { preferredRenderer, REDUCED_MOTION, type Renderer } from "./support";
+import { fallbackApplies, resolveRenderer, type MotionFallback } from "../../domain/motion";
+import { useMotion } from "../motion/useMotion";
+import { sceneEnvironment, type Renderer } from "./support";
 
 export interface RendererChoice {
   readonly renderer: Renderer;
-  /** The scene cannot run smoothly: the still map takes over for the rest of the visit. */
+  /** The scene cannot run smoothly: the still map takes over until motion is chosen again. */
   readonly fallBack: () => void;
 }
 
-/** The renderer of the constellation, which gives way to the still map as soon as motion is unwelcome. */
+/** The renderer of the constellation, following the motion preference and giving way when drawing fails. */
 export function useRenderer(): RendererChoice {
-  const [renderer, setRenderer] = useState<Renderer>(preferredRenderer);
-  useEffect(() => {
-    const query = window.matchMedia(REDUCED_MOTION);
-    const follow = (): void => {
-      if (query.matches) setRenderer("still");
-    };
-    query.addEventListener("change", follow);
-    return () => {
-      query.removeEventListener("change", follow);
-    };
-  }, []);
+  const motion = useMotion();
+  const [environment] = useState(sceneEnvironment);
+  const [runtime, setRuntime] = useState<MotionFallback | null>(null);
+  const current = { preference: motion.preference, revision: motion.revision };
   return {
-    renderer,
+    renderer: resolveRenderer({
+      preference: motion.preference,
+      systemReduced: motion.systemReduced || motion.systemHeld,
+      savesData: environment.savesData,
+      capable: environment.capable,
+      fallen: fallbackApplies(runtime, current),
+    }),
     fallBack: () => {
-      setRenderer("still");
+      setRuntime({ preference: current.preference, revision: current.revision, held: true });
     },
   };
 }
