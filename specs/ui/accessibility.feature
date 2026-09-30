@@ -59,24 +59,25 @@ Feature: Keep every view accessible
 
   @should @SYS-UI-032
   Scenario: The theme follows the system until the user chooses one
-    Given I prefer a light color scheme
-    Then the page is drawn in the light theme
-    When I choose the dark theme
+    Given I prefer a dark color scheme
+    Then the page is drawn in the dark theme
+    When I choose the light theme
     And I reload the page
-    Then the page is drawn in the dark theme from its first paint
+    Then the page is drawn in the light theme from its first paint
 
   @should @SYS-UI-032
-  Scenario Outline: The light theme has no detectable accessibility violation
-    Given I prefer a light color scheme
+  Scenario Outline: Each theme has no detectable accessibility violation
+    Given I prefer a <theme> color scheme
     When I search for "<query>"
-    Then the page is drawn in the light theme
+    Then the page is drawn in the <theme> theme
     And the page has no accessibility violations
 
     Examples:
-      | query                 |
-      | bulba                 |
-      | fast electric pokemon |
-      | rain team             |
+      | theme | query                 |
+      | dark  | bulba                 |
+      | dark  | rain team             |
+      | light | fast electric pokemon |
+      | light | rain team             |
 
   @should @SYS-UI-021
   Scenario: A narrow screen needs no horizontal scrolling
