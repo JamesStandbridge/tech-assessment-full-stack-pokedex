@@ -10,6 +10,34 @@ results panel, a party of six and a comparison bench.
 The brief is kept in [`candidate-resources/`](candidate-resources/), with the
 dataset's provenance and checksum.
 
+## The interface
+
+The home sky holds all 151 species. A query rearranges them, and the panel
+beside it says why each result matched.
+
+![The home sky in the dark theme](docs/media/home-dark.jpg)
+
+![A rain team, grouped by weather role](docs/media/rain-dark.jpg)
+
+![Fast Electric Pokémon, lined up by speed](docs/media/electric-dark.jpg)
+
+![Ways to put an opponent to sleep, gathered around each move](docs/media/sleep-dark.jpg)
+
+The same results can go into a party of six or onto a bench of four. The bench
+below uses Electrode as the reference.
+
+![A party and a comparison bench beside a speed ranking](docs/media/bench-dark.jpg)
+
+The light theme is a full alternative, not an inversion of the dark one.
+
+![The home sky in the light theme](docs/media/home-light.jpg)
+
+A twelve-second walkthrough goes from the home sky to rain, a speed ranking,
+and an effect. [Download the video](docs/media/interface.mp4) if it does not
+play inline.
+
+<video src="docs/media/interface.mp4" controls muted playsinline width="100%"></video>
+
 ## Setup, run and test
 
 Requirements: [flox](https://flox.dev), or mise, just and process-compose
