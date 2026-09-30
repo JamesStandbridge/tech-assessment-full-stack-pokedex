@@ -28,13 +28,13 @@ interface ComboBoxProps {
 
 function OptionList(): JSX.Element {
   return (
-    <Popover className="border-line bg-panel-raised shadow-glow w-(--trigger-width) rounded-2xl border p-1">
+    <Popover className="border-ink/70 bg-paper-light shadow-sheet w-(--trigger-width) border">
       <ListBox className="max-h-72 overflow-y-auto outline-none">
         {(option: ComboOption) => (
           <ListBoxItem
             id={option.id}
             textValue={option.label}
-            className="data-[focused]:bg-panel data-[focused]:text-accent-soft cursor-pointer rounded-xl px-4 py-2 outline-none"
+            className="border-rule data-[focused]:bg-paper-deep data-[focused]:text-rubric-deep cursor-pointer border-b px-4 py-2 outline-none last:border-b-0"
           >
             {option.label}
           </ListBoxItem>
@@ -110,7 +110,7 @@ export function ComboBox(props: ComboBoxProps): JSX.Element {
       <Input
         placeholder={placeholder}
         onKeyDown={submitOnEnter}
-        className="border-line bg-panel text-text placeholder:text-muted data-[focused]:border-accent w-full rounded-full border px-6 py-4 text-lg outline-none"
+        className="border-ink text-ink placeholder:text-ink-soft/70 data-[focused]:border-rubric w-full border-b bg-transparent py-3 font-serif text-2xl italic outline-none sm:text-3xl"
       />
       <OptionList />
       <OpenOnNewOptions options={options} />

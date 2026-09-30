@@ -15,7 +15,7 @@ export function Checkbox({
   disabled = false,
 }: CheckboxProps): JSX.Element {
   return (
-    <label className="text-muted inline-flex cursor-pointer items-center gap-2 text-sm has-disabled:cursor-not-allowed has-disabled:opacity-50">
+    <label className="label text-ink-soft has-checked:text-ink inline-flex cursor-pointer items-center gap-2 has-disabled:cursor-not-allowed has-disabled:opacity-45">
       <input
         type="checkbox"
         checked={checked}
@@ -23,7 +23,7 @@ export function Checkbox({
         onChange={(event) => {
           onChange(event.currentTarget.checked);
         }}
-        className="accent-accent size-4"
+        className="accent-rubric size-3.5"
       />
       {label}
     </label>

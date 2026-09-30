@@ -1,82 +1,104 @@
 /*
- * Design tokens. Tailwind turns every --color-* into utilities such as
- * bg-type-fire or text-tone-effect; the other variables are read by components.
+ * Design tokens of the atlas (ADR 12). Tailwind turns every --color-* into
+ * utilities such as bg-paper or text-rubric; the other variables are read by
+ * components.
  */
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-display: "IM Fell English", "Atlas Display Fallback", Georgia, serif;
+  --font-serif: "Source Serif 4 Variable", "Atlas Text Fallback", Georgia, serif;
+  --font-mono: "IBM Plex Mono", "Atlas Mono Fallback", ui-monospace, Menlo, monospace;
 
-  --color-ink: #0b0f1a;
-  --color-panel: #121829;
-  --color-panel-raised: #1a2238;
-  --color-line: #2a3452;
-  --color-text: #e8ecf6;
-  --color-muted: #9aa6c4;
-  --color-accent: #c4290a;
-  --color-accent-soft: #ff6b4a;
-  --color-focus: #ffd23f;
+  --color-paper: #f2ecdf;
+  --color-paper-light: #f8f4eb;
+  --color-paper-deep: #e8e0cf;
+  --color-ink: #1c1814;
+  --color-ink-soft: #5b5147;
+  --color-rule: #cbbfa8;
+  --color-rule-strong: #8c7f6b;
+  --color-rubric: #a3261b;
+  --color-rubric-deep: #7e1c13;
+  --color-gain: #2f6b3a;
+  --color-loss: #a3261b;
 
-  --color-type-normal: #a8a77a;
-  --color-type-fire: #ee8130;
-  --color-type-water: #6390f0;
-  --color-type-electric: #f7d02c;
-  --color-type-grass: #7ac74c;
-  --color-type-ice: #96d9d6;
-  --color-type-fighting: #c22e28;
-  --color-type-poison: #a33ea1;
-  --color-type-ground: #e2bf65;
-  --color-type-flying: #a98ff3;
-  --color-type-psychic: #f95587;
-  --color-type-bug: #a6b91a;
-  --color-type-rock: #b6a136;
-  --color-type-ghost: #735797;
-  --color-type-dragon: #6f35fc;
-  --color-type-dark: #705746;
-  --color-type-steel: #b7b7ce;
-  --color-type-fairy: #d685ad;
+  --color-type-normal: oklch(0.68 0.04 95);
+  --color-type-fire: oklch(0.64 0.14 45);
+  --color-type-water: oklch(0.58 0.1 245);
+  --color-type-electric: oklch(0.78 0.13 90);
+  --color-type-grass: oklch(0.62 0.11 135);
+  --color-type-ice: oklch(0.76 0.07 200);
+  --color-type-fighting: oklch(0.52 0.13 30);
+  --color-type-poison: oklch(0.52 0.11 320);
+  --color-type-ground: oklch(0.7 0.09 80);
+  --color-type-flying: oklch(0.68 0.08 285);
+  --color-type-psychic: oklch(0.62 0.14 5);
+  --color-type-bug: oklch(0.66 0.11 115);
+  --color-type-rock: oklch(0.62 0.08 85);
+  --color-type-ghost: oklch(0.48 0.08 300);
+  --color-type-dragon: oklch(0.48 0.13 280);
+  --color-type-dark: oklch(0.42 0.04 50);
+  --color-type-steel: oklch(0.66 0.03 250);
+  --color-type-fairy: oklch(0.72 0.09 350);
 
-  --color-tone-entity: #ffd23f;
-  --color-tone-kind: #7cc4ff;
-  --color-tone-type: #ff9f5a;
-  --color-tone-trait: #5ee6c1;
-  --color-tone-stat: #b6f36b;
-  --color-tone-effect: #f07cff;
-  --color-tone-weather: #5fd4ff;
-  --color-tone-relation: #ffb45e;
-  --color-tone-filler: #6b7593;
-  --color-tone-ignored: #ff6b8a;
+  --color-tone-entity: #a3261b;
+  --color-tone-kind: #3f5f86;
+  --color-tone-type: #b0652a;
+  --color-tone-trait: #4f7a55;
+  --color-tone-stat: #6d5a2e;
+  --color-tone-effect: #7a3f73;
+  --color-tone-weather: #2f6f86;
+  --color-tone-relation: #8a5a1f;
+  --color-tone-filler: #8c7f6b;
+  --color-tone-ignored: #8c7f6b;
 
-  --color-role-setter: #ffd23f;
-  --color-role-benefit: #5ee6a0;
-  --color-role-protection: #7cc4ff;
-  --color-role-mixed: #c9a6ff;
-  --color-role-drawback: #ff6b8a;
+  --color-role-setter: #b0652a;
+  --color-role-benefit: #2f6b3a;
+  --color-role-protection: #3f5f86;
+  --color-role-mixed: #7a3f73;
+  --color-role-drawback: #a3261b;
 
-  --radius-card: 1.25rem;
-  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  --shadow-sheet: -24px 0 48px -32px rgb(28 24 20 / 0.45);
 }
 
 :root {
-  --ambience-none:
-    radial-gradient(1200px 600px at 10% -10%, #1f2a4d 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, #3a1422 0%, transparent 55%);
-  --ambience-rain:
-    radial-gradient(1000px 700px at 50% -20%, #1b3f6b 0%, transparent 65%),
-    linear-gradient(180deg, #0c1a2e 0%, #0b0f1a 70%);
-  --ambience-sun:
-    radial-gradient(900px 600px at 85% -15%, #7a3a0c 0%, transparent 60%),
-    linear-gradient(180deg, #24140a 0%, #0b0f1a 70%);
-  --ambience-sandstorm:
-    radial-gradient(1000px 700px at 20% -10%, #5a4520 0%, transparent 60%),
-    linear-gradient(180deg, #1f1a10 0%, #0b0f1a 70%);
-  --ambience-hail:
-    radial-gradient(1000px 700px at 50% -20%, #3d5a73 0%, transparent 60%),
-    linear-gradient(180deg, #121c26 0%, #0b0f1a 70%);
-  color-scheme: dark;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --wash-none: radial-gradient(1100px 520px at 12% -12%, #e9dfca 0%, transparent 62%);
+  --wash-rain: radial-gradient(1200px 620px at 50% -18%, #d6dde0 0%, transparent 66%);
+  --wash-sun: radial-gradient(1100px 600px at 86% -16%, #efd6a8 0%, transparent 62%);
+  --wash-sandstorm: radial-gradient(1200px 640px at 20% -14%, #e4cfa4 0%, transparent 64%);
+  --wash-hail: radial-gradient(1200px 620px at 50% -18%, #dfe6e8 0%, transparent 66%);
+  color-scheme: light;
+}
+
+@font-face {
+  font-family: "Atlas Display Fallback";
+  src: local("Georgia"), local("Times New Roman");
+  size-adjust: 94%;
+  ascent-override: 92%;
+  descent-override: 26%;
+}
+
+@font-face {
+  font-family: "Atlas Text Fallback";
+  src: local("Georgia"), local("Times New Roman");
+  size-adjust: 97%;
+  ascent-override: 98%;
+  descent-override: 30%;
+}
+
+@font-face {
+  font-family: "Atlas Mono Fallback";
+  src: local("Menlo"), local("Consolas"), local("Courier New");
+  size-adjust: 100%;
 }
 
 @keyframes grow {
   from {
     transform: scaleX(0);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
   }
 }

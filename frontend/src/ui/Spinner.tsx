@@ -4,15 +4,15 @@ interface SpinnerProps {
   readonly label: string;
 }
 
-/** A polite live status; the rotation stops when the user prefers reduced motion. */
+/** A polite live status; its ink dot only pulses when motion is welcome. */
 export function Spinner({ label }: SpinnerProps): JSX.Element {
   return (
-    <div role="status" aria-live="polite" className="text-muted flex items-center gap-3">
+    <div role="status" aria-live="polite" className="text-ink-soft flex items-center gap-3">
       <span
         aria-hidden="true"
-        className="border-line border-t-accent size-5 rounded-full border-2 motion-safe:animate-spin"
+        className="bg-rubric size-2 rounded-full motion-safe:animate-pulse"
       />
-      <span>{label}</span>
+      <span className="label">{label}</span>
     </div>
   );
 }
