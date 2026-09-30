@@ -26,8 +26,8 @@ Option 1.
   API is separate and nothing needs server rendering.
 - Frontend types are generated from `openapi.yaml` with `openapi-typescript`,
   so the contract is the single source of truth on both sides.
-- TanStack Query handles request state and cancellation, Framer Motion the
-  animations, and `d3-force` the relation graph.
+- TanStack Query handles request state and cancellation, CSS the small
+  animations, and three.js on WebGPU the constellation of ADR 12.
 
 ## Consequences
 

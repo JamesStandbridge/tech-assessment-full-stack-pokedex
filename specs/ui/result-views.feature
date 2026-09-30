@@ -69,9 +69,10 @@ Feature: Present results in a view suited to each kind of question
     And the details list "pokemon:pikachu"
 
   @could @SYS-UI-009
-  Scenario: The best match is presented as a collectible card
+  Scenario: The best match comes to the front of the constellation
     When I search for "bulba"
-    Then the best match "pokemon:bulbasaur" is a card with its artwork, genus and description
+    Then the best match "pokemon:bulbasaur" shows its artwork, genus and description
+    And the constellation brings "pokemon:bulbasaur" to the front
 
   @could @SYS-UI-010
   Scenario Outline: A weather strategy sets a matching ambience
@@ -85,27 +86,53 @@ Feature: Present results in a view suited to each kind of question
       | sandstorm team | sandstorm |
 
   @could @SYS-UI-011
+  Scenario: A stat ranking aligns the results on an axis of that stat
+    When I search for "fast electric pokemon"
+    Then the constellation aligns the results on the "Speed" axis
+    And the constellation places "pokemon:electrode" first on that axis
+
+  @could @SYS-UI-011
   Scenario: A stat comparison overlays the profiles of selected Pokémon
     When I search for "fast electric pokemon"
     And I select "pokemon:jolteon" and "pokemon:raichu" for comparison
     Then I see the stat profiles of "pokemon:jolteon" and "pokemon:raichu" overlaid
 
   @could @SYS-UI-012
-  Scenario: A weather strategy is a navigable graph of relations
+  Scenario: A weather strategy arranges the Pokémon in rings around the weather
     When I search for "rain team"
-    Then the relation graph links "rain" to "ability:swift-swim"
-    And the relation graph links "ability:swift-swim" to "pokemon:goldeen"
-    When I select "ability:swift-swim" in the relation graph
+    Then the constellation places "pokemon:goldeen" in the ring of "Benefit"
+    And the constellation links "rain" to "ability:swift-swim"
+    And the constellation links "ability:swift-swim" to "pokemon:goldeen"
+    When I focus "ability:swift-swim" in the constellation
+    Then the constellation highlights "ability:swift-swim" and "pokemon:goldeen"
+    When I select "ability:swift-swim" in the constellation
     Then I see the details of "ability:swift-swim"
 
   @could @SYS-UI-013
-  Scenario: The team tray holds six Pokémon and shows their shared weather
+  Scenario: The party holds six Pokémon and shows their shared weather
     When I search for "rain team"
-    And I add "pokemon:goldeen", "pokemon:seaking", "pokemon:psyduck", "pokemon:golduck", "pokemon:horsea" and "pokemon:kabuto" to the team
-    Then the team tray holds 6 Pokémon
-    And the team tray shows that they share "rain"
-    When I try to add "pokemon:omanyte" to the team
-    Then the team tray still holds 6 Pokémon
+    And I add "pokemon:goldeen", "pokemon:seaking", "pokemon:psyduck", "pokemon:golduck", "pokemon:horsea" and "pokemon:kabuto" to the party
+    Then the party holds 6 Pokémon
+    And the party shows that they share "rain"
+
+  @could @SYS-UI-024
+  Scenario: The species form a constellation that follows the query
+    Then the constellation shows 151 species
+    When I search for "put the opponent to sleep"
+    Then the constellation gathers the carriers of "move:spore" around it
+
+  @could @SYS-UI-025
+  Scenario Outline: A constellation that cannot move smoothly becomes a still map
+    Given <condition>
+    When I search for "rain team"
+    Then the constellation is a still map
+    And the constellation links "ability:swift-swim" to "pokemon:goldeen"
+
+    Examples:
+      | condition                    |
+      | the browser has no WebGL     |
+      | I prefer reduced motion      |
+      | I prefer to save data        |
 
   @could @SYS-UI-014
   Scenario: A query can be spoken and an entry read aloud

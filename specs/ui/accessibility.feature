@@ -4,9 +4,9 @@ Feature: Keep every view accessible
   the user's preference, and nothing plays sound unasked.
 
   Pitfalls:
-  - A force-directed graph is unreadable to a screen reader and hard to reach
-    with the keyboard.
-  - Holographic tilts and animated bars can cause discomfort; the operating
+  - A scene drawn on a canvas is invisible to a screen reader and out of
+    reach of the keyboard; its elements must exist in the page as well.
+  - Camera flights and drifting particles can cause discomfort; the operating
     system setting for reduced motion must win.
   - A narrow phone screen must not need horizontal scrolling.
 
@@ -21,7 +21,7 @@ Feature: Keep every view accessible
     Examples:
       | query                 | visual         |
       | fast electric pokemon | comparison     |
-      | rain team             | relation graph |
+      | rain team             | constellation  |
 
   @should @SYS-A11Y-002
   Scenario: The whole search works with the keyboard alone

@@ -49,7 +49,8 @@ enforces it.
 - Server state is TanStack Query's, URL state is `nuqs`', and the rest is local
   state colocated with its use. No global store.
 - No effect for derived state or data fetching. Effects only synchronize with
-  systems outside React: the `d3-force` simulation, speech, media queries.
+  systems outside React: the constellation worker, speech, media queries,
+  keyboard shortcuts and storage.
 - List keys are stable identifiers such as `kind:name`, never array indices.
 - Each result view sits behind an error boundary, and heavy views such as the
   relation graph load lazily behind `Suspense`.
@@ -79,13 +80,15 @@ interface scenarios, and the scenarios of `specs/ui/accessibility.feature`.
 | Budget | Limit | Enforced by |
 |---|---|---|
 | Initial JavaScript, compressed | 150 kB | `size-limit` on the production build |
+| Constellation worker, compressed | 260 kB | `size-limit` on the production build |
 | Largest Contentful Paint | 2.5 s | Lighthouse CI on the production preview |
 | Cumulative Layout Shift | 0.1 | Lighthouse CI |
 | Total Blocking Time | 200 ms | Lighthouse CI |
 | Searches per pause of typing | 1 | the SYS-UI-022 scenario |
 
-- The results region, the details, the stat overlay and the graph are split
-  out of the initial bundle and loaded on demand; the results region is
+- The results region, the details, the stat overlay and the constellation
+  worker are split out of the initial bundle and loaded on demand; the worker
+  starts after the first paint and never draws the largest contentful element; the results region is
   fetched as soon as the URL holds a query. The initial JavaScript is 120 kB
   gzip, and the mobile Largest Contentful Paint of a weather search sits just
   under its budget, at 2.49 s.

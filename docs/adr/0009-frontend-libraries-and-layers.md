@@ -45,7 +45,7 @@ Libraries:
 | Styling | Tailwind CSS v4, design tokens as CSS variables |
 | Accessible widgets | React Aria Components |
 | Animation | CSS transitions and keyframes, off under `prefers-reduced-motion` |
-| Relation graph | `d3-force`, rendered as SVG by React |
+| Constellation | three.js `WebGPURenderer` and TSL in a module worker, still SVG map as fallback (ADR 12) |
 | Unit and component tests | Vitest, Testing Library, MSW |
 | End-to-end and accessibility tests | Playwright, `@axe-core/playwright` |
 | Lint and format | ESLint with `typescript-eslint` strict type-checked, `react-hooks`, `jsx-a11y`; Prettier |
@@ -66,6 +66,6 @@ Quality gates: `tsc --noEmit`, ESLint with `max-lines` of 200 and
   for a single page; a router can be added if pages multiply.
 - Biome would be faster, but lacks part of the `react-hooks` and `jsx-a11y`
   rules the guardrails rely on.
-- Stat bars, the holographic card and weather ambiences are CSS and SVG, with
-  no chart library. Motion, chosen first, weighed 40 kB gzip for effects CSS
+- Stat bars and the stat profiles are CSS and SVG, with no chart library; the
+  constellation is the one GPU scene, split into its own worker chunk. Motion, chosen first, weighed 40 kB gzip for effects CSS
   covers, and was dropped to hold the bundle budget of ADR 11.
