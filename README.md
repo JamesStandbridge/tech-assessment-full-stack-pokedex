@@ -133,7 +133,11 @@ their distributions differ, so each value is converted to a mid-rank
 percentile:
 
 $$
-p(x) = \frac{\#(v < x) + \#(v \leq x)}{2N}
+p(x) =
+\frac{
+  \left\lvert \{v \mid v < x\} \right\rvert
+  + \left\lvert \{v \mid v \leq x\} \right\rvert
+}{2N}
 $$
 
 The rank is the mean of the requested percentiles. Derived values are explicit:
