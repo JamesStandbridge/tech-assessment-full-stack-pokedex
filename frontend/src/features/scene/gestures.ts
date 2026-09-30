@@ -1,5 +1,5 @@
 /** A primary drag turns the scene; a secondary, Shift or two-finger drag pans it. */
-export type DragMode = "turn" | "pan";
+type DragMode = "turn" | "pan";
 
 export type Gesture =
   | { readonly type: "hover"; readonly x: number; readonly y: number }
