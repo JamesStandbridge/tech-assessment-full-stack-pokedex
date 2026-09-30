@@ -4,7 +4,7 @@ from typing import Protocol
 
 from pokedex_search.application.search_service import SearchRequest
 from pokedex_search.domain.details import EntityDetail
-from pokedex_search.domain.entities import EntityKind
+from pokedex_search.domain.entities import EntityKind, Pokemon
 from pokedex_search.domain.results import SearchResult
 from pokedex_search.domain.suggestions import TypingSuggestion
 
@@ -22,6 +22,14 @@ class EntityUseCase(Protocol):
 
     def get(self, kind: EntityKind, name: str) -> EntityDetail:
         """Return one entity with its relations."""
+        ...
+
+
+class SpeciesUseCase(Protocol):
+    """Lists every Pokémon."""
+
+    def species(self) -> tuple[Pokemon, ...]:
+        """Return every Pokémon, in Pokédex order."""
         ...
 
 

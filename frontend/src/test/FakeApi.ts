@@ -1,6 +1,13 @@
-import type { EntityDetail, EntityRef, SearchResponse, SuggestResponse } from "../api/contract";
+import type {
+  EntityDetail,
+  EntityRef,
+  SearchResponse,
+  SpeciesResponse,
+  SuggestResponse,
+} from "../api/contract";
 import { ApiError } from "../api/errors";
 import type { PokedexApi, SearchParams } from "../api/ports";
+import { speciesList } from "./recorded/speciesList";
 
 type Answer<T> = T | ApiError;
 
@@ -30,6 +37,10 @@ export class FakeApi implements PokedexApi {
 
   suggest(): Promise<SuggestResponse> {
     return Promise.resolve({ suggestions: [] });
+  }
+
+  species(): Promise<SpeciesResponse> {
+    return Promise.resolve(speciesList);
   }
 
   entity(ref: EntityRef): Promise<EntityDetail> {

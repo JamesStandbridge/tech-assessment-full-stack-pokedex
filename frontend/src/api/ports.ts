@@ -3,6 +3,7 @@ import type {
   EntityKind,
   EntityRef,
   SearchResponse,
+  SpeciesResponse,
   SuggestResponse,
 } from "./contract";
 
@@ -25,4 +26,8 @@ export interface EntityApi {
   entity(ref: EntityRef, signal: AbortSignal): Promise<EntityDetail>;
 }
 
-export type PokedexApi = SearchApi & SuggestApi & EntityApi;
+export interface SpeciesApi {
+  species(signal: AbortSignal): Promise<SpeciesResponse>;
+}
+
+export type PokedexApi = SearchApi & SuggestApi & EntityApi & SpeciesApi;

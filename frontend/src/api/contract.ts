@@ -27,3 +27,5 @@ export type PokemonDetail = Schemas["PokemonDetail"];
 export type MoveDetail = Schemas["MoveDetail"];
 export type AbilityDetail = Schemas["AbilityDetail"];
 export type ErrorResponse = Schemas["ErrorResponse"];
+export type Species = Schemas["Species"];
+export type SpeciesResponse = Schemas["SpeciesResponse"];

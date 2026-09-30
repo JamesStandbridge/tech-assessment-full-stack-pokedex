@@ -33,6 +33,10 @@ def test_entity_details_include_the_evolution_family() -> None:
     assert EntityService(INDEX).get(EntityKind.MOVE, "thunder").evolution_family == ()
 
 
+def test_the_species_list_holds_every_pokemon_in_pokedex_order() -> None:
+    assert [pokemon.name for pokemon in EntityService(INDEX).species()] == ["pidgey", "pikachu"]
+
+
 def test_a_missing_entity_is_reported() -> None:
     with pytest.raises(EntityNotFoundError, match="rain-dance"):
         EntityService(INDEX).get(EntityKind.MOVE, "rain-dance")

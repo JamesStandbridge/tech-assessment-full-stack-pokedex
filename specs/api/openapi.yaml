@@ -143,6 +143,26 @@ paths:
                   message: No move is named 'rain-dance'.
         "500":
           $ref: "#/components/responses/InternalError"
+  /api/species:
+    get:
+      operationId: listSpecies
+      summary: List every Pokémon of the snapshot with what the constellation places it by
+      responses:
+        "200":
+          description: Every Pokémon, in Pokédex order.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControl"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesResponse"
+        "304":
+          $ref: "#/components/responses/NotModified"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/health:
     get:
       operationId: health
@@ -611,6 +631,40 @@ components:
         special-attack: {type: integer}
         special-defense: {type: integer}
         speed: {type: integer}
+    SpeciesResponse:
+      type: object
+      required: [species]
+      properties:
+        species:
+          type: array
+          items:
+            $ref: "#/components/schemas/Species"
+    Species:
+      type: object
+      required: [id, name, types, stats, genus, is_legendary, is_mythical, sprite_url]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: Kebab-case dataset name.
+        types:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            type: string
+        stats:
+          $ref: "#/components/schemas/Stats"
+        genus:
+          type: [string, "null"]
+        is_legendary:
+          type: boolean
+        is_mythical:
+          type: boolean
+        sprite_url:
+          type: [string, "null"]
+          format: uri
     PokemonResult:
       allOf:
         - $ref: "#/components/schemas/ResultBase"

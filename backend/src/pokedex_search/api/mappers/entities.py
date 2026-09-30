@@ -9,6 +9,8 @@ from pokedex_search.api.schemas.entities import (
     EntityDetailDTO,
     MoveDetailDTO,
     PokemonDetailDTO,
+    SpeciesDTO,
+    SpeciesResponseDTO,
     SuggestItemDTO,
     SuggestResponseDTO,
 )
@@ -77,6 +79,25 @@ def to_entity_detail(detail: EntityDetail) -> EntityDetailDTO:
             )
         case _:
             assert_never(entity)
+
+
+def to_species_response(species: tuple[Pokemon, ...]) -> SpeciesResponseDTO:
+    """Map every Pokémon to the species list body."""
+    return SpeciesResponseDTO(
+        species=[
+            SpeciesDTO(
+                id=pokemon.id,
+                name=pokemon.name,
+                types=list(pokemon.types),
+                stats=stats_dto(pokemon.stats),
+                genus=pokemon.species.genus,
+                is_legendary=pokemon.species.is_legendary,
+                is_mythical=pokemon.species.is_mythical,
+                sprite_url=pokemon.sprite_url,
+            )
+            for pokemon in species
+        ]
+    )
 
 
 def to_suggest_response(suggestions: tuple[TypingSuggestion, ...]) -> SuggestResponseDTO:

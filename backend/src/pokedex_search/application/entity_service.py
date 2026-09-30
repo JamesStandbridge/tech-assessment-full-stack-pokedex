@@ -36,3 +36,18 @@ class EntityService:
             raise EntityNotFoundError(ref)
         family = self._catalog.evolution_family(entity) if isinstance(entity, Pokemon) else ()
         return EntityDetail(entity=entity, evolution_family=family)
+
+    def species(self) -> tuple[Pokemon, ...]:
+        """Return every Pokémon, in Pokédex order.
+
+        Returns:
+            The Pokémon of the snapshot, sorted by number.
+        """
+        found = (self._catalog.get(ref) for ref in self._catalog.refs(EntityKind.POKEMON))
+        return tuple(
+            sorted((entity for entity in found if isinstance(entity, Pokemon)), key=_number)
+        )
+
+
+def _number(pokemon: Pokemon) -> int:
+    return pokemon.id

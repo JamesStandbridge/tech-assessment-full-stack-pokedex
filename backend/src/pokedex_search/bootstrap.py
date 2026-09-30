@@ -116,9 +116,11 @@ def build_use_cases(settings: Settings) -> UseCases:
     snapshot = load_snapshot(settings.dataset_path, settings.dataset_sha256)
     vocabulary = load_resource("vocabulary.yaml", Vocabulary)
     index = build_index(snapshot)
+    entities = EntityService(index)
     return UseCases(
         search=build_search(snapshot, index, vocabulary, settings),
-        entities=EntityService(index),
+        entities=entities,
+        species=entities,
         suggest=SuggestService(QueryValidator(), index, ConceptCompleter(vocabulary)),
         health=HealthService(index),
     )

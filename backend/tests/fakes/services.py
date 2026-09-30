@@ -5,7 +5,7 @@ from pokedex_search.application.pagination import Cursor
 from pokedex_search.application.ranking_service import MergedRanking
 from pokedex_search.application.search_service import SearchRequest
 from pokedex_search.domain.details import EntityDetail
-from pokedex_search.domain.entities import EntityKind, EntityRef
+from pokedex_search.domain.entities import EntityKind, EntityRef, Pokemon
 from pokedex_search.domain.errors import EntityNotFoundError, InvalidParameterError
 from pokedex_search.domain.plan import SearchPlan
 from pokedex_search.domain.query import ValidQuery
@@ -77,6 +77,14 @@ class FakeEntities:
         if ref not in self._details:
             raise EntityNotFoundError(ref)
         return self._details[ref]
+
+
+class FakeSpecies:
+    def __init__(self, species: tuple[Pokemon, ...]) -> None:
+        self._species = species
+
+    def species(self) -> tuple[Pokemon, ...]:
+        return self._species
 
 
 class FakeSuggest:

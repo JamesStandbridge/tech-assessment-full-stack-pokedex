@@ -12,7 +12,7 @@ const LIMIT = "5";
 interface Recording {
   readonly name: string;
   readonly path: string;
-  readonly type: "SearchResponse" | "SuggestResponse" | "EntityDetail";
+  readonly type: "SearchResponse" | "SuggestResponse" | "EntityDetail" | "SpeciesResponse";
 }
 
 const searches: Readonly<Record<string, string>> = {
@@ -36,6 +36,7 @@ const recordings: readonly Recording[] = [
   { name: "pikaSuggest", path: "/api/suggest?q=pika", type: "SuggestResponse" },
   { name: "pikachuDetail", path: "/api/entities/pokemon/pikachu", type: "EntityDetail" },
   { name: "staticDetail", path: "/api/entities/ability/static", type: "EntityDetail" },
+  { name: "speciesList", path: "/api/species", type: "SpeciesResponse" },
 ];
 
 async function record(recording: Recording): Promise<void> {

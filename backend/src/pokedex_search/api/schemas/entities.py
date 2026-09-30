@@ -63,6 +63,25 @@ class AbilityDetailDTO(Wire):
     pokemon: list[str]
 
 
+class SpeciesDTO(Wire):
+    """A Pokémon with what the constellation places it by."""
+
+    id: int
+    name: str
+    types: list[str]
+    stats: StatsDTO
+    genus: str | None
+    is_legendary: bool
+    is_mythical: bool
+    sprite_url: str | None
+
+
+class SpeciesResponseDTO(Wire):
+    """Every Pokémon, in Pokédex order."""
+
+    species: list[SpeciesDTO]
+
+
 EntityDetailDTO = Annotated[
     PokemonDetailDTO | MoveDetailDTO | AbilityDetailDTO, Field(discriminator="kind")
 ]

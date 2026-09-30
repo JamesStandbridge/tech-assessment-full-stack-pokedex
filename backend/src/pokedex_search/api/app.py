@@ -11,7 +11,7 @@ from pokedex_search.api.errors import register_error_handlers
 from pokedex_search.api.http.entity_tags import EntityTagMiddleware
 from pokedex_search.api.http.head import HeadMiddleware
 from pokedex_search.api.http.security import SecurityHeadersMiddleware
-from pokedex_search.api.routes import entities, health, search
+from pokedex_search.api.routes import entities, health, search, species
 
 COMPRESSION_MINIMUM_BYTES = 1000
 
@@ -43,6 +43,6 @@ def create_app(use_cases: UseCases, cors_origins: Sequence[str]) -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(HeadMiddleware)
     register_error_handlers(app)
-    for module in (search, entities, health):
+    for module in (search, entities, species, health):
         app.include_router(module.router)
     return app

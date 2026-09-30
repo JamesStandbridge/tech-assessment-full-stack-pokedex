@@ -17,7 +17,7 @@ from pokedex_search.domain.results import (
 )
 from tests.contracts.openapi import OpenApiContract
 from tests.fakes.entities import move, pokemon
-from tests.fakes.services import FakeEntities, FakeHealth, FakeSearch, FakeSuggest
+from tests.fakes.services import FakeEntities, FakeHealth, FakeSearch, FakeSpecies, FakeSuggest
 
 CONTRACT = OpenApiContract()
 PIKACHU = pokemon("pikachu", 25, ("electric",))
@@ -54,7 +54,11 @@ def _client(search: FakeSearch) -> TestClient:
         move("thunder", 87).ref: EntityDetail(entity=move("thunder", 87), evolution_family=()),
     }
     use_cases = UseCases(
-        search=search, entities=FakeEntities(details), suggest=FakeSuggest(), health=FakeHealth()
+        search=search,
+        entities=FakeEntities(details),
+        species=FakeSpecies((PIKACHU,)),
+        suggest=FakeSuggest(),
+        health=FakeHealth(),
     )
     return TestClient(
         create_app(use_cases, ["http://localhost:5173"]), raise_server_exceptions=False
@@ -103,6 +107,14 @@ def test_entity_details_and_missing_entities_follow_the_contract() -> None:
     missing = client.get("/api/entities/move/rain-dance")
     assert CONTRACT.errors(found.json(), "EntityDetail") == []
     assert (missing.status_code, missing.json()["error"]["code"]) == (404, "not_found")
+
+
+def test_the_species_list_follows_the_contract() -> None:
+    response = _client(FakeSearch(RESULT)).get("/api/species")
+    assert response.status_code == 200
+    assert CONTRACT.errors(response.json(), "SpeciesResponse") == []
+    assert [species["name"] for species in response.json()["species"]] == ["pikachu"]
+    assert response.headers["etag"].startswith('W/"')
 
 
 def test_health_and_suggestions_follow_the_contract() -> None:

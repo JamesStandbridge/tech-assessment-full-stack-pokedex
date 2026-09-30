@@ -55,6 +55,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/species": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every Pokémon of the snapshot with what the constellation places it by */
+        get: operations["listSpecies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -240,6 +257,21 @@ export type components = {
             "special-attack": number;
             "special-defense": number;
             speed: number;
+        };
+        SpeciesResponse: {
+            species: components["schemas"]["Species"][];
+        };
+        Species: {
+            id: number;
+            /** @description Kebab-case dataset name. */
+            name: string;
+            types: string[];
+            stats: components["schemas"]["Stats"];
+            genus: string | null;
+            is_legendary: boolean;
+            is_mythical: boolean;
+            /** Format: uri */
+            sprite_url: string | null;
         };
         PokemonResult: components["schemas"]["ResultBase"] & {
             /** @constant */
@@ -548,6 +580,30 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            500: components["responses"]["InternalError"];
+        };
+    };
+    listSpecies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Every Pokémon, in Pokédex order. */
+            200: {
+                headers: {
+                    ETag: components["headers"]["ETag"];
+                    "Cache-Control": components["headers"]["CacheControl"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpeciesResponse"];
+                };
+            };
+            304: components["responses"]["NotModified"];
             500: components["responses"]["InternalError"];
         };
     };

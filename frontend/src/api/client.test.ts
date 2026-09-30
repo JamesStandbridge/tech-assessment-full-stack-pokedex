@@ -5,6 +5,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, test } from "vitest";
 import { bulbaSearch } from "../test/recorded/bulbaSearch";
 import { pikachuDetail } from "../test/recorded/pikachuDetail";
 import { pikaSuggest } from "../test/recorded/pikaSuggest";
+import { speciesList } from "../test/recorded/speciesList";
 import { createPokedexClient } from "./client";
 import type { ErrorResponse } from "./contract";
 import { ApiError } from "./errors";
@@ -68,6 +69,12 @@ describe("successful requests", () => {
     );
     expect(await api.suggest("pika", signal())).toEqual(pikaSuggest);
     expect(await api.entity({ kind: "pokemon", name: "pikachu" }, signal())).toEqual(pikachuDetail);
+  });
+
+  test("the species list has its own resource", async () => {
+    server.use(http.get(`${BASE}/api/species`, () => HttpResponse.json(speciesList)));
+    const response = await api.species(signal());
+    expect(response.species).toHaveLength(151);
   });
 });
 

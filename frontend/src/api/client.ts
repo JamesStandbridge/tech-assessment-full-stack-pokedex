@@ -88,5 +88,7 @@ export function createPokedexClient(options: ClientOptions): PokedexApi {
         signal,
         timeoutMs,
       ),
+    species: (signal) =>
+      send((combined) => client.GET("/api/species", { signal: combined }), signal, timeoutMs),
   };
 }

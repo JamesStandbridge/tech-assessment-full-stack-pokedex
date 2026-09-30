@@ -8,6 +8,7 @@ from pokedex_search.application.use_cases import (
     EntityUseCase,
     HealthUseCase,
     SearchUseCase,
+    SpeciesUseCase,
     SuggestUseCase,
 )
 
@@ -18,6 +19,7 @@ class UseCases:
 
     search: SearchUseCase
     entities: EntityUseCase
+    species: SpeciesUseCase
     suggest: SuggestUseCase
     health: HealthUseCase
 
@@ -35,6 +37,11 @@ def search_use_case(request: Request) -> SearchUseCase:
 def entity_use_case(request: Request) -> EntityUseCase:
     """Return the entity detail use case."""
     return _use_cases(request).entities
+
+
+def species_use_case(request: Request) -> SpeciesUseCase:
+    """Return the species list use case."""
+    return _use_cases(request).species
 
 
 def suggest_use_case(request: Request) -> SuggestUseCase:
