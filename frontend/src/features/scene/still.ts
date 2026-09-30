@@ -43,8 +43,8 @@ export interface StillView {
 export function stillView(frame: SceneFrame, space: Space): StillView {
   const { viewport, inset } = space;
   const free = {
-    width: viewport.width - inset.left - inset.right,
-    height: viewport.height - inset.top - inset.bottom,
+    width: Math.max(1, viewport.width - inset.left - inset.right),
+    height: Math.max(1, viewport.height - inset.top - inset.bottom),
   };
   const { distance, aspect } = frame.camera;
   const scale = Math.min(free.width / aspect, free.height) / (distance * VIEW_HEIGHT);

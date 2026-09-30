@@ -19,6 +19,14 @@ function node(id: string): SceneNode {
   return found;
 }
 
+test("a map not measured yet, narrower than the results, still draws stars of positive size", () => {
+  const unmeasured = stillView(frame, {
+    viewport: { width: 0, height: 0, pixelRatio: 1 },
+    inset: { ...NO_INSET, right: 432 },
+  });
+  expect(unmeasured.radius(1, 0)).toBeGreaterThan(0);
+});
+
 describe("the moves of the still map", () => {
   test("a pan shifts the view by the drag", () => {
     expect(panBy(UNMOVED, { dx: 30, dy: -10 })).toEqual({ x: 30, y: -10, scale: 1 });
