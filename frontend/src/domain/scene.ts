@@ -28,7 +28,7 @@ export interface SceneFrame {
   readonly weather: string | null;
 }
 
-const HOME_CAMERA: SceneCamera = { target: point(0, 0, 0), distance: 29 };
+const HOME_CAMERA: SceneCamera = { target: point(0, 0, 0), distance: 24 };
 const DUST_SPREAD = 1.7;
 const DUST_DEPTH = 14;
 
