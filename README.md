@@ -117,6 +117,8 @@ descriptions is kept only as a fallback. Embeddings were considered and set
 aside: cosine similarity barely separates "cause sleep" from "prevent sleep",
 which is exactly the distinction the intent need depends on.
 
+![One query, one model per constraint](docs/retrieval.svg)
+
 **Effects are turned into facts at indexing time**
 ([ADR 5](docs/adr/0005-search-architecture.md)). A versioned rule lexicon
 reads each short effect and records the effect, its target and its chance.
@@ -126,11 +128,10 @@ fine for 278 moves and abilities but would not be for a larger corpus; the port 
 so a batch language model could replace it, as long as it produces the same
 facts.
 
-**Only the index depends on volume.** Parser, ranking rules and contract do
-not change with the number of entities. At 429 entities the index is in
-memory; at a million it would be a PostgreSQL (`pg_trgm`) or OpenSearch
-adapter behind the same `SearchIndex` port. An external engine now would have
-made local review harder for no gain.
+**Only the index depends on volume**
+([ADR 5](docs/adr/0005-search-architecture.md)). At 429 entities the index is
+in memory. The parser, the ranking and the contract were written so a much
+larger catalogue would not mean a new product. [Scaling](#scaling) says how.
 
 **The snapshot is followed exactly**
 ([ADR 3](docs/adr/0003-dataset-fidelity.md)). It mixes eras: generation I
@@ -167,6 +168,8 @@ readers and tests never depend on the canvas. The cost is complexity and a
 lazy-loaded 3D chunk; the fallbacks (WebGL2, then an SVG still map for reduced
 motion, slow devices or lost contexts) are part of that cost.
 
+![How each reading rearranges the constellation](docs/readings.svg)
+
 **Undo instead of confirmations**
 ([ADR 13](docs/adr/0013-workbench-and-undo-history.md)). Removing from the
 party or the bench happens at once and can be undone with Ctrl+Z. The browser's
@@ -186,29 +189,63 @@ Back button stays for searches.
 - **Interface**: 52 Playwright scenarios, axe checks in both themes,
   Lighthouse budgets, and a size limit on the initial JavaScript.
 
-## Limitations and next steps
+## Scaling
 
-- Some assessor queries still score poorly. `pokemon immune to ground moves`
-  scores 0 because type immunities are not modelled; `freeze the opponent`
-  scores 0.66 on Pokémon, and a few disagreements (starmie, tentacool and
-  tentacruel for rain) are still to be settled by a human.
-- The blind assessor was a language model. A human assessor on the frozen
-  sheet would make the relevance claim stronger.
-- The effect lexicon is hand-written. Next: a batch model that produces the
-  same facts, checked against the current ones.
-- The constellation needs a reasonably recent GPU to be pleasant; weaker
-  machines get the still map. Sprites load from PokéAPI URLs, so they need a
-  network connection; the search does not.
-- With more time: type matchups as data, which would unlock immunity and
-  coverage queries; team suggestions from the party (missing types, shared
-  weaknesses); a `SearchIndex` adapter on PostgreSQL to prove the scaling
-  argument.
+The snapshot holds 429 entities, so the first `SearchIndex` keeps everything
+in memory. The split between parsing, indexing and ranking was chosen for a
+larger catalogue, up to a million species, without shipping that
+infrastructure now ([ADR 5](docs/adr/0005-search-architecture.md)).
+
+What stays the same as the data grows:
+
+- **The parser.** It depends on small vocabularies and the list of entity
+  names, not on effect texts or relations. A plan is serialisable, and
+  `parse(serialize(plan)) == plan` is tested.
+- **The ranker and the contract.** The models of
+  [ADR 4](docs/adr/0004-search-models.md) and `specs/api/openapi.yaml` do not
+  mention the index. Notices come from facet counts, so they stay true when
+  the data changes.
+- **The shape of a query.** Relations are copied onto each Pokémon at
+  indexing time. "Which Pokémon can cause sleep" is a filter and a sort, not
+  a join across moves and abilities while the user waits.
+
+What changes is the `SearchIndex` adapter. It exposes name matching,
+conjunctive filtered sorts, relation lookups, facet counts, and opaque cursors
+bound to the query, the section and the dataset version. The next adapter
+would be PostgreSQL (`pg_trgm` for names, composite indexes for the filters)
+or OpenSearch (n-grams and function scores). The API is stateless, so it can
+be replicated, and identical queries can be cached by dataset version.
+
+An external engine at 429 entities would add infrastructure and make local
+review harder, for no gain.
+
+The constellation does not follow this path. It is a view of the 151 species.
+A larger catalogue would keep the same search API and need another way to
+show it.
+
+## Next steps
+
+- A `SearchIndex` adapter on PostgreSQL, checked against the same contract and
+  the same relevance thresholds, so the scaling claim is measured rather than
+  described.
+- A batch model in place of the hand-written effect lexicon, accepted only if
+  it produces the same facts.
+- A human grading pass on the frozen assessment sheet. The current blind
+  grades come from a language model.
+- Type matchups as data. `pokemon immune to ground moves` scores 0 because
+  immunities are not modelled; `freeze the opponent` scores 0.66 on Pokémon.
+  The remaining grade disagreements (starmie, tentacool, tentacruel for rain)
+  still need a human decision.
+- Team suggestions from the party: missing types, shared weaknesses.
+- The constellation stays a view of these 151 species. Weaker machines already
+  get the still map. Sprites load from PokéAPI and need a network connection;
+  the search does not.
 
 ## How the project went
 
-About 12 hours of work over two days. The commit history follows these steps.
+About 12 hours of work, in two stages. The commit history follows these steps.
 
-**Day 1: framing, specs, backend**
+**First stage: framing, specs, backend**
 
 1. Read the brief, downloaded the snapshot and listed its gaps (mixed eras, no
    rain setter, long effects citing mechanics outside the file). Decided to
@@ -226,7 +263,7 @@ About 12 hours of work over two days. The commit history follows these steps.
 6. Backend built layer by layer, test first: domain, query plans, effect facts,
    ranking, API, BM25 fallback.
 
-**Day 2: environment, interface, iteration**
+**Second stage: environment, interface, iteration**
 
 7. Development environment: flox, mise, just and process-compose, so a fresh
    clone runs with three commands.
