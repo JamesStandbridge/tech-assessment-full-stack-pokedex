@@ -45,36 +45,6 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
-/** Fonts of the first screen, preloaded so text does not wait for the stylesheet. */
-const PRELOADED_FONTS = [
-  /im-fell-english-latin-400-normal.*\.woff2$/,
-  /source-serif-4-latin-opsz-normal.*\.woff2$/,
-];
-
-function preloadFonts(): Plugin {
-  return {
-    name: "preload-fonts",
-    apply: "build",
-    transformIndexHtml: {
-      order: "post",
-      handler: (_html, context) =>
-        Object.keys(context.bundle ?? {})
-          .filter((file) => PRELOADED_FONTS.some((pattern) => pattern.test(file)))
-          .map((file) => ({
-            tag: "link",
-            attrs: {
-              rel: "preload",
-              href: `/${file}`,
-              as: "font",
-              type: "font/woff2",
-              crossorigin: "",
-            },
-            injectTo: "head" as const,
-          })),
-    },
-  };
-}
-
 export default defineConfig({
   plugins: [
     react(),
@@ -82,7 +52,6 @@ export default defineConfig({
     tailwindcss(),
     { ...optimizeLocales.vite({ locales: ["en-US"] }), enforce: "pre" },
     contentSecurityPolicy(),
-    preloadFonts(),
   ],
   server: { host: "127.0.0.1", port: 5173, strictPort: true, proxy },
   preview: { host: "127.0.0.1", port: 4173, strictPort: true, proxy, headers: SECURITY_HEADERS },
