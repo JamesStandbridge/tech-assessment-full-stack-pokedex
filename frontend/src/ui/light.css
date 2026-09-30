@@ -32,6 +32,26 @@
   --color-role-mixed: #7a52c7;
   --color-role-drawback: #c02f55;
 
+  /* Toned further towards the text than on the night ink, so pale types keep 3:1 on paper. */
+  --color-tint-normal: color-mix(in oklab, var(--color-type-normal) 45%, var(--color-text));
+  --color-tint-fire: color-mix(in oklab, var(--color-type-fire) 45%, var(--color-text));
+  --color-tint-water: color-mix(in oklab, var(--color-type-water) 45%, var(--color-text));
+  --color-tint-electric: color-mix(in oklab, var(--color-type-electric) 45%, var(--color-text));
+  --color-tint-grass: color-mix(in oklab, var(--color-type-grass) 45%, var(--color-text));
+  --color-tint-ice: color-mix(in oklab, var(--color-type-ice) 45%, var(--color-text));
+  --color-tint-fighting: color-mix(in oklab, var(--color-type-fighting) 45%, var(--color-text));
+  --color-tint-poison: color-mix(in oklab, var(--color-type-poison) 45%, var(--color-text));
+  --color-tint-ground: color-mix(in oklab, var(--color-type-ground) 45%, var(--color-text));
+  --color-tint-flying: color-mix(in oklab, var(--color-type-flying) 45%, var(--color-text));
+  --color-tint-psychic: color-mix(in oklab, var(--color-type-psychic) 45%, var(--color-text));
+  --color-tint-bug: color-mix(in oklab, var(--color-type-bug) 45%, var(--color-text));
+  --color-tint-rock: color-mix(in oklab, var(--color-type-rock) 45%, var(--color-text));
+  --color-tint-ghost: color-mix(in oklab, var(--color-type-ghost) 45%, var(--color-text));
+  --color-tint-dragon: color-mix(in oklab, var(--color-type-dragon) 45%, var(--color-text));
+  --color-tint-dark: color-mix(in oklab, var(--color-type-dark) 45%, var(--color-text));
+  --color-tint-steel: color-mix(in oklab, var(--color-type-steel) 45%, var(--color-text));
+  --color-tint-fairy: color-mix(in oklab, var(--color-type-fairy) 45%, var(--color-text));
+
   --shadow-plate: 0 1px 0 0 rgb(60 45 20 / 0.14), 0 28px 48px -30px rgb(60 45 20 / 0.4);
 
   --vignette: rgb(90 70 40 / 0.12);
