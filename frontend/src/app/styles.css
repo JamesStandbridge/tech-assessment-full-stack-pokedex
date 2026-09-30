@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../ui/fonts.css";
 @import "../ui/tokens.css";
+@import "../ui/light.css";
 
 @utility catalogue {
   font-family: var(--font-mono);

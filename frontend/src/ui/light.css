@@ -1,0 +1,47 @@
+/*
+ * The light theme: the same tokens as ui/tokens.css, printed on paper. The root
+ * element carries data-theme, set before the first paint (SYS-UI-032). Colours
+ * used as text keep 4.5:1 on the panel and the ink, marks and borders 3:1.
+ */
+:root[data-theme="light"] {
+  --color-ink: #f3eee3;
+  --color-panel: #fbf8f1;
+  --color-panel-raised: #efe9dc;
+  --color-line: #d8cfbd;
+  --color-rule: #8f8266;
+  --color-text: #1d1a14;
+  --color-muted: #5c5445;
+  --color-accent: #b4401f;
+  --color-accent-bright: #9e3717;
+  --color-accent-deep: #862b10;
+
+  --color-tone-entity: #8a6400;
+  --color-tone-kind: #1f67a8;
+  --color-tone-type: #a84c16;
+  --color-tone-trait: #0f7a5f;
+  --color-tone-stat: #4a7210;
+  --color-tone-effect: #9b2fa8;
+  --color-tone-weather: #086f8f;
+  --color-tone-relation: #9a5a0c;
+  --color-tone-filler: #5f6878;
+  --color-tone-ignored: #b8264a;
+
+  --color-role-setter: #a57a00;
+  --color-role-benefit: #1e8a5a;
+  --color-role-protection: #2a74b8;
+  --color-role-mixed: #7a52c7;
+  --color-role-drawback: #c02f55;
+
+  --shadow-plate: 0 1px 0 0 rgb(60 45 20 / 0.14), 0 28px 48px -30px rgb(60 45 20 / 0.4);
+
+  --vignette: rgb(90 70 40 / 0.12);
+  --ambience-rain:
+    var(--graticule), radial-gradient(1000px 700px at 50% -20%, #cddff2 0%, transparent 65%);
+  --ambience-sun:
+    var(--graticule), radial-gradient(900px 600px at 85% -15%, #f5d9bb 0%, transparent 60%);
+  --ambience-sandstorm:
+    var(--graticule), radial-gradient(1000px 700px at 20% -10%, #eadbb4 0%, transparent 60%);
+  --ambience-hail:
+    var(--graticule), radial-gradient(1000px 700px at 50% -20%, #dae6ef 0%, transparent 60%);
+  color-scheme: light;
+}
