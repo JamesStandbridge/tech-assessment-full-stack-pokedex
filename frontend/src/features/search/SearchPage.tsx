@@ -10,7 +10,7 @@ import { useWorkbench, WorkbenchProvider } from "../workbench/WorkbenchContext";
 import { EmptyOutcome, FailedSearch, InvalidQuery } from "../states/Outcomes";
 import { isEmptyWorkbench } from "../../domain/workbench";
 import { useSearchResults } from "./queries";
-import { SearchBox } from "./SearchBox";
+import { Header } from "./Header";
 import { Understanding } from "./Understanding";
 import { type SearchController, useSearchController } from "./useSearchController";
 
@@ -82,22 +82,9 @@ function Panel(props: {
   readonly onOpen: (ref: EntityRef) => void;
 }): JSX.Element {
   return (
-    <div className="panel pointer-events-auto absolute right-0 bottom-0 left-0 z-20 max-h-[58dvh] overflow-y-auto rounded-t-3xl p-4 sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none sm:w-[26rem] sm:rounded-3xl sm:p-5">
+    <div className="plate motion-safe:animate-rise pointer-events-auto absolute right-0 bottom-0 left-0 z-20 max-h-[58dvh] overflow-y-auto p-4 sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none sm:w-[26rem] sm:p-5">
       <Outcome {...props} />
     </div>
-  );
-}
-
-function Header({ controller }: { readonly controller: SearchController }): JSX.Element {
-  return (
-    <header className="pointer-events-none absolute inset-x-0 top-0 z-30 flex flex-col items-center gap-3 p-3 sm:flex-row sm:items-start sm:p-5">
-      <h1 className="pointer-events-auto text-lg font-bold tracking-tight whitespace-nowrap sm:pt-2">
-        <span className="text-accent-soft">Pokédex</span> Constellation
-      </h1>
-      <div className="command-bar pointer-events-auto w-full max-w-xl sm:mx-auto">
-        <SearchBox controller={controller} />
-      </div>
-    </header>
   );
 }
 
