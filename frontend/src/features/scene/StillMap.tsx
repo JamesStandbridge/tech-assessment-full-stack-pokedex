@@ -11,6 +11,8 @@ interface StillMapProps {
   readonly frame: SceneFrame;
   readonly marks: readonly Mark[];
   readonly colors: ReadonlyMap<string, string>;
+  /** Sprite of each Pokémon star, drawn instead of its dot. */
+  readonly sprites: ReadonlyMap<string, string>;
   readonly highlighted: ReadonlySet<string>;
   readonly inset: Inset;
   readonly onLabels: (positions: Float32Array) => void;
@@ -97,35 +99,75 @@ function Links({ frame, view, highlighted }: Drawing): JSX.Element {
   );
 }
 
-function Stars(props: Drawing & { readonly colors: ReadonlyMap<string, string> }): JSX.Element {
-  const { frame, view, highlighted, colors } = props;
+/** Share of a star's quad its sprite covers, as in the scene. */
+const SPRITE_SHARE = 0.6;
+const MIN_SPRITE = 10;
+
+interface StarProps {
+  readonly node: SceneNode;
+  readonly at: { readonly x: number; readonly y: number };
+  /** Screen radius of the star's quad. */
+  readonly radius: number;
+  readonly color: string;
+  readonly sprite: string | undefined;
+}
+
+function Star({ node, at, radius, color, sprite }: StarProps): JSX.Element {
+  if (sprite === undefined) {
+    return (
+      <circle
+        cx={at.x}
+        cy={at.y}
+        r={Math.max(1, radius * DOT_SHARE)}
+        fill={color}
+        fillOpacity={OPACITY[node.emphasis]}
+      />
+    );
+  }
+  const side = Math.max(MIN_SPRITE, radius * 2 * SPRITE_SHARE);
+  return (
+    <image
+      href={sprite}
+      x={at.x - side / 2}
+      y={at.y - side / 2}
+      width={side}
+      height={side}
+      opacity={OPACITY[node.emphasis]}
+      className="[image-rendering:pixelated]"
+    />
+  );
+}
+
+function Stars(
+  props: Drawing & {
+    readonly colors: ReadonlyMap<string, string>;
+    readonly sprites: ReadonlyMap<string, string>;
+  },
+): JSX.Element {
+  const { frame, view, highlighted, colors, sprites } = props;
   const colorOf = (node: SceneNode): string =>
     node.kind === "weather"
       ? weatherHex(frame.weather ?? "")
       : (colors.get(node.id) ?? kindHex(node.kind));
   return (
     <g>
-      {frame.nodes.map((node) => {
-        const place = view.project(node.position);
-        const size = lookOf(node, highlighted.has(node.id)).size * DOT_SHARE;
-        return (
-          <circle
-            key={node.id}
-            cx={place.x}
-            cy={place.y}
-            r={Math.max(1, view.radius(size, node.position.z))}
-            fill={colorOf(node)}
-            fillOpacity={OPACITY[node.emphasis]}
-          />
-        );
-      })}
+      {frame.nodes.map((node) => (
+        <Star
+          key={node.id}
+          node={node}
+          at={view.project(node.position)}
+          radius={view.radius(lookOf(node, highlighted.has(node.id)).size, node.position.z)}
+          color={colorOf(node)}
+          sprite={sprites.get(node.id)}
+        />
+      ))}
     </g>
   );
 }
 
 /** The constellation as a still front view, for browsers and users the scene does not suit (SYS-UI-025). */
 export function StillMap(props: StillMapProps): JSX.Element {
-  const { frame, marks, colors, highlighted, inset, onLabels } = props;
+  const { frame, marks, colors, sprites, highlighted, inset, onLabels } = props;
   const { ref, viewport } = useViewport();
   const drawing = { frame, view: stillView(frame, { viewport, inset }), highlighted };
   useEffect(() => {
@@ -140,7 +182,7 @@ export function StillMap(props: StillMapProps): JSX.Element {
     >
       <Guides {...drawing} />
       <Links {...drawing} />
-      <Stars {...drawing} colors={colors} />
+      <Stars {...drawing} colors={colors} sprites={sprites} />
     </svg>
   );
 }

@@ -61,6 +61,14 @@ function colorsOf(species: readonly Species[]): ReadonlyMap<string, string> {
   return new Map(species.map((one) => [`pokemon:${one.name}`, typeHex(one.types[0] ?? "normal")]));
 }
 
+function spritesOf(species: readonly Species[]): ReadonlyMap<string, string> {
+  return new Map(
+    species.flatMap((one) =>
+      one.sprite_url === null ? [] : [[`pokemon:${one.name}`, one.sprite_url] as const],
+    ),
+  );
+}
+
 function Relations({ frame }: { readonly frame: SceneFrame }): JSX.Element {
   return (
     <figcaption className="sr-only">
@@ -84,7 +92,14 @@ function Drawing(props: {
   const { species, sky, renderer, onLabels } = props;
   const common = { frame: sky.frame, marks: sky.marks, inset: sky.inset, onLabels };
   if (renderer === "still") {
-    return <StillMap {...common} colors={colorsOf(species)} highlighted={sky.highlighted} />;
+    return (
+      <StillMap
+        {...common}
+        colors={colorsOf(species)}
+        sprites={spritesOf(species)}
+        highlighted={sky.highlighted}
+      />
+    );
   }
   return (
     <ConstellationCanvas

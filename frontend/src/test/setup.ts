@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
 
 class StillObserver implements ResizeObserver {
@@ -18,6 +18,9 @@ function noMatch(query: string): MediaQueryList {
   });
   return list;
 }
+
+/** Lazy chunks and the workers of a full verify run make the default second of waiting too short. */
+configure({ asyncUtilTimeout: 3000 });
 
 /** Longer than the throttle of nuqs, so a test's last address update lands before the next test. */
 const ADDRESS_FLUSH_MS = 60;
