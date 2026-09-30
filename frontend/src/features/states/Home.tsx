@@ -45,7 +45,7 @@ function Example(props: {
  */
 export function Home({ onRun }: { readonly onRun: (query: string) => void }): JSX.Element {
   return (
-    <div className="pointer-events-auto -mx-3 mt-2 flex items-center gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:mt-2.5 sm:px-0">
+    <div className="pointer-events-auto -ml-3 flex items-center gap-2 overflow-x-auto pb-1 pl-3 sm:ml-0 sm:pl-0">
       <span aria-hidden="true" className="catalogue text-muted shrink-0">
         Try
       </span>
