@@ -18,7 +18,7 @@ enforces it.
 | Principle | Rule in the interface | Enforced by |
 |---|---|---|
 | Single responsibility | A module does one thing: a hook fetches or derives, a component renders. Data access lives in feature hooks, never in components of `ui`. | `dependency-cruiser`, review |
-| Open and closed | Result views are registered in a `Record<Reading, ResultsView>` checked with `satisfies`; a new reading adds an entry and fails to compile until it does. | `tsc` |
+| Open and closed | Result views are registered in a `Record<Reading, ResultsView>` checked with `satisfies`; a new reading adds an entry and fails to compile until it does. Workbench actions are a union handled by an exhaustive reducer (ADR 13). | `tsc` |
 | Liskov substitution | Every result view takes the same `ResultsViewProps` and can replace another. | `tsc` |
 | Interface segregation | Separate ports `SearchApi`, `SuggestApi` and `EntityApi`; components receive only the props they read. | `tsc`, review |
 | Dependency inversion | Features depend on ports provided by the composition root in `app`; tests provide typed doubles. No feature imports the concrete client. | `dependency-cruiser` |
@@ -49,7 +49,8 @@ enforces it.
 - Server state is TanStack Query's, URL state is `nuqs`', and the rest is local
   state colocated with its use. No global store.
 - No effect for derived state or data fetching. Effects only synchronize with
-  systems outside React: the `d3-force` simulation, speech, media queries.
+  systems outside React: WebGL contexts, speech, media queries, keyboard
+  shortcuts, the address and local storage.
 - List keys are stable identifiers such as `kind:name`, never array indices.
 - Each result view sits behind an error boundary, and heavy views such as the
   relation graph load lazily behind `Suspense`.
@@ -79,16 +80,20 @@ interface scenarios, and the scenarios of `specs/ui/accessibility.feature`.
 | Budget | Limit | Enforced by |
 |---|---|---|
 | Initial JavaScript, compressed | 150 kB | `size-limit` on the production build |
+| WebGL plates chunk, compressed | 40 kB | `size-limit` on the production build |
 | Largest Contentful Paint | 2.5 s | Lighthouse CI on the production preview |
 | Cumulative Layout Shift | 0.1 | Lighthouse CI |
 | Total Blocking Time | 200 ms | Lighthouse CI |
 | Searches per pause of typing | 1 | the SYS-UI-022 scenario |
 
-- The results region, the details, the stat overlay and the graph are split
-  out of the initial bundle and loaded on demand; the results region is
-  fetched as soon as the URL holds a query. The initial JavaScript is 120 kB
-  gzip, and the mobile Largest Contentful Paint of a weather search sits just
-  under its budget, at 2.49 s.
+- The results region, the details, the stat overlay, the strategy figure,
+  the party analysis and the WebGL plates (ADR 12) are split out of the
+  initial bundle and loaded on demand; the results region is fetched as soon
+  as the URL holds a query.
+- Fonts are self-hosted, the display face is preloaded, and fallbacks are
+  adjusted with `size-adjust` so the swap shifts nothing.
+- A WebGL canvas never carries the Largest Contentful Paint: the image it
+  decorates is in the document first.
 - Lists of more than a page render incrementally through section cursors,
   never all at once.
 

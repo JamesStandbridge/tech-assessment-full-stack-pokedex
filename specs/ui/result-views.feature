@@ -69,9 +69,9 @@ Feature: Present results in a view suited to each kind of question
     And the details list "pokemon:pikachu"
 
   @could @SYS-UI-009
-  Scenario: The best match is presented as a collectible card
+  Scenario: The best match is presented as a specimen plate
     When I search for "bulba"
-    Then the best match "pokemon:bulbasaur" is a card with its artwork, genus and description
+    Then the best match "pokemon:bulbasaur" is a plate with its artwork, genus and description
 
   @could @SYS-UI-010
   Scenario Outline: A weather strategy sets a matching ambience
@@ -98,14 +98,27 @@ Feature: Present results in a view suited to each kind of question
     When I select "ability:swift-swim" in the relation graph
     Then I see the details of "ability:swift-swim"
 
-  @could @SYS-UI-013
-  Scenario: The team tray holds six Pokémon and shows their shared weather
+  @could @SYS-UI-012
+  Scenario: The relation graph highlights the relations of the focused node
     When I search for "rain team"
-    And I add "pokemon:goldeen", "pokemon:seaking", "pokemon:psyduck", "pokemon:golduck", "pokemon:horsea" and "pokemon:kabuto" to the team
-    Then the team tray holds 6 Pokémon
-    And the team tray shows that they share "rain"
-    When I try to add "pokemon:omanyte" to the team
-    Then the team tray still holds 6 Pokémon
+    And I focus "ability:swift-swim" in the relation graph
+    Then the relation graph highlights "rain", "ability:swift-swim" and "pokemon:goldeen"
+    And the relation graph dims "ability:rain-dish"
+
+  @could @SYS-UI-012
+  Scenario: The relation graph has the same layout on every visit
+    When I search for "rain team"
+    Then the relation graph places its nodes in columns of weather, mechanisms and Pokémon
+    And the relation graph has the same layout after a reload
+
+  @could @SYS-UI-013
+  Scenario: The party holds six Pokémon and shows their shared weather
+    When I search for "rain team"
+    And I add "pokemon:goldeen", "pokemon:seaking", "pokemon:psyduck", "pokemon:golduck", "pokemon:horsea" and "pokemon:kabuto" to the party
+    Then the party holds 6 Pokémon
+    And the party shows that they share "rain"
+    When I try to add "pokemon:omanyte" to the party
+    Then the party still holds 6 Pokémon
 
   @could @SYS-UI-014
   Scenario: A query can be spoken and an entry read aloud

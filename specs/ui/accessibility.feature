@@ -4,10 +4,12 @@ Feature: Keep every view accessible
   the user's preference, and nothing plays sound unasked.
 
   Pitfalls:
-  - A force-directed graph is unreadable to a screen reader and hard to reach
-    with the keyboard.
-  - Holographic tilts and animated bars can cause discomfort; the operating
-    system setting for reduced motion must win.
+  - A drawn graph is unreadable to a screen reader and hard to reach with the
+    keyboard.
+  - Ink reveals, rain and morphing transitions can cause discomfort; the
+    operating system setting for reduced motion must win.
+  - An engraved plate drawn with WebGL must not be the only way to see the
+    artwork: some browsers cannot draw it, and some users save data.
   - A narrow phone screen must not need horizontal scrolling.
 
   Background:
@@ -36,6 +38,32 @@ Feature: Keep every view accessible
     Given I prefer reduced motion
     When I search for "rain team"
     Then nothing on the page moves beyond a fade
+
+  @could @SYS-UI-024
+  Scenario Outline: The plain artwork replaces the engraving when it cannot or should not be drawn
+    Given <condition>
+    When I search for "bulba"
+    Then the best match shows the plain artwork of "pokemon:bulbasaur"
+
+    Examples:
+      | condition                  |
+      | the browser has no WebGL   |
+      | I prefer reduced motion    |
+      | I prefer to save data      |
+
+  @could @SYS-UI-025
+  Scenario: Opening a result morphs it into its details
+    When I search for "pikachu"
+    And I open the result "pokemon:pikachu"
+    Then the result "pokemon:pikachu" morphed into its details
+
+  @could @SYS-UI-025
+  Scenario: Reduced motion opens the details without morphing
+    Given I prefer reduced motion
+    When I search for "pikachu"
+    And I open the result "pokemon:pikachu"
+    Then I see the details of "pokemon:pikachu"
+    And no transition has morphed the page
 
   @SYS-A11Y-004
   Scenario: Nothing plays sound without a user action
