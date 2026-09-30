@@ -40,9 +40,6 @@ needs:
   - id: visual-exploration
     title: Explore results through views suited to each kind of question
     brief_situation: null
-  - id: party-building
-    title: Compare candidates and build a party across searches
-    brief_situation: null
 
 requirements:
   # Brief: delivery (R4 to R7)
@@ -702,7 +699,7 @@ requirements:
   - id: SYS-UI-009
     need: visual-exploration
     template: optional
-    statement: Where the best match is a Pokémon, the web interface shall present it as a specimen plate showing its artwork, genus and description.
+    statement: Where the best match is a Pokémon, the web interface shall present it as a collectible card showing its artwork, genus and description.
     source: product
     priority: could
     verification: ui-test
@@ -718,7 +715,7 @@ requirements:
   - id: SYS-UI-011
     need: visual-exploration
     template: optional
-    statement: Where results are ranked by a stat, the web interface shall place every result on one shared scale of that stat and let the user overlay the stat profiles of selected Pokémon.
+    statement: Where results are ranked by a stat, the web interface shall animate the comparison and let the user overlay the stat profiles of selected Pokémon.
     source: product
     priority: could
     verification: ui-test
@@ -726,7 +723,7 @@ requirements:
   - id: SYS-UI-012
     need: visual-exploration
     template: optional
-    statement: Where the query reads as a weather strategy, the web interface shall show the weather, abilities, moves and Pokémon as a navigable figure in layers whose layout depends only on the results, and highlight the relations of the node under the pointer or the focus.
+    statement: Where the query reads as a weather strategy, the web interface shall show the weather, abilities, moves and Pokémon as a navigable graph of their relations.
     source: product
     priority: could
     verification: ui-test
@@ -734,107 +731,9 @@ requirements:
   - id: SYS-UI-013
     need: visual-exploration
     template: optional
-    statement: Where the party is used, the web interface shall hold up to six Pokémon across searches and show the weather effects they share.
+    statement: Where the team tray is used, the web interface shall hold up to six Pokémon and show the weather effects they share.
     source: brief/situation-2
     priority: could
-    verification: ui-test
-
-  - id: SYS-UI-024
-    need: visual-exploration
-    template: unwanted
-    statement: If the browser cannot draw with WebGL, or the user prefers reduced motion or reduced data, then the web interface shall show the plain artwork in place of the engraved plate.
-    source: product
-    priority: could
-    verification: ui-test
-
-  - id: SYS-UI-025
-    need: visual-exploration
-    template: event-driven
-    statement: When the user opens a result and does not prefer reduced motion, the web interface shall morph the result into its details.
-    source: product
-    priority: could
-    verification: ui-test
-
-  # Party and bench
-
-  - id: SYS-UI-026
-    need: party-building
-    template: event-driven
-    statement: When the user presses Ctrl+Z or Cmd+Z outside a text field, the web interface shall undo the last change to the party or the bench, and redo it on Shift+Ctrl+Z, Shift+Cmd+Z or Ctrl+Y.
-    source: product
-    priority: should
-    verification: ui-test
-
-  - id: SYS-UI-027
-    need: party-building
-    template: event-driven
-    statement: When the user removes, replaces or clears Pokémon, the web interface shall announce the change with an action that undoes it, instead of asking for confirmation.
-    source: product
-    priority: should
-    verification: ui-test
-
-  - id: SYS-UI-028
-    need: party-building
-    template: optional
-    statement: Where the bench is used, the web interface shall compare up to four Pokémon chosen from any search, name the leader of every stat, and show signed differences from a pinned reference.
-    source: brief/situation-2
-    priority: should
-    verification: ui-test
-
-  - id: SYS-UI-029
-    need: party-building
-    template: event-driven
-    statement: When the party is full and the user adds a Pokémon, the web interface shall offer to replace a member and show what each replacement gains and loses.
-    source: product
-    priority: should
-    verification: ui-test
-
-  - id: SYS-UI-030
-    need: party-building
-    template: optional
-    statement: Where the party holds Pokémon, the web interface shall show its stat profile, its types, the speed rank of every member among all species, the move types it can learn and the roles it covers.
-    source: product
-    priority: could
-    verification: ui-test
-
-  - id: SYS-UI-031
-    need: party-building
-    template: event-driven
-    statement: When the party lacks a role, the web interface shall propose Pokémon found by a search for that role, excluding members.
-    source: product
-    priority: could
-    verification: ui-test
-
-  - id: SYS-UI-032
-    need: party-building
-    template: ubiquitous
-    statement: The web interface shall keep the party and the bench in the page address and in local storage, so that a shared address or a reload restores them.
-    source: product
-    priority: should
-    verification: ui-test
-
-  - id: SYS-UI-033
-    need: party-building
-    template: event-driven
-    statement: When the user exports or imports the party, the web interface shall use the Showdown text format and name every species it cannot read.
-    source: product
-    priority: could
-    verification: ui-test
-
-  - id: SYS-UI-034
-    need: party-building
-    template: event-driven
-    statement: When the user starts a party from a weather, the web interface shall fill it with a setter of that weather and the Pokémon that benefit most from it.
-    source: brief/situation-4
-    priority: could
-    verification: ui-test
-
-  - id: SYS-UI-035
-    need: null
-    template: ubiquitous
-    statement: The web interface shall offer keyboard shortcuts to search, move between results, add to the party and compare, which do nothing in text fields and are listed on request.
-    source: product
-    priority: should
     verification: ui-test
 
   - id: SYS-UI-014
@@ -887,8 +786,8 @@ out_of_scope:
     statement: Localized queries and interface; queries are in English.
     reason: Excluded by the brief, and the dataset is English only.
   - id: OUT-003
-    statement: Type effectiveness, and party advice about weaknesses and resistances.
-    reason: The snapshot contains no type chart, and the product does not present facts absent from the dataset; the party analysis only reports stats, types, learnable moves and roles found by the search engine.
+    statement: Type effectiveness and team coverage advice.
+    reason: The snapshot contains no type chart, and the product does not present facts absent from the dataset.
   - id: OUT-004
     statement: Dense embeddings as the primary retrieval method.
     reason: Similarity of meaning does not separate causing an effect from preventing it or suffering it, which the result quality requirements depend on.

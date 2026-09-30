@@ -33,7 +33,7 @@ holds:
 
 | Reading | Rule | View |
 |---|---|---|
-| name | `name` or `dex_number` is set | Best match first, as a specimen plate when it is a Pokémon; other matches below with their name tier |
+| name | `name` or `dex_number` is set | Best match first, as a collectible card when it is a Pokémon; other matches below with their name tier |
 | weather | `weather` is set | Ambience of the weather; abilities, moves and Pokémon grouped by weather role: setter, benefit, protection, mixed, drawback; relation graph with its list |
 | effect | `effect` is set | Chance of success on every result; Pokémon show the move or ability they get the effect through |
 | criteria | `stat_sort` or `stat_filters` is not empty | Comparison bars of the ranking stat, scaled to the highest value among the results shown, since the browser knows the response and not the dataset; stat profiles overlaid for selected Pokémon |
