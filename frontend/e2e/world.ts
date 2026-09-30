@@ -14,6 +14,11 @@ export function parseRef(text: string): EntityRef {
   return { kind: known, name };
 }
 
+/** The label of an entity reference or of a bare name, such as "rain". */
+export function nodeLabel(text: string): string {
+  return text.includes(":") ? displayName(parseRef(text).name) : displayName(text);
+}
+
 /** The accessible contract of the interface, shared by every step. */
 export class PokedexWorld {
   readonly searches: string[] = [];
@@ -76,6 +81,22 @@ export class PokedexWorld {
 
   openButton(ref: EntityRef): Locator {
     return this.result(ref).getByRole("button", { name: displayName(ref.name), exact: true });
+  }
+
+  constellation(): Locator {
+    return this.page.getByRole("figure", { name: "Constellation" });
+  }
+
+  star(text: string): Locator {
+    return this.constellation().locator(`button[data-node="${text}"]`);
+  }
+
+  party(): Locator {
+    return this.page.getByRole("region", { name: "Party" });
+  }
+
+  bench(): Locator {
+    return this.page.getByRole("region", { name: "Bench" });
   }
 
   details(ref: EntityRef): Locator {

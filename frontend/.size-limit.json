@@ -4,5 +4,11 @@
     "path": "dist/assets/index-*.js",
     "limit": "150 kB",
     "gzip": true
+  },
+  {
+    "name": "Constellation worker, gzip",
+    "path": "dist/assets/worker-*.js",
+    "limit": "260 kB",
+    "gzip": true
   }
 ]

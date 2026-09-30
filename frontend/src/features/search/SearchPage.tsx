@@ -3,11 +3,9 @@ import { type JSX, lazy, Suspense, useEffect, useState } from "react";
 import { ApiError } from "../../api/errors";
 import type { EntityRef, SearchResponse } from "../../api/contract";
 import { Spinner } from "../../ui/Spinner";
-import { Constellation } from "../scene/Constellation";
 import { Home } from "../states/Home";
 import { Announcer } from "../workbench/Announcer";
 import { Shortcuts } from "../workbench/Shortcuts";
-import { WorkbenchColumn } from "../workbench/WorkbenchColumn";
 import { useWorkbench, WorkbenchProvider } from "../workbench/WorkbenchContext";
 import { EmptyOutcome, FailedSearch, InvalidQuery } from "../states/Outcomes";
 import { isEmptyWorkbench } from "../../domain/workbench";
@@ -21,6 +19,16 @@ const loadResultsRegion = () => import("../results/ResultsRegion");
 const ResultsRegion = lazy(async () => {
   const module = await loadResultsRegion();
   return { default: module.ResultsRegion };
+});
+
+const Constellation = lazy(async () => {
+  const module = await import("../scene/Constellation");
+  return { default: module.Constellation };
+});
+
+const WorkbenchColumn = lazy(async () => {
+  const module = await import("../workbench/WorkbenchColumn");
+  return { default: module.WorkbenchColumn };
 });
 
 const EntityDialog = lazy(async () => {
@@ -112,8 +120,35 @@ function Details(props: {
   );
 }
 
-function Screen(): JSX.Element {
+/** The sky, loaded beside the page, and the workbench column once it holds anything. */
+function Backdrop(props: {
+  readonly response: SearchResponse | null;
+  readonly controller: SearchController;
+  readonly onOpen: (ref: EntityRef) => void;
+}): JSX.Element {
   const workbench = useWorkbench();
+  const docked = !isEmptyWorkbench(workbench.workbench) || workbench.pending !== null;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <Constellation
+          response={props.response}
+          panel={props.controller.query !== ""}
+          workbench={docked}
+          onOpen={props.onOpen}
+          onRun={props.controller.run}
+        />
+      </Suspense>
+      {docked ? (
+        <Suspense fallback={null}>
+          <WorkbenchColumn />
+        </Suspense>
+      ) : null}
+    </>
+  );
+}
+
+function Screen(): JSX.Element {
   const controller = useSearchController();
   const [opened, setOpened] = useState<EntityRef | null>(null);
   const response = useShownResponse(controller.query);
@@ -125,15 +160,8 @@ function Screen(): JSX.Element {
   return (
     <div data-ambience={ambience} className="ambience relative h-dvh overflow-hidden">
       <main className="contents">
-        <Constellation
-          response={response}
-          panel={hasQuery}
-          workbench={!isEmptyWorkbench(workbench.workbench) || workbench.pending !== null}
-          onOpen={setOpened}
-          onRun={controller.run}
-        />
+        <Backdrop response={response} controller={controller} onOpen={setOpened} />
         <Header controller={controller} />
-        <WorkbenchColumn />
         {hasQuery ? (
           <Panel controller={controller} onOpen={setOpened} />
         ) : (

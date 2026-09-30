@@ -10,8 +10,9 @@ import { typeHex } from "./palette";
 import type { Inset, Mark } from "./protocol";
 import { placeLabels, SceneLabels } from "./SceneLabels";
 import { StillMap } from "./StillMap";
-import { preferredRenderer, type Renderer } from "./support";
+import type { Renderer } from "./support";
 import { useInset } from "./useInset";
+import { useRenderer } from "./useRenderer";
 import { useSpecies } from "./useSpecies";
 
 interface ConstellationProps {
@@ -124,7 +125,7 @@ function selector(props: ConstellationProps): (node: SceneNode) => void {
 
 function Figure(props: ConstellationProps & { readonly species: readonly Species[] }): JSX.Element {
   const { species } = props;
-  const [renderer, setRenderer] = useState<Renderer>(preferredRenderer);
+  const { renderer, fallBack } = useRenderer();
   const layerRef = useRef<HTMLDivElement>(null);
   const sky = useSky(species, props);
   const select = selector(props);
@@ -143,9 +144,7 @@ function Figure(props: ConstellationProps & { readonly species: readonly Species
         renderer={renderer}
         onLabels={placeOn}
         onPick={select}
-        onFallback={() => {
-          setRenderer("still");
-        }}
+        onFallback={fallBack}
       />
       <SceneLabels
         layerRef={layerRef}

@@ -15,8 +15,10 @@ function savesData(): boolean {
   return "connection" in navigator && isDataSaver(navigator.connection);
 }
 
+export const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
 function prefersReducedMotion(): boolean {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return window.matchMedia(REDUCED_MOTION).matches;
 }
 
 function hasGpu(): boolean {

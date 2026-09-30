@@ -12,6 +12,27 @@ Given("I prefer reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
 
+Given("the browser has no WebGL", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "gpu", { value: undefined });
+    const original: unknown = Reflect.get(HTMLCanvasElement.prototype, "getContext");
+    Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+      value(this: HTMLCanvasElement, kind: string, options?: unknown): unknown {
+        if (kind.startsWith("webgl") || typeof original !== "function") return null;
+        return Reflect.apply(original, this, [kind, options]);
+      },
+    });
+  });
+  await page.reload();
+});
+
+Given("I prefer to save data", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "connection", { value: { saveData: true } });
+  });
+  await page.reload();
+});
+
 Given("a viewport {int} pixels wide", async ({ page }, width: number) => {
   await page.setViewportSize({ width, height: 800 });
 });
@@ -49,7 +70,7 @@ Then("the focus returns to the result {string}", async ({ pokedex }, text: strin
 });
 
 Then(
-  /^the (comparison|relation graph) offers the same results as an accessible list$/,
+  /^the (comparison|constellation) offers the same results as an accessible list$/,
   async ({ page, pokedex }, visual: string) => {
     if (visual === "comparison") {
       const section = pokedex.section("pokemon");
@@ -58,13 +79,20 @@ Then(
       await expect(section.getByRole("article")).toHaveCount(meters);
       return;
     }
-    const graph = page.getByRole("figure", { name: "Relation graph" });
-    await expect(graph.locator("line").first()).toBeAttached();
-    const links = await graph.locator("line").count();
-    expect(links).toBeGreaterThan(0);
-    await expect(page.getByRole("list", { name: "Relations" }).getByRole("listitem")).toHaveCount(
-      links,
-    );
+    const stars = pokedex
+      .constellation()
+      .locator(
+        'button[data-node^="pokemon:"], button[data-node^="move:"], button[data-node^="ability:"]',
+      );
+    await expect(stars.first()).toBeAttached();
+    for (const node of await stars.evaluateAll((buttons) =>
+      buttons.map((button) => button.getAttribute("data-node") ?? ""),
+    )) {
+      await expect(pokedex.result(parseRef(node))).toBeAttached();
+    }
+    await expect(
+      page.getByRole("list", { name: "Relations" }).getByRole("listitem").first(),
+    ).toBeAttached();
   },
 );
 

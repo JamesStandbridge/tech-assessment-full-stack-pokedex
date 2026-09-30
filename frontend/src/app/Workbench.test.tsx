@@ -43,7 +43,7 @@ test("a removal is announced, undone with the announcement and redone with the k
   await search("rain team");
   await add("Lapras");
   await add("Squirtle");
-  const party = screen.getByRole("region", { name: "Party" });
+  const party = await screen.findByRole("region", { name: "Party" });
   await userEvent.click(within(party).getByRole("button", { name: "Remove Lapras" }));
   const status = screen.getByRole("status", { name: "Workbench changes" });
   expect(status).toHaveTextContent("Removed Lapras");
