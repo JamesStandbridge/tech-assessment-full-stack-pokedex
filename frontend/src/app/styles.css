@@ -1,81 +1,168 @@
 @import "tailwindcss";
+@import "../ui/fonts.css";
 @import "../ui/tokens.css";
+
+@utility catalogue {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: var(--tracking-catalogue);
+  text-transform: uppercase;
+}
 
 @layer base {
   html {
     background: var(--color-ink);
     color: var(--color-text);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
 
   body {
     min-height: 100dvh;
   }
 
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+
   :focus-visible {
-    outline: 3px solid var(--color-focus);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+  }
+
+  kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding: 0 0.3rem;
+    border: 1px solid var(--color-rule);
+    border-bottom-width: 2px;
+    border-radius: var(--radius-control);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-muted);
   }
 }
 
 @layer components {
+  /* A solid engraved plate with registration ticks in its four corners. */
+  .plate {
+    --tick: var(--color-rule);
+    --tick-length: 0.625rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-plate);
+    background-color: var(--color-panel);
+    background-image:
+      linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
+      linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
+      linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
+      linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick));
+    background-size:
+      var(--tick-length) 1px,
+      1px var(--tick-length),
+      var(--tick-length) 1px,
+      1px var(--tick-length),
+      var(--tick-length) 1px,
+      1px var(--tick-length),
+      var(--tick-length) 1px,
+      1px var(--tick-length);
+    background-position:
+      left top,
+      left top,
+      right top,
+      right top,
+      left bottom,
+      left bottom,
+      right bottom,
+      right bottom;
+    background-repeat: no-repeat;
+    box-shadow: var(--shadow-plate);
+  }
+
+  /* The frame of a sprite or an artwork, with a centre tick on each side. */
+  .specimen {
+    --tick: var(--color-rule);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-control);
+    background-color: var(--color-ink);
+    background-image:
+      linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
+      linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick));
+    background-size:
+      1px 5px,
+      1px 5px,
+      5px 1px,
+      5px 1px;
+    background-position:
+      center top,
+      center bottom,
+      left center,
+      right center;
+    background-repeat: no-repeat;
+  }
+
+  /* The graduated edge of the chart, a minor tick every degree and a major one every ten. */
+  .chart-edge {
+    background-image:
+      repeating-linear-gradient(90deg, var(--color-rule) 0 1px, transparent 1px 80px),
+      repeating-linear-gradient(90deg, var(--color-line) 0 1px, transparent 1px 8px);
+    background-size:
+      100% 100%,
+      100% 50%;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .leader {
+    min-width: 0.75rem;
+    border-bottom: 1px dotted var(--color-rule);
+    transform: translateY(-0.25em);
+  }
+
+  .graduated {
+    position: relative;
+  }
+
+  .graduated::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(10% - 1px),
+      var(--color-panel) calc(10% - 1px) 10%
+    );
+  }
+
   .holo-card {
     --tilt-x: 0deg;
     --tilt-y: 0deg;
     --glare-x: 50%;
     --glare-y: 50%;
+    border: 1px solid var(--color-line);
+    border-top: 3px solid var(--color-rule);
+    border-radius: var(--radius-plate);
     background:
       radial-gradient(
         circle at var(--glare-x) var(--glare-y),
-        rgb(255 255 255 / 0.16),
+        color-mix(in oklab, var(--color-text) 10%, transparent),
         transparent 45%
       ),
-      linear-gradient(
-        135deg,
-        rgb(255 90 90 / 0.08),
-        rgb(90 180 255 / 0.08),
-        rgb(180 255 120 / 0.08)
-      ),
       var(--color-panel);
-    transition: transform 150ms ease-out;
+    box-shadow:
+      inset 0 0 0 5px var(--color-panel),
+      inset 0 0 0 6px var(--color-line),
+      var(--shadow-plate);
+    transition: transform 180ms var(--ease-plate);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .holo-card {
       transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
     }
-  }
-
-  .panel {
-    background: rgb(18 24 41 / 0.95);
-    border: 1px solid rgb(255 255 255 / 0.07);
-    box-shadow: var(--shadow-glow);
-  }
-
-  .scene-label {
-    padding: 0.05rem 0.4rem;
-    border-radius: 999px;
-    white-space: nowrap;
-    color: var(--color-text);
-    background: rgb(11 15 26 / 0.62);
-    text-shadow: 0 1px 2px rgb(0 0 0 / 0.8);
-    will-change: transform;
-  }
-
-  .scene-label[data-highlighted="true"] {
-    color: var(--color-ink);
-    background: var(--color-focus);
-    text-shadow: none;
-  }
-
-  .scene-mark {
-    font-size: 0.7rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: rgb(154 166 196 / 0.75);
-    transform-origin: center;
-    will-change: transform;
   }
 
   .ambience {
@@ -108,12 +195,51 @@
       background-image: repeating-linear-gradient(
         105deg,
         transparent 0 14px,
-        rgb(140 190 255 / 0.12) 14px 15px
+        rgb(140 190 255 / 0.1) 14px 15px
       );
       background-size: 100% 60px;
       animation: rainfall 0.6s linear infinite;
     }
   }
+}
+
+/* Unlayered, so the labels of the scene outrank the size utilities it sets on them. */
+.scene-label {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid color-mix(in oklab, var(--color-text) 14%, transparent);
+  border-radius: var(--radius-control);
+  white-space: nowrap;
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+  background: color-mix(in oklab, var(--color-ink) 78%, transparent);
+  will-change: transform;
+}
+
+.scene-label[data-emphasis="front"] {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-style: italic;
+  border-color: var(--color-rule);
+}
+
+.scene-label[data-highlighted="true"] {
+  color: var(--color-ink);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.scene-mark {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: var(--tracking-constellation);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: color-mix(in oklab, var(--color-text) 72%, transparent);
+  transform-origin: center;
+  will-change: transform;
 }
 
 @keyframes rainfall {

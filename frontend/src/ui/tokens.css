@@ -1,20 +1,28 @@
 /*
  * Design tokens. Tailwind turns every --color-* into utilities such as
- * bg-type-fire or text-tone-effect; the other variables are read by components.
+ * bg-type-fire or text-tone-effect, --radius-* into rounded-plate, and so on;
+ * the other variables are read by components.
  */
-@theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+@theme static {
+  --font-display:
+    "Cormorant Garamond Variable", "Cormorant Garamond", Garamond, "Times New Roman", serif;
+  --font-sans: "IBM Plex Sans Variable", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
+  --tracking-catalogue: 0.16em;
+  --tracking-constellation: 0.32em;
+
+  /* The ink is the clear colour of the scene, so the sky and the page are one night. */
   --color-ink: #0b0f1a;
-  --color-panel: #121829;
-  --color-panel-raised: #1a2238;
-  --color-line: #2a3452;
-  --color-text: #e8ecf6;
-  --color-muted: #9aa6c4;
-  --color-accent: #c4290a;
-  --color-accent-soft: #ff6b4a;
-  --color-focus: #ffd23f;
+  --color-panel: #12151e;
+  --color-panel-raised: #1b1f29;
+  --color-line: #2c2f37;
+  --color-rule: #6e6553;
+  --color-text: #ece3cf;
+  --color-muted: #a59c88;
+  --color-accent: #ef6a45;
+  --color-accent-bright: #f7896a;
+  --color-accent-deep: #c9482a;
 
   --color-type-normal: #a8a77a;
   --color-type-fire: #ee8130;
@@ -52,31 +60,46 @@
   --color-role-mixed: #c9a6ff;
   --color-role-drawback: #ff6b8a;
 
-  --radius-card: 1.25rem;
-  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  --radius-control: 2px;
+  --radius-plate: 3px;
+
+  --shadow-plate: 0 1px 0 0 rgb(0 0 0 / 0.55), 0 28px 48px -30px rgb(0 0 0 / 0.95);
+
+  --ease-plate: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --animate-rise: rise 360ms var(--ease-plate) both;
+  --animate-grow: grow 600ms var(--ease-plate);
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes grow {
+    from {
+      transform: scaleX(0);
+    }
+  }
 }
 
 :root {
-  --ambience-none:
-    radial-gradient(1200px 600px at 10% -10%, #1f2a4d 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, #3a1422 0%, transparent 55%);
+  --vignette: rgb(0 0 0 / 0.45);
+  --graticule:
+    repeating-radial-gradient(
+      circle at 50% 46%,
+      transparent 0 159px,
+      color-mix(in oklab, var(--color-text) 3.5%, transparent) 159px 160px
+    ),
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, var(--vignette) 100%);
+  --ambience-none: var(--graticule);
   --ambience-rain:
-    radial-gradient(1000px 700px at 50% -20%, #1b3f6b 0%, transparent 65%),
-    linear-gradient(180deg, #0c1a2e 0%, #0b0f1a 70%);
+    var(--graticule), radial-gradient(1000px 700px at 50% -20%, #183454 0%, transparent 65%);
   --ambience-sun:
-    radial-gradient(900px 600px at 85% -15%, #7a3a0c 0%, transparent 60%),
-    linear-gradient(180deg, #24140a 0%, #0b0f1a 70%);
+    var(--graticule), radial-gradient(900px 600px at 85% -15%, #5c2c0e 0%, transparent 60%);
   --ambience-sandstorm:
-    radial-gradient(1000px 700px at 20% -10%, #5a4520 0%, transparent 60%),
-    linear-gradient(180deg, #1f1a10 0%, #0b0f1a 70%);
+    var(--graticule), radial-gradient(1000px 700px at 20% -10%, #4a3a1c 0%, transparent 60%);
   --ambience-hail:
-    radial-gradient(1000px 700px at 50% -20%, #3d5a73 0%, transparent 60%),
-    linear-gradient(180deg, #121c26 0%, #0b0f1a 70%);
+    var(--graticule), radial-gradient(1000px 700px at 50% -20%, #2f4659 0%, transparent 60%);
   color-scheme: dark;
-}
-
-@keyframes grow {
-  from {
-    transform: scaleX(0);
-  }
 }

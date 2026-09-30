@@ -2,6 +2,11 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.ts", "e2e/**/*.ts"],
   "ignore": ["src/api/schema.gen.ts"],
+  "ignoreDependencies": [
+    "@fontsource-variable/cormorant-garamond",
+    "@fontsource-variable/ibm-plex-sans",
+    "@fontsource/ibm-plex-mono"
+  ],
   "entry": ["scripts/*.ts", "e2e/steps/*.ts"],
   "ignoreIssues": {
     "src/api/contract.ts": ["types"],
