@@ -36,7 +36,7 @@ describe("GestureTracker", () => {
     ]);
   });
 
-  test("a secondary or Shift drag pans", () => {
+  test("a two-finger click or Shift drag pans", () => {
     const { tracker, seen } = track();
     tracker.down(at(0, 0, { panning: true }));
     tracker.move(at(0, 20, { panning: true }));

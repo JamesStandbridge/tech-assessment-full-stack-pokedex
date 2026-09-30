@@ -1,4 +1,4 @@
-/** A primary drag turns the scene; a secondary, Shift or two-finger drag pans it. */
+/** A one-finger drag turns the scene; a two-finger click, a secondary button or Shift pans it. */
 type DragMode = "turn" | "pan";
 
 export type Gesture =
