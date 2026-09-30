@@ -109,33 +109,98 @@ one small algorithm to each constraint.
 ![One query, one model per constraint](docs/retrieval.svg)
 
 - **Constraints intersect.** A Water Pokémon that can cause sleep must satisfy
-  both conditions. Ambiguous readings stay in separate plans because their
-  scores cannot be meaningfully added.
+  both conditions. Ambiguous readings stay in separate plans, because their
+  scores use unrelated scales.
+
+$$
+R = R_{\mathrm{kind}} \cap R_{\mathrm{type}} \cap R_{\mathrm{stat}}
+    \cap R_{\mathrm{effect}} \cap R_{\mathrm{weather}}
+$$
+
 - **Names use Damerau-Levenshtein distance.** Exact, prefix and infix matches
-  come first. Only when none exists does fuzzy matching allow one or two edits,
-  including swapped adjacent letters.
-- **Stats use filters, sorts and percentiles.** One stat sorts by its raw value.
-  Several stats are converted to percentile ranks before averaging, so a point
-  of HP is not treated as equivalent to a point of Speed. `bulk` is explicitly
+  come first. Fuzzy matching runs only when none of those exists, and allows
+  one edit up to five characters, two beyond. A transposition of two adjacent
+  letters counts as one edit:
+
+$$
+d(i,j) = \min
+\begin{cases}
+d(i-1,j) + 1 \\
+d(i,j-1) + 1 \\
+d(i-1,j-1) + [a_i \neq b_j] \\
+d(i-2,j-2) + 1
+\end{cases}
+$$
+
+  The last case applies only when the two letters are swapped.
+
+- **Stats use filters, sorts and percentiles.** One stat sorts by its raw
+  value. Several stats are first turned into mid-rank percentiles, so a point
+  of HP is not treated as a point of Speed, then averaged. `bulk` is
   `hp + defense + special-defense`.
-- **Effects use probability.** Text is classified once into effect, target and
-  chance. A move scores as `accuracy × effect chance`; a Pokémon takes the best
-  move or ability it can use. This puts Spore (100%) before Sleep Powder (75%)
-  and excludes effects aimed at the user.
-- **Weather uses a weighted graph.** Benefits score `+1`, protection and mixed
-  effects `+0.5`, and drawbacks `-0.5`; relations through moves count half.
-  Setters always come first.
-- **BM25 is a fallback.** It ranks unexplained description words through
-  length-normalised term frequency and inverse document frequency. It is not
-  used where structured facts are available.
-- **The constellation uses PCA / classical MDS.** Six standardised stats and
-  one-hot types form each species vector. Projection onto the first three
-  principal axes places similar species near one another. Fixed initial values
-  make the layout deterministic.
-- **Quality uses nDCG@10.** Relevant results gain more value near the top of
-  the list; the score is divided by the ideal ordering, giving a value from 0
-  to 1. Condensed nDCG ignores unjudged candidates, while weighted Cohen's
-  kappa measures agreement between rule-based and blind grades.
+
+$$
+p(x) =
+\frac{
+  \lvert \{ v : v < x \} \rvert + \lvert \{ v : v \leq x \} \rvert
+}{2N}
+$$
+
+- **Effects use probability.** Each effect text becomes a fact: effect, target
+  and chance. A Pokémon inherits the facts of its moves and abilities and keeps
+  the best one, which is why Spore (100%) ranks before Sleep Powder (75%), and
+  why an effect on the user does not answer a request about the opponent.
+
+$$
+P(\mathrm{effect}) = P(\mathrm{hit}) \times P(\mathrm{effect} \mid \mathrm{hit})
+$$
+
+- **Weather uses a weighted graph.** Setters come first. A benefit scores
+  `+1`, protection or a mixed relation `+0.5`, and a drawback `-0.5`. A
+  relation that comes through a move is halved.
+
+$$
+s = \sum_r w(r)\, f(r),
+\quad
+f(\mathrm{move}) = \tfrac{1}{2},
+\quad
+f(\mathrm{ability}) = 1
+$$
+
+- **BM25 is only the fallback,** for description words that no structured
+  constraint explains. A rare word counts more, and repeating it brings
+  diminishing returns:
+
+$$
+\mathrm{BM25}(q,d) =
+\sum_{t \in q}
+\mathrm{IDF}(t)\,
+\frac{\mathrm{tf}(t,d)\,(k_1+1)}
+{\mathrm{tf}(t,d) + k_1\left(1 - b + b\,\dfrac{\lvert d \rvert}{\mathrm{avgdl}}\right)}
+$$
+
+- **The constellation uses PCA, which here is classical MDS.** Six standardised
+  stats and one-hot types form each species vector. Similar species land near
+  each other because the layout is their projection on the first three
+  principal axes. The axes come from a fixed starting vector, so the sky is the
+  same on every visit.
+
+$$
+y = X v,
+\quad
+X^{\mathsf T} X\, v = \lambda v
+$$
+
+- **Quality uses nDCG@10.** A highly relevant result counts much more, and
+  more so when it is near the top. Dividing by the ideal ordering keeps the
+  score between 0 and 1. Condensed nDCG drops unjudged candidates instead of
+  treating them as irrelevant.
+
+$$
+\mathrm{DCG}@k = \sum_{i=1}^{k} \frac{2^{g_i}-1}{\log_2(i+1)},
+\qquad
+\mathrm{nDCG}@k = \frac{\mathrm{DCG}@k}{\mathrm{IDCG}@k}
+$$
 
 ## Decisions and trade-offs
 
