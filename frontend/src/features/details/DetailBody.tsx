@@ -12,9 +12,7 @@ import { displayName } from "../../domain/entities";
 import { STAT_LABELS } from "../../domain/stats";
 import { Bar } from "../../ui/Bar";
 import { Chip } from "../../ui/Chip";
-import { Button } from "../../ui/Button";
 import { RemoteImage } from "../../ui/RemoteImage";
-import { canSpeak, speak } from "../speech/speech";
 import { typeColor } from "../colors";
 import { RelatedList } from "./RelatedList";
 
@@ -60,18 +58,6 @@ function PokemonBody({
             ))}
           </div>
           <p className="max-w-prose">{detail.description}</p>
-          {canSpeak() ? (
-            <Button
-              variant="outline"
-              onPress={() => {
-                speak(
-                  `${displayName(detail.name)}. ${detail.genus ?? ""}. ${detail.description ?? ""}`,
-                );
-              }}
-            >
-              Read the entry aloud
-            </Button>
-          ) : null}
         </div>
       </div>
       <BaseStats detail={detail} />

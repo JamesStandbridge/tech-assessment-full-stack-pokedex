@@ -1,25 +1,8 @@
 import type { JSX } from "react";
 
-import { Button } from "../../ui/Button";
 import { type ComboOption, ComboBox } from "../../ui/ComboBox";
-import { canListen, listen } from "../speech/speech";
 import { useSuggestions } from "./queries";
 import type { SearchController } from "./useSearchController";
-
-/** Search by voice where the browser can listen (SYS-UI-014). */
-function VoiceSearch(props: { readonly onTranscript: (text: string) => void }): JSX.Element | null {
-  if (!canListen()) return null;
-  return (
-    <Button
-      variant="outline"
-      onPress={() => {
-        listen(props.onTranscript);
-      }}
-    >
-      Search by voice
-    </Button>
-  );
-}
 
 interface SearchBoxProps {
   readonly controller: SearchController;
@@ -54,7 +37,6 @@ export function SearchBox({ controller }: SearchBoxProps): JSX.Element {
         onChoose={choose}
         onSubmit={controller.submit}
       />
-      <VoiceSearch onTranscript={controller.run} />
     </form>
   );
 }

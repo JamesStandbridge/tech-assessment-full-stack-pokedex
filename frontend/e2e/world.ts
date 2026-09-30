@@ -31,11 +31,6 @@ export class PokedexWorld {
       if (url.pathname === "/api/search") this.searches.push(url.searchParams.get("q") ?? "");
     });
     await this.page.addInitScript(() => {
-      const record = (spoken?: string): void => {
-        const played = Number(Reflect.get(window, "__pokedexSounds") ?? 0);
-        Object.assign(window, { __pokedexSounds: played + 1 });
-        if (spoken !== undefined) Object.assign(window, { __pokedexSpoken: spoken });
-      };
       Object.assign(window, { __pokedexSounds: 0, __pokedexViolations: "" });
       document.addEventListener("securitypolicyviolation", (event) => {
         const seen = String(Reflect.get(window, "__pokedexViolations"));
@@ -45,18 +40,11 @@ export class PokedexWorld {
       document.addEventListener(
         "play",
         () => {
-          record();
+          const played = Number(Reflect.get(window, "__pokedexSounds") ?? 0);
+          Object.assign(window, { __pokedexSounds: played + 1 });
         },
         true,
       );
-      if ("speechSynthesis" in window) {
-        const synthesis = window.speechSynthesis;
-        const speak = synthesis.speak.bind(synthesis);
-        synthesis.speak = (utterance: SpeechSynthesisUtterance) => {
-          record(utterance.text);
-          speak(utterance);
-        };
-      }
     });
   }
 

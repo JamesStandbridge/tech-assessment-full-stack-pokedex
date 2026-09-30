@@ -133,11 +133,3 @@ Feature: Present results in a view suited to each kind of question
       | the browser has no WebGL     |
       | I prefer reduced motion      |
       | I prefer to save data        |
-
-  @could @SYS-UI-014
-  Scenario: A query can be spoken and an entry read aloud
-    Given the browser supports speech
-    When I speak "bulba"
-    Then the search box contains "bulba"
-    When I ask to hear the entry of "pokemon:bulbasaur"
-    Then the entry of "pokemon:bulbasaur" is read aloud

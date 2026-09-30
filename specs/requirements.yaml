@@ -813,14 +813,6 @@ requirements:
     priority: should
     verification: ui-test
 
-  - id: SYS-UI-014
-    need: visual-exploration
-    template: optional
-    statement: Where the browser supports speech, the web interface shall accept spoken queries and read a Pokédex entry aloud on request.
-    source: product
-    priority: could
-    verification: ui-test
-
   # Guardrails for every visual feature that ships
 
   - id: SYS-A11Y-001

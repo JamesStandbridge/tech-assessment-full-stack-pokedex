@@ -49,8 +49,8 @@ enforces it.
 - Server state is TanStack Query's, URL state is `nuqs`', and the rest is local
   state colocated with its use. No global store.
 - No effect for derived state or data fetching. Effects only synchronize with
-  systems outside React: the constellation worker, speech, media queries,
-  keyboard shortcuts and storage.
+  systems outside React: the constellation worker, media queries, keyboard
+  shortcuts and storage.
 - List keys are stable identifiers such as `kind:name`, never array indices.
 - Each result view sits behind an error boundary, and heavy views such as the
   relation graph load lazily behind `Suspense`.

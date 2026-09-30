@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 
 import { displayName } from "../../src/domain/entities";
-import { Given, Then, When } from "../fixtures";
+import { Then, When } from "../fixtures";
 import { nodeLabel, parseRef } from "../world";
 
 interface Entry {
@@ -47,36 +47,3 @@ Then(
     await expect(page.getByRole("img", { name })).toBeVisible();
   },
 );
-
-Given("the browser supports speech", async ({ page }) => {
-  await page.addInitScript(() => {
-    class FakeRecognition extends EventTarget {
-      onresult: ((event: { results: { transcript: string }[][] }) => void) | null = null;
-      start(): void {
-        const transcript = String(Reflect.get(window, "__pokedexSpeech"));
-        this.onresult?.({ results: [[{ transcript }]] });
-      }
-      stop(): void {
-        this.onresult = null;
-      }
-    }
-    Object.assign(window, { SpeechRecognition: FakeRecognition, __pokedexSpeech: "" });
-  });
-  await page.reload();
-});
-
-When("I speak {string}", async ({ page }, words: string) => {
-  await page.evaluate((spoken) => Object.assign(window, { __pokedexSpeech: spoken }), words);
-  await page.getByRole("button", { name: "Search by voice" }).click();
-});
-
-When("I ask to hear the entry of {string}", async ({ pokedex, page }, text: string) => {
-  await pokedex.openButton(parseRef(text)).click();
-  await page.getByRole("button", { name: "Read the entry aloud" }).click();
-});
-
-Then("the entry of {string} is read aloud", async ({ page }, text: string) => {
-  await expect
-    .poll(() => page.evaluate(() => String(Reflect.get(window, "__pokedexSpoken") ?? "")))
-    .toContain(nodeLabel(text));
-});
