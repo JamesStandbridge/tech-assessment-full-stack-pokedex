@@ -6,10 +6,12 @@ import { meaningfulTerms, termTone } from "../../domain/terms";
 import { Button } from "../../ui/Button";
 import { Chip } from "../../ui/Chip";
 import { toneColor } from "../colors";
+import { type GuideSectionId, guideLinkLabel, guideSection } from "./guide/section";
 
 interface UnderstandingProps {
   readonly response: SearchResponse;
   readonly onRun: (query: string) => void;
+  readonly onOpenGuide: (section: GuideSectionId | null) => void;
 }
 
 function Terms({ response }: { readonly response: SearchResponse }): JSX.Element | null {
@@ -68,8 +70,25 @@ function Refinements(props: {
   );
 }
 
+function ApproximateGuide(props: UnderstandingProps): JSX.Element | null {
+  const approximate = props.response.notices.some((notice) => notice.code === "approximate-match");
+  if (!approximate || props.response.outcome === "empty") return null;
+  const section = guideSection(props.response);
+  return (
+    <Button
+      variant="link"
+      size="inline"
+      onPress={() => {
+        props.onOpenGuide(section);
+      }}
+    >
+      {guideLinkLabel(section)}
+    </Button>
+  );
+}
+
 /** How the query was read: its terms, readings, notices and refinements (SYS-UI-005 to 019). */
-export function Understanding({ response, onRun }: UnderstandingProps): JSX.Element {
+export function Understanding({ response, onRun, onOpenGuide }: UnderstandingProps): JSX.Element {
   const readings = readingNames(response);
   return (
     <div className="border-line space-y-3 border-b pb-4">
@@ -82,6 +101,7 @@ export function Understanding({ response, onRun }: UnderstandingProps): JSX.Elem
         </ul>
       ) : null}
       <Notices notices={response.notices} />
+      <ApproximateGuide response={response} onRun={onRun} onOpenGuide={onOpenGuide} />
       <Refinements refinements={response.refinements} onRun={onRun} />
     </div>
   );

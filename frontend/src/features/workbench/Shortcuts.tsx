@@ -1,11 +1,12 @@
 import { type JSX, useState } from "react";
 
+import { Button } from "../../ui/Button";
 import { Dialog } from "../../ui/Dialog";
 import { SHORTCUTS, useShortcuts } from "./keyboard";
 import { useWorkbench } from "./WorkbenchContext";
 
 /** Listens to the keyboard shortcuts and lists them on "?". */
-export function Shortcuts(): JSX.Element {
+export function Shortcuts(props: { readonly onOpenGuide: () => void }): JSX.Element {
   const [open, setOpen] = useState(false);
   useShortcuts(useWorkbench(), () => {
     setOpen(true);
@@ -29,6 +30,18 @@ export function Shortcuts(): JSX.Element {
           </div>
         ))}
       </dl>
+      <div className="mt-4">
+        <Button
+          variant="outline"
+          size="small"
+          onPress={() => {
+            setOpen(false);
+            props.onOpenGuide();
+          }}
+        >
+          How to ask
+        </Button>
+      </div>
     </Dialog>
   );
 }

@@ -15,6 +15,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
   { keys: "Ctrl+Z or Cmd+Z", action: "Undo the last change to the party or the bench" },
   { keys: "Shift+Ctrl+Z, Shift+Cmd+Z or Ctrl+Y", action: "Redo it" },
   { keys: "?", action: "List the keyboard shortcuts" },
+  { keys: "How to ask", action: "Open the query guide" },
   { keys: "Escape", action: "Close a dialog, keep the party as it is, or clear the search" },
 ];
 

@@ -1,27 +1,20 @@
 import { type JSX, lazy, Suspense, useEffect, useState } from "react";
 
-import { ApiError } from "../../api/errors";
 import type { EntityRef, SearchResponse } from "../../api/contract";
-import { Panel } from "../../ui/Panel";
 import { Spinner } from "../../ui/Spinner";
 import { Home } from "../states/Home";
 import { Announcer } from "../workbench/Announcer";
 import { Shortcuts } from "../workbench/Shortcuts";
 import { useWorkbench, WorkbenchProvider } from "../workbench/WorkbenchContext";
-import { EmptyOutcome, FailedSearch, InvalidQuery } from "../states/Outcomes";
 import { isEmptyWorkbench } from "../../domain/workbench";
-import { ClearSearch, useEscapeClears } from "./ClearSearch";
+import { Answer } from "./Answer";
+import { useEscapeClears } from "./ClearSearch";
+import { useQueryGuide } from "./guide/useQueryGuide";
 import { useSearchResults } from "./queries";
 import { Header } from "./Header";
-import { Understanding } from "./Understanding";
 import { type SearchController, useSearchController } from "./useSearchController";
 
 const loadResultsRegion = () => import("../results/ResultsRegion");
-
-const ResultsRegion = lazy(async () => {
-  const module = await loadResultsRegion();
-  return { default: module.ResultsRegion };
-});
 
 const Constellation = lazy(async () => {
   const module = await import("../scene/Constellation");
@@ -38,63 +31,10 @@ const EntityDialog = lazy(async () => {
   return { default: module.EntityDialog };
 });
 
-function Outcome(props: {
-  readonly controller: SearchController;
-  readonly onOpen: (ref: EntityRef) => void;
-}): JSX.Element | null {
-  const { controller, onOpen } = props;
-  const search = useSearchResults(controller.query);
-  if (search.isError) {
-    const error = search.error;
-    if (error instanceof ApiError && error.kind === "invalid") {
-      return <InvalidQuery message={error.message} />;
-    }
-    return <FailedSearch message={error.message} onRetry={() => void search.refetch()} />;
-  }
-  const response = search.data;
-  return (
-    <div className="space-y-6">
-      {search.isFetching ? <Spinner label="Searching…" /> : null}
-      {response === undefined ? null : (
-        <>
-          <Understanding response={response} onRun={controller.run} />
-          {response.outcome === "empty" ? (
-            <EmptyOutcome response={response} onRun={controller.run} />
-          ) : (
-            <ResultsRegion
-              response={response}
-              outdated={search.isPlaceholderData}
-              onOpen={onOpen}
-            />
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
 /** The response the sky follows: none on the home page, the current one otherwise. */
 function useShownResponse(query: string): SearchResponse | null {
   const search = useSearchResults(query);
   return query === "" ? null : (search.data ?? null);
-}
-
-function Answer(props: {
-  readonly controller: SearchController;
-  readonly onOpen: (ref: EntityRef) => void;
-}): JSX.Element {
-  return (
-    <Panel
-      label="Answer"
-      eyebrow="Answer"
-      title={props.controller.query}
-      actions={<ClearSearch controller={props.controller} />}
-      scrolls
-      className="motion-safe:animate-rise sm:w-sidebar absolute right-0 bottom-0 left-0 z-20 max-h-[62dvh] sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none"
-    >
-      <Outcome {...props} />
-    </Panel>
-  );
 }
 
 function Details(props: {
@@ -146,6 +86,7 @@ function Backdrop(props: {
 
 function Screen(): JSX.Element {
   const controller = useSearchController();
+  const guide = useQueryGuide();
   const [opened, setOpened] = useState<EntityRef | null>(null);
   const response = useShownResponse(controller.query);
   const ambience = response?.interpretation.alternatives[0]?.weather?.weather ?? "none";
@@ -158,12 +99,25 @@ function Screen(): JSX.Element {
     <div data-ambience={ambience} className="ambience relative h-dvh overflow-hidden">
       <main className="contents">
         <Backdrop response={response} controller={controller} onOpen={setOpened} />
-        <Header controller={controller}>{hasQuery ? null : <Home onRun={controller.run} />}</Header>
-        {hasQuery ? <Answer controller={controller} onOpen={setOpened} /> : null}
+        <Header
+          controller={controller}
+          guideOpen={guide.open}
+          guideSection={guide.section}
+          onGuideOpenChange={guide.setOpen}
+        >
+          {hasQuery ? null : <Home onRun={controller.run} />}
+        </Header>
+        {hasQuery ? (
+          <Answer controller={controller} onOpen={setOpened} onOpenGuide={guide.openGuide} />
+        ) : null}
       </main>
       <Details opened={opened} onOpen={setOpened} />
       <Announcer />
-      <Shortcuts />
+      <Shortcuts
+        onOpenGuide={() => {
+          guide.openGuide(null);
+        }}
+      />
     </div>
   );
 }

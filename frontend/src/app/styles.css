@@ -302,3 +302,19 @@
     background-position: -20px 60px;
   }
 }
+
+/* The query guide is a popover on a wide screen and a bottom sheet on a narrow one. */
+@media (max-width: 639px) {
+  .query-guide {
+    position: fixed !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 85dvh !important;
+    transform: none !important;
+    border-radius: var(--radius-plate) var(--radius-plate) 0 0;
+  }
+}

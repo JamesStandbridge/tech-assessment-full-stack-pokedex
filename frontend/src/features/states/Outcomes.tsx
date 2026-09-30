@@ -16,10 +16,17 @@ function Message(props: { readonly title: string; readonly children: ReactNode }
 export function EmptyOutcome(props: {
   readonly response: SearchResponse;
   readonly onRun: (query: string) => void;
+  readonly guideLabel: string;
+  readonly onOpenGuide: () => void;
 }): JSX.Element {
   return (
     <Message title="No match in the Pokédex">
       <p className="text-muted">{props.response.explanation}</p>
+      <p className="mt-3">
+        <Button variant="link" size="inline" onPress={props.onOpenGuide}>
+          {props.guideLabel}
+        </Button>
+      </p>
       <ul aria-label="Suggestions" className="mt-4 flex flex-wrap gap-2">
         {props.response.suggestions.map((suggestion) => (
           <li key={suggestion.query}>

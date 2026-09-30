@@ -1,0 +1,440 @@
+{
+  "checks": {
+    "bulba": {
+      "plan": { "name": "bulba" },
+      "terms": [{ "text": "bulba", "role": "name" }]
+    },
+    "#25": {
+      "plan": { "dex_number": 25 },
+      "terms": [{ "text": "#25", "role": "dex-number" }]
+    },
+    "fox pokemon": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "characteristics": [{ "facet": "genus", "value": "fox" }]
+      },
+      "terms": [
+        { "text": "fox", "role": "characteristic" },
+        { "text": "pokemon", "role": "kind" }
+      ]
+    },
+    "fast electric pokemon": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "types": ["electric"],
+        "stat_sort": [{ "stat": "speed", "direction": "desc" }]
+      },
+      "terms": [
+        { "text": "fast", "role": "stat" },
+        { "text": "electric", "role": "type" },
+        { "text": "pokemon", "role": "kind" }
+      ]
+    },
+    "electric pokemon with speed at least 100": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "types": ["electric"],
+        "stat_filters": [{ "stat": "speed", "comparator": "gte", "value": 100 }]
+      },
+      "terms": [
+        { "text": "electric", "role": "type" },
+        { "text": "pokemon", "role": "kind" },
+        { "text": "with", "role": "filler" },
+        { "text": "speed", "role": "stat" },
+        { "text": "at least", "role": "comparator" },
+        { "text": "100", "role": "number" }
+      ]
+    },
+    "highest sp atk psychic pokemon": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "types": ["psychic"],
+        "stat_sort": [{ "stat": "special-attack", "direction": "desc" }]
+      },
+      "terms": [
+        { "text": "highest", "role": "direction" },
+        { "text": "sp atk", "role": "stat" },
+        { "text": "psychic", "role": "type" },
+        { "text": "pokemon", "role": "kind" }
+      ]
+    },
+    "put the opponent to sleep": {
+      "plan": { "effect": { "effect": "sleep", "mode": "causes", "target": "opponent" } },
+      "terms": [
+        { "text": "put", "role": "filler" },
+        { "text": "the", "role": "filler" },
+        { "text": "opponent", "role": "target" },
+        { "text": "to", "role": "filler" },
+        { "text": "sleep", "role": "effect" }
+      ]
+    },
+    "prevent sleep": {
+      "plan": { "effect": { "effect": "sleep", "mode": "prevents", "target": null } },
+      "terms": [
+        { "text": "prevent", "role": "mode" },
+        { "text": "sleep", "role": "effect" }
+      ]
+    },
+    "boost special attack": {
+      "plan": {
+        "effect": { "effect": "raise-special-attack", "mode": "causes", "target": "user" }
+      },
+      "terms": [{ "text": "boost special attack", "role": "effect" }]
+    },
+    "rain team": {
+      "plan": { "weather": { "weather": "rain", "stat": null } },
+      "terms": [
+        { "text": "rain", "role": "weather" },
+        { "text": "team", "role": "filler" }
+      ]
+    },
+    "pokemon that learn thunder wave": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "relation": {
+          "predicate": "learns-move",
+          "entity": { "kind": "move", "name": "thunder-wave" }
+        }
+      },
+      "terms": [
+        { "text": "pokemon", "role": "kind" },
+        { "text": "that", "role": "filler" },
+        { "text": "learn", "role": "relation" },
+        { "text": "thunder wave", "role": "name" }
+      ]
+    },
+    "pokemon with levitate": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "relation": {
+          "predicate": "has-ability",
+          "entity": { "kind": "ability", "name": "levitate" }
+        }
+      },
+      "terms": [
+        { "text": "pokemon", "role": "kind" },
+        { "text": "with", "role": "filler" },
+        { "text": "levitate", "role": "name" }
+      ]
+    },
+    "chikorita": {
+      "plan": { "name": "chikorita" },
+      "terms": [{ "text": "chikorita", "role": "name" }]
+    },
+    "what evolves into charizard": {
+      "plan": {
+        "relation": {
+          "predicate": "learned-by",
+          "entity": { "kind": "pokemon", "name": "charizard" }
+        }
+      },
+      "terms": [
+        { "text": "what", "role": "filler" },
+        { "text": "evolves", "role": "ignored" },
+        { "text": "into", "role": "filler" },
+        { "text": "charizard", "role": "name" }
+      ]
+    },
+    "charizard": {
+      "plan": { "name": "charizard" },
+      "terms": [{ "text": "charizard", "role": "name" }]
+    },
+    "alolan raichu": {
+      "plan": {
+        "relation": {
+          "predicate": "learned-by",
+          "entity": { "kind": "pokemon", "name": "raichu" }
+        }
+      },
+      "terms": [
+        { "text": "alolan", "role": "ignored" },
+        { "text": "raichu", "role": "name" }
+      ]
+    },
+    "raichu": {
+      "plan": { "name": "raichu" },
+      "terms": [{ "text": "raichu", "role": "name" }]
+    },
+    "not electric pokemon": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "types": ["electric"],
+        "characteristics": [{ "facet": "description", "value": "not" }]
+      },
+      "terms": [
+        { "text": "not", "role": "characteristic" },
+        { "text": "electric", "role": "type" },
+        { "text": "pokemon", "role": "kind" }
+      ]
+    },
+    "pokemon faster than pikachu": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "stat_sort": [{ "stat": "speed", "direction": "desc" }],
+        "relation": {
+          "predicate": "learned-by",
+          "entity": { "kind": "pokemon", "name": "pikachu" }
+        }
+      },
+      "terms": [
+        { "text": "pokemon", "role": "kind" },
+        { "text": "faster", "role": "stat" },
+        { "text": "than", "role": "filler" },
+        { "text": "pikachu", "role": "name" }
+      ]
+    },
+    "super effective against water": {
+      "plan": {
+        "types": ["water"],
+        "characteristics": [{ "facet": "description", "value": "super" }]
+      },
+      "terms": [
+        { "text": "super", "role": "characteristic" },
+        { "text": "effective", "role": "ignored" },
+        { "text": "against", "role": "ignored" },
+        { "text": "water", "role": "type" }
+      ]
+    },
+    "water pokemon": {
+      "plan": { "kinds": ["pokemon"], "types": ["water"] },
+      "terms": [
+        { "text": "water", "role": "type" },
+        { "text": "pokemon", "role": "kind" }
+      ]
+    },
+    "dormir": {
+      "plan": { "name": "dormir" },
+      "terms": [{ "text": "dormir", "role": "name" }]
+    },
+    "potion": {
+      "plan": { "name": "potion" },
+      "terms": [{ "text": "potion", "role": "name" }]
+    },
+    "moves that restore hp": {
+      "plan": {
+        "kinds": ["move"],
+        "effect": { "effect": "healing", "mode": "causes", "target": "user" }
+      },
+      "terms": [
+        { "text": "moves", "role": "kind" },
+        { "text": "that", "role": "filler" },
+        { "text": "restore hp", "role": "effect" }
+      ]
+    },
+    "rain team against brock": {
+      "plan": { "weather": { "weather": "rain", "stat": null } },
+      "terms": [
+        { "text": "rain", "role": "weather" },
+        { "text": "team", "role": "filler" },
+        { "text": "against", "role": "ignored" },
+        { "text": "brock", "role": "ignored" }
+      ]
+    },
+    "drizzle": {
+      "plan": { "name": "drizzle" },
+      "terms": [{ "text": "drizzle", "role": "name" }]
+    },
+    "bulbsaur": {
+      "plan": { "name": "bulbsaur" },
+      "terms": [{ "text": "bulbsaur", "role": "name" }]
+    },
+    "water pokemon that can put the opponent to sleep": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "types": ["water"],
+        "effect": { "effect": "sleep", "mode": "causes", "target": "opponent" }
+      },
+      "terms": [
+        { "text": "water", "role": "type" },
+        { "text": "pokemon", "role": "kind" },
+        { "text": "that", "role": "filler" },
+        { "text": "can", "role": "filler" },
+        { "text": "put", "role": "filler" },
+        { "text": "the", "role": "filler" },
+        { "text": "opponent", "role": "target" },
+        { "text": "to", "role": "filler" },
+        { "text": "sleep", "role": "effect" }
+      ]
+    },
+    "electric pokemon with speed over 100": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "types": ["electric"],
+        "stat_filters": [{ "stat": "speed", "comparator": "gt", "value": 100 }]
+      },
+      "terms": [
+        { "text": "electric", "role": "type" },
+        { "text": "pokemon", "role": "kind" },
+        { "text": "with", "role": "filler" },
+        { "text": "speed", "role": "stat" },
+        { "text": "over", "role": "comparator" },
+        { "text": "100", "role": "number" }
+      ]
+    },
+    "generation 2": {
+      "plan": {},
+      "terms": [
+        { "text": "generation", "role": "ignored" },
+        { "text": "2", "role": "number" }
+      ]
+    },
+    "fast dark pokemon": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "types": ["dark"],
+        "stat_sort": [{ "stat": "speed", "direction": "desc" }]
+      },
+      "terms": [
+        { "text": "fast", "role": "stat" },
+        { "text": "dark", "role": "type" },
+        { "text": "pokemon", "role": "kind" }
+      ]
+    },
+    "Which Pokémon can put the opponent to sleep?": {
+      "plan": {
+        "kinds": ["pokemon"],
+        "effect": { "effect": "sleep", "mode": "causes", "target": "opponent" }
+      },
+      "terms": [
+        { "text": "Which", "role": "filler" },
+        { "text": "Pokémon", "role": "kind" },
+        { "text": "can", "role": "filler" },
+        { "text": "put", "role": "filler" },
+        { "text": "the", "role": "filler" },
+        { "text": "opponent", "role": "target" },
+        { "text": "to", "role": "filler" },
+        { "text": "sleep", "role": "effect" }
+      ]
+    }
+  },
+  "sections": [
+    {
+      "id": "name",
+      "title": "Recover a name",
+      "lead": "A fragment of a name is enough. Capitals, spaces and punctuation are ignored, and a Pokédex number works. A colour, a habitat or a kind of creature does too.",
+      "pattern": "<name>  ·  #<number>  ·  <colour, habitat or creature> pokemon",
+      "examples": [
+        { "query": "bulba", "label": "A prefix of the name" },
+        { "query": "#25", "label": "A Pokédex number" },
+        { "query": "fox pokemon", "label": "A kind of creature" }
+      ],
+      "misses": [
+        {
+          "query": "chikorita",
+          "reason": "Only the original 151 Pokémon are in this Pokédex, so a later name matches nothing.",
+          "say": "bulba"
+        },
+        {
+          "query": "what evolves into charizard",
+          "reason": "Evolution is not in the data. “evolves” is ignored, and the name is read as moves learned by that Pokémon.",
+          "say": "charizard"
+        },
+        {
+          "query": "alolan raichu",
+          "reason": "Regional forms are not here. “alolan” is ignored, and the rest is read as moves learned by Raichu.",
+          "say": "raichu"
+        }
+      ]
+    },
+    {
+      "id": "criteria",
+      "title": "Compare by criteria",
+      "lead": "A type narrows the list. A stat, written out or named by a word such as fast or strong, ranks it or sets a threshold. Every part has to match. “sp atk” and “special attack” are the same stat.",
+      "pattern": "<type> pokemon with <stat> at least <number>",
+      "examples": [
+        { "query": "fast electric pokemon", "label": "A type ranked by a stat" },
+        { "query": "electric pokemon with speed at least 100", "label": "A stat threshold" },
+        { "query": "highest sp atk psychic pokemon", "label": "A stat in its short spelling" }
+      ],
+      "misses": [
+        {
+          "query": "not electric pokemon",
+          "reason": "“not” does not exclude. It is read as a description, beside the type, and nothing matches.",
+          "say": "fast electric pokemon"
+        },
+        {
+          "query": "pokemon faster than pikachu",
+          "reason": "A stat is compared with a number, not with another Pokémon. The name is read as a link.",
+          "say": "electric pokemon with speed at least 100"
+        },
+        {
+          "query": "super effective against water",
+          "reason": "There is no type chart. “effective” and “against” are ignored, and “super” is read as a description.",
+          "say": "water pokemon"
+        }
+      ]
+    },
+    {
+      "id": "effect",
+      "title": "Discover by effect",
+      "lead": "Say what should happen, and to whom. Preventing an effect is the opposite of causing it. The same words find the moves, the abilities and the Pokémon that learn or carry them.",
+      "pattern": "put the opponent to <effect>  ·  prevent <effect>",
+      "examples": [
+        { "query": "put the opponent to sleep", "label": "An effect on the opponent" },
+        { "query": "prevent sleep", "label": "The opposite need" },
+        { "query": "boost special attack", "label": "A stat raised on the user" }
+      ],
+      "misses": [
+        {
+          "query": "dormir",
+          "reason": "Queries are in English. Another language is read as a name, and nothing is called that.",
+          "say": "put the opponent to sleep"
+        },
+        {
+          "query": "potion",
+          "reason": "Items are not in this Pokédex. A name that is not a Pokémon, a move or an ability matches nothing.",
+          "say": "moves that restore hp"
+        }
+      ]
+    },
+    {
+      "id": "strategy",
+      "title": "Explore a strategy",
+      "lead": "Name a weather, who learns a move, or who has an ability. The Pokémon, moves and abilities that relate to it come back together.",
+      "pattern": "<weather> team  ·  pokemon that learn <move>  ·  pokemon with <ability>",
+      "examples": [
+        { "query": "rain team", "label": "A weather" },
+        { "query": "pokemon that learn thunder wave", "label": "Who learns a move" },
+        { "query": "pokemon with levitate", "label": "Who has an ability" }
+      ],
+      "misses": [
+        {
+          "query": "rain team against brock",
+          "reason": "Gym leaders and trainers are not in the data. “against” and “brock” are ignored; the weather still counts.",
+          "say": "rain team"
+        },
+        {
+          "query": "drizzle",
+          "reason": "No ability by that name is in the data. Ask for the weather itself.",
+          "say": "rain team"
+        }
+      ]
+    }
+  ],
+  "tips": [
+    {
+      "text": "A misspelled name is still read as a name. The page says when the match is approximate.",
+      "query": "bulbsaur"
+    },
+    {
+      "text": "A type, a stat and an effect combine, and every part has to match.",
+      "query": "water pokemon that can put the opponent to sleep"
+    },
+    {
+      "text": "“over” leaves the number out; “at least” includes it. Write the threshold as a plain number.",
+      "query": "electric pokemon with speed over 100"
+    },
+    {
+      "text": "A generation is not a filter. This Pokédex is the original 151.",
+      "query": "generation 2"
+    },
+    {
+      "text": "Dark is understood as a type. No Pokémon in this dataset has it, so the outcome is empty.",
+      "query": "fast dark pokemon"
+    },
+    {
+      "text": "A full sentence works. The extra words are filler, and capitals and the accent do not matter.",
+      "query": "Which Pokémon can put the opponent to sleep?"
+    }
+  ]
+}

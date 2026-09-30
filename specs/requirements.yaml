@@ -713,6 +713,14 @@ requirements:
     priority: should
     verification: ui-test
 
+  - id: SYS-UI-035
+    need: query-understanding
+    template: ubiquitous
+    statement: The web interface shall offer a query guide, opened from the search field and from the shortcut list, that explains each kind of question with examples that run, names what a query cannot ask, closes on Escape before the search is cleared, and is linked from an empty or approximate outcome.
+    source: product
+    priority: should
+    verification: ui-test
+
   # Visual extras
 
   - id: SYS-UI-009
