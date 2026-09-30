@@ -11,6 +11,7 @@ import {
 import type { Point } from "../../../domain/geometry";
 import type { SceneFrame } from "../../../domain/scene";
 import { kindHex, weatherHex } from "../palette";
+import { glowOrPrint, printShade } from "./ink";
 
 const MAX_LINKS = 320;
 const SEGMENTS = 14;
@@ -37,11 +38,11 @@ function material(): LineBasicNodeMaterial {
   );
   const brightness = strength.mul(float(0.2).add(pulse.mul(0.9))).mul(filamentUniforms.opacity);
   const result = new LineBasicNodeMaterial();
-  result.colorNode = vec4(tint.mul(brightness), brightness);
+  result.colorNode = vec4(tint.mul(printShade).mul(brightness), brightness);
   result.transparent = true;
   result.depthWrite = false;
   result.blending = AdditiveBlending;
-  return result;
+  return glowOrPrint(result);
 }
 
 /** A point on the quadratic curve of a strand, bowed towards the camera. */

@@ -26,6 +26,7 @@ import {
 } from "three/webgpu";
 
 import { STIFFNESS } from "../../../domain/spring";
+import { printShade } from "./ink";
 
 /** Per-star data, one row per instance. */
 export interface StarBuffers {
@@ -94,7 +95,7 @@ export function starMaterial(buffers: StarBuffers, atlas: Texture): SpriteNodeMa
     .mul(step(0, tile))
     .mul(look.y)
     .mul(starUniforms.atlasReady);
-  const halo = color.xyz.mul(glow).add(vec3(1, 1, 1).mul(core.mul(0.7)));
+  const halo = color.xyz.mul(glow.mul(printShade)).add(vec3(1, 1, 1).mul(core.mul(0.7)));
 
   const material = new SpriteNodeMaterial();
   material.positionNode = position;

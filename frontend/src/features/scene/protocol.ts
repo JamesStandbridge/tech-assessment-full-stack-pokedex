@@ -1,5 +1,6 @@
 import type { Point } from "../../domain/geometry";
 import type { SceneFrame } from "../../domain/scene";
+import type { Theme } from "../../domain/theme";
 
 export interface Viewport {
   readonly width: number;
@@ -39,9 +40,11 @@ export type ToWorker =
       readonly canvas: OffscreenCanvas;
       readonly viewport: Viewport;
       readonly species: readonly StarSeed[];
+      readonly theme: Theme;
     }
   | { readonly type: "resize"; readonly viewport: Viewport }
   | { readonly type: "inset"; readonly inset: Inset }
+  | { readonly type: "theme"; readonly theme: Theme }
   | { readonly type: "stage"; readonly frame: SceneFrame; readonly marks: readonly Mark[] }
   | { readonly type: "highlight"; readonly ids: readonly string[] }
   | { readonly type: "hover"; readonly x: number; readonly y: number }

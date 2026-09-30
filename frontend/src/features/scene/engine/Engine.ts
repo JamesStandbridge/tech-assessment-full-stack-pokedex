@@ -1,7 +1,7 @@
-import { Color, Scene, WebGPURenderer } from "three/webgpu";
+import { Scene, WebGPURenderer } from "three/webgpu";
 
 import type { SceneFrame } from "../../../domain/scene";
-import { SKY_COLOR, weatherHex } from "../palette";
+import type { Theme } from "../../../domain/theme";
 import {
   type Backend,
   type FromWorker,
@@ -15,9 +15,11 @@ import { spriteAtlas } from "./atlas";
 import { CameraRig } from "./cameraRig";
 import { Filaments } from "./filaments";
 import { Guides } from "./guides";
+import { inkFor } from "./ink";
 import { LabelTracker } from "./labels";
 import { pickStar } from "./lens";
 import { Motes } from "./motes";
+import { Sky } from "./sky";
 import { starUniforms } from "./starMaterial";
 import { Stars } from "./stars";
 
@@ -27,7 +29,6 @@ const MOTES: Readonly<Record<Backend, number>> = { webgpu: 40_000, webgl2: 4_000
 const MAX_PIXEL_RATIO = 2;
 /** The first frames compile shaders; the guard measures the second after them. */
 const FPS_WINDOW = { from: 0.6, to: 1.6 } as const;
-const SKY_TINT = 0.05;
 
 function backendOf(renderer: WebGPURenderer): Backend {
   return "isWebGPUBackend" in renderer.backend ? "webgpu" : "webgl2";
@@ -40,8 +41,6 @@ export class Engine {
   private readonly filaments = new Filaments();
   private readonly guides = new Guides();
   private readonly labels = new LabelTracker();
-  private readonly sky = new Color(SKY_COLOR);
-  private readonly skyGoal = new Color(SKY_COLOR);
   private readonly clockStart = performance.now();
   private viewport: Viewport;
   private last = 0;
@@ -52,7 +51,7 @@ export class Engine {
 
   private constructor(
     private readonly renderer: WebGPURenderer,
-    private readonly parts: { readonly stars: Stars; readonly motes: Motes },
+    private readonly parts: { readonly stars: Stars; readonly motes: Motes; readonly sky: Sky },
     private readonly post: Post,
   ) {
     this.viewport = { width: 1, height: 1, pixelRatio: 1 };
@@ -69,6 +68,7 @@ export class Engine {
       readonly canvas: OffscreenCanvas;
       readonly seeds: readonly StarSeed[];
       readonly viewport: Viewport;
+      readonly theme: Theme;
     },
     post: Post,
   ): Promise<Engine> {
@@ -77,8 +77,13 @@ export class Engine {
     await renderer.init();
     const backend = backendOf(renderer);
     const atlas = spriteAtlas(seeds);
-    const parts = { stars: new Stars(seeds, atlas.texture), motes: new Motes(MOTES[backend]) };
+    const parts = {
+      stars: new Stars(seeds, atlas.texture),
+      motes: new Motes(MOTES[backend]),
+      sky: new Sky(setup.theme),
+    };
     const engine = new Engine(renderer, parts, post);
+    inkFor(setup.theme);
     engine.resize(setup.viewport);
     renderer.onDeviceLost = () => {
       post({ type: "lost" });
@@ -120,8 +125,12 @@ export class Engine {
       frame.camera,
       frame.layout === "atlas" && frame.nodes.every((node) => node.emphasis === "idle"),
     );
-    const tint = frame.weather === null ? SKY_COLOR : weatherHex(frame.weather);
-    this.skyGoal.set(SKY_COLOR).lerp(new Color(tint), frame.weather === null ? 0 : SKY_TINT);
+    this.parts.sky.setWeather(frame.weather);
+  }
+
+  theme(theme: Theme): void {
+    this.parts.sky.setTheme(theme);
+    inkFor(theme);
   }
 
   highlight(ids: readonly string[]): void {
@@ -161,8 +170,8 @@ export class Engine {
     this.last = time;
     starUniforms.time.value = time;
     this.rig.update(delta);
-    this.sky.lerp(this.skyGoal, 1 - Math.exp(-2 * delta));
-    this.renderer.setClearColor(this.sky);
+    this.parts.sky.update(delta);
+    this.renderer.setClearColor(this.parts.sky.color);
     void this.renderer.compute(this.parts.motes.step(delta, time));
     this.filaments.update(time, (id) => {
       const slot = this.parts.stars.slotOf(id);

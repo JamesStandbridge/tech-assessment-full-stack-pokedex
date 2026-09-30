@@ -49,6 +49,9 @@ function apply(target: Engine, command: Command): void {
     case "inset":
       target.inset(command.inset);
       return;
+    case "theme":
+      target.theme(command.theme);
+      return;
     case "stage":
       target.stage(command.frame, command.marks);
       return;
@@ -70,7 +73,8 @@ function apply(target: Engine, command: Command): void {
 }
 
 function start(message: Extract<ToWorker, { readonly type: "start" }>): void {
-  Engine.start({ canvas: message.canvas, seeds: message.species, viewport: message.viewport }, post)
+  const { canvas, species, viewport, theme } = message;
+  Engine.start({ canvas, seeds: species, viewport, theme }, post)
     .then((started) => {
       engine = started;
       for (const command of pending.splice(0)) apply(started, command);

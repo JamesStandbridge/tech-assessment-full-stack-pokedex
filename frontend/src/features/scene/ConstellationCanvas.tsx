@@ -3,6 +3,8 @@ import { type JSX, type RefObject, useEffect, useEffectEvent, useRef } from "rea
 import type { Species } from "../../api/contract";
 import { assertNever } from "../../domain/assertNever";
 import type { SceneFrame } from "../../domain/scene";
+import type { Theme } from "../../domain/theme";
+import { useTheme } from "../theme/useTheme";
 import { typeHex } from "./palette";
 import type { Gesture } from "./gestures";
 import type { FromWorker, Inset, Mark, StarSeed, ToWorker, Viewport } from "./protocol";
@@ -98,12 +100,12 @@ function startScene(
     readonly canvas: HTMLCanvasElement;
     readonly worker: Worker;
   },
-  species: readonly StarSeed[],
+  sky: { readonly species: readonly StarSeed[]; readonly theme: Theme },
 ): ResizeObserver {
   const { element, canvas, worker } = parts;
   const offscreen = canvas.transferControlToOffscreen();
   const viewport = viewportOf(element);
-  send(worker, { type: "start", canvas: offscreen, viewport, species }, [offscreen]);
+  send(worker, { type: "start", canvas: offscreen, viewport, ...sky }, [offscreen]);
   const observer = new ResizeObserver(() => {
     send(worker, { type: "resize", viewport: viewportOf(element) });
   });
@@ -113,7 +115,7 @@ function startScene(
 
 function useWorker(
   hostRef: RefObject<HTMLDivElement | null>,
-  species: readonly Species[],
+  sky: { readonly species: readonly Species[]; readonly theme: Theme },
   events: SceneEvents,
 ): RefObject<Worker | null> {
   const workerRef = useRef<Worker | null>(null);
@@ -123,7 +125,7 @@ function useWorker(
   const fail = useEffectEvent(() => {
     events.onFallback();
   });
-  const seeds = useEffectEvent(() => seedsOf(species));
+  const setup = useEffectEvent(() => ({ species: seedsOf(sky.species), theme: sky.theme }));
   useEffect(() => {
     const element = hostRef.current;
     if (element === null) return;
@@ -133,7 +135,7 @@ function useWorker(
     const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
     worker.addEventListener("message", receive);
     worker.addEventListener("error", fail);
-    const observer = startScene({ element, canvas, worker }, seeds());
+    const observer = startScene({ element, canvas, worker }, setup());
     workerRef.current = worker;
     return () => {
       observer.disconnect();
@@ -152,7 +154,8 @@ export function ConstellationCanvas(props: ConstellationCanvasProps): JSX.Elemen
   const { species, frame, marks, highlighted, inset, moved, hovering, onNavigate, ...events } =
     props;
   const hostRef = useRef<HTMLDivElement>(null);
-  const workerRef = useWorker(hostRef, species, events);
+  const { theme } = useTheme();
+  const workerRef = useWorker(hostRef, { species, theme }, events);
   useGestures(hostRef, (gesture) => {
     if (workerRef.current !== null) send(workerRef.current, commandOf(gesture));
     if (gesture.type === "drag" || gesture.type === "zoom") onNavigate();
@@ -160,6 +163,9 @@ export function ConstellationCanvas(props: ConstellationCanvasProps): JSX.Elemen
   useEffect(() => {
     if (workerRef.current !== null) send(workerRef.current, { type: "inset", inset });
   }, [workerRef, inset]);
+  useEffect(() => {
+    if (workerRef.current !== null) send(workerRef.current, { type: "theme", theme });
+  }, [workerRef, theme]);
   useEffect(() => {
     if (workerRef.current !== null) send(workerRef.current, { type: "stage", frame, marks });
   }, [workerRef, frame, marks]);

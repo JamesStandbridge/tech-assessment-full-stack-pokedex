@@ -2,14 +2,16 @@ import type { JSX } from "react";
 
 import type { SceneFrame } from "../../domain/scene";
 import type { SceneNode } from "../../domain/sceneTypes";
+import type { Theme } from "../../domain/theme";
 import { lookOf } from "./looks";
-import { kindHex, weatherHex } from "./palette";
+import { kindHex, printedHex, weatherHex } from "./palette";
 import type { StillView } from "./still";
 
 interface Drawing {
   readonly frame: SceneFrame;
   readonly view: StillView;
   readonly highlighted: ReadonlySet<string>;
+  readonly theme: Theme;
 }
 
 interface StillDrawingProps extends Drawing {
@@ -51,7 +53,7 @@ function Guides({ frame, view }: Drawing): JSX.Element {
   );
 }
 
-function Links({ frame, view, highlighted }: Drawing): JSX.Element {
+function Links({ frame, view, highlighted, theme }: Drawing): JSX.Element {
   const at = new Map(frame.nodes.map((node) => [node.id, view.project(node.position)]));
   return (
     <g>
@@ -67,7 +69,7 @@ function Links({ frame, view, highlighted }: Drawing): JSX.Element {
             y1={from.y}
             x2={to.x}
             y2={to.y}
-            stroke={lit ? LIT_LINK_COLOR : LINK_COLOR}
+            stroke={printedHex(lit ? LIT_LINK_COLOR : LINK_COLOR, theme)}
             strokeOpacity={0.2 + link.strength * 0.5}
             vectorEffect="non-scaling-stroke"
           />
@@ -117,11 +119,14 @@ function Star({ node, at, radius, color, sprite }: StarProps): JSX.Element {
 }
 
 function Stars(props: StillDrawingProps): JSX.Element {
-  const { frame, view, highlighted, colors, sprites } = props;
+  const { frame, view, highlighted, colors, sprites, theme } = props;
   const colorOf = (node: SceneNode): string =>
-    node.kind === "weather"
-      ? weatherHex(frame.weather ?? "")
-      : (colors.get(node.id) ?? kindHex(node.kind));
+    printedHex(
+      node.kind === "weather"
+        ? weatherHex(frame.weather ?? "")
+        : (colors.get(node.id) ?? kindHex(node.kind)),
+      theme,
+    );
   return (
     <g>
       {frame.nodes.map((node) => (

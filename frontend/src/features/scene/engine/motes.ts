@@ -29,6 +29,7 @@ import {
 } from "three/webgpu";
 
 import { weatherHex } from "../palette";
+import { glowOrPrint, printShade } from "./ink";
 
 /** The box the motes wrap around in, centered behind the constellation. */
 const BOX_MIN = vec3(-40, -26, -40);
@@ -142,10 +143,11 @@ export class Motes {
     material.positionNode = position;
     material.scaleNode = this.streak.mul(mix(float(0.6), float(1.4), seed));
     material.rotationNode = atan(this.wind.x, this.wind.y.negate().add(0.001));
-    material.colorNode = vec4(this.tint.mul(brightness), brightness);
+    const faded = brightness.mul(printShade);
+    material.colorNode = vec4(this.tint.mul(faded), faded);
     material.transparent = true;
     material.depthWrite = false;
     material.blending = AdditiveBlending;
-    return material;
+    return glowOrPrint(material);
   }
 }

@@ -9,6 +9,7 @@ import {
 
 import type { Point } from "../../../domain/geometry";
 import type { SceneFrame } from "../../../domain/scene";
+import { glowOrPrint, printShade } from "./ink";
 
 const RING_SEGMENTS = 120;
 const TICKS = 6;
@@ -44,11 +45,11 @@ export class Guides {
 
   constructor() {
     const material = new LineBasicNodeMaterial();
-    material.colorNode = vec4(color(GUIDE_COLOR).mul(opacity), opacity.mul(0.5));
+    material.colorNode = vec4(color(GUIDE_COLOR).mul(printShade).mul(opacity), opacity.mul(0.5));
     material.transparent = true;
     material.depthWrite = false;
     material.blending = AdditiveBlending;
-    this.object = new LineSegments(new BufferGeometry(), material);
+    this.object = new LineSegments(new BufferGeometry(), glowOrPrint(material));
     this.object.frustumCulled = false;
   }
 

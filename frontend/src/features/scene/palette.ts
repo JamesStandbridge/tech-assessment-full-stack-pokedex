@@ -1,4 +1,5 @@
 import type { EntityKind } from "../../api/contract";
+import type { Theme } from "../../domain/theme";
 
 /** The type colors of ui/tokens.css, as literals: the worker cannot read CSS variables. */
 const TYPE_COLORS: Readonly<Record<string, string>> = {
@@ -36,7 +37,24 @@ const WEATHER_COLORS: Readonly<Record<string, string>> = {
   hail: "#dff3ff",
 };
 
-export const SKY_COLOR = "#0b0f1a";
+/** The ink of each theme in ui/tokens.css and ui/light.css, which the sky is cleared to. */
+const SKY_COLORS: Readonly<Record<Theme, string>> = { dark: "#0b0f1a", light: "#f3eee3" };
+
+/** How much darker a colour is printed on the light sky than it glows on the night one. */
+export const PRINT_SHADE = 0.55;
+
+export function skyHex(theme: Theme): string {
+  return SKY_COLORS[theme];
+}
+
+export function printedHex(hex: string, theme: Theme): string {
+  if (theme === "dark") return hex;
+  const value = Number.parseInt(hex.slice(1), 16);
+  return `#${[16, 8, 0]
+    .map((shift) => Math.round(((value >> shift) & 255) * PRINT_SHADE))
+    .map((channel) => channel.toString(16).padStart(2, "0"))
+    .join("")}`;
+}
 
 export function typeHex(type: string): string {
   return TYPE_COLORS[type] ?? KIND_COLORS.pokemon;

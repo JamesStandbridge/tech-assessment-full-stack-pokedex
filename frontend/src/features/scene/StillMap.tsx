@@ -2,6 +2,7 @@ import { type JSX, type RefObject, useEffect, useRef, useState } from "react";
 
 import { assertNever } from "../../domain/assertNever";
 import type { SceneFrame } from "../../domain/scene";
+import { useTheme } from "../theme/useTheme";
 import type { Gesture } from "./gestures";
 import type { Inset, Mark, Viewport } from "./protocol";
 import {
@@ -90,6 +91,7 @@ function follow(gesture: Gesture, props: StillMapProps, view: StillView): void {
 export function StillMap(props: StillMapProps): JSX.Element {
   const { frame, marks, highlighted, inset, pan, hovered, onLabels } = props;
   const { ref, viewport } = useViewport();
+  const { theme } = useTheme();
   const view = stillView(frame, { viewport, inset });
   useGestures(ref, (gesture) => {
     follow(gesture, props, view);
@@ -113,6 +115,7 @@ export function StillMap(props: StillMapProps): JSX.Element {
             frame={frame}
             view={view}
             highlighted={highlighted}
+            theme={theme}
             colors={props.colors}
             sprites={props.sprites}
           />
