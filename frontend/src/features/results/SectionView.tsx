@@ -11,31 +11,49 @@ interface SectionViewProps {
   readonly query: string;
   readonly section: Section;
   readonly onOpen: (ref: EntityRef) => void;
+  readonly emphasis: readonly string[];
   readonly decorate?: Decoration;
 }
 
+function Heading(props: {
+  readonly id: string;
+  readonly label: string;
+  readonly tally: string;
+}): JSX.Element {
+  return (
+    <div className="border-rule flex items-baseline gap-3 border-b pb-1.5">
+      <h2 id={props.id} className="font-display text-2xl font-semibold">
+        {props.label}
+      </h2>
+      <span aria-hidden="true" className="leader flex-1" />
+      <p className="catalogue text-muted tabular-nums">{props.tally}</p>
+    </div>
+  );
+}
+
 /** One ranked section, with more results appended on request. */
-export function SectionView({ query, section, onOpen, decorate }: SectionViewProps): JSX.Element {
+export function SectionView(props: SectionViewProps): JSX.Element {
+  const { query, section, onOpen, emphasis, decorate } = props;
   const headingId = useId();
   const pages = useSectionPages(query, section);
   const label = kindLabel(section.kind, 2);
   return (
     <section aria-labelledby={headingId} className="space-y-3">
-      <div className="border-rule flex items-baseline gap-3 border-b pb-1.5">
-        <h2 id={headingId} className="font-display text-2xl font-semibold">
-          {label}
-        </h2>
-        <span aria-hidden="true" className="leader flex-1" />
-        <p className="catalogue text-muted tabular-nums">
-          {pages.results.length} of {pages.total}
-        </p>
-      </div>
+      <Heading
+        id={headingId}
+        label={label}
+        tally={`${String(pages.results.length)} of ${String(pages.total)}`}
+      />
       <ul className="divide-line -mt-1 divide-y">
         {pages.results.map((result) => (
           <li key={refKey(refOf(result))}>
-            <ResultCard result={result} onOpen={onOpen}>
-              {decorate?.(result, pages.results)}
-            </ResultCard>
+            <ResultCard
+              result={result}
+              onOpen={onOpen}
+              emphasis={emphasis}
+              shown={pages.results}
+              {...(decorate === undefined ? {} : { decorate })}
+            />
           </li>
         ))}
       </ul>

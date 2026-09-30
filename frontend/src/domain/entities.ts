@@ -24,7 +24,7 @@ export function resultSummary(result: Result): string {
     case "pokemon":
       return result.genus ?? result.types.join(" / ");
     case "move":
-      return `${result.type} · ${result.damage_class}`;
+      return `${result.damage_class} move`;
     case "ability":
       return result.short_effect ?? `Generation ${result.generation}`;
     default:

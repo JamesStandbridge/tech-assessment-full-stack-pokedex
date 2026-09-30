@@ -1,8 +1,8 @@
 import type { JSX, ReactNode } from "react";
 import { Button as AriaButton, type ButtonProps as AriaButtonProps } from "react-aria-components";
 
-type Variant = "primary" | "quiet" | "outline" | "link";
-type Size = "regular" | "small" | "inline";
+type Variant = "primary" | "quiet" | "outline" | "hairline" | "link";
+type Size = "regular" | "small" | "tight" | "inline";
 
 interface ButtonProps extends Omit<AriaButtonProps, "className" | "children" | "style"> {
   readonly variant?: Variant;
@@ -20,6 +20,7 @@ const BASE =
 const SIZES: Readonly<Record<Size, string>> = {
   regular: "min-h-10 px-4 py-2 text-sm",
   small: "min-h-8 px-2.5 py-1 text-[0.8125rem]",
+  tight: "min-h-7 gap-1.5 px-2 py-0.5 text-xs",
   inline: "text-left",
 };
 
@@ -33,6 +34,9 @@ const VARIANTS: Readonly<Record<Variant, string>> = {
   outline:
     "border border-rule bg-panel text-text data-[hovered]:border-text data-[hovered]:bg-panel-raised " +
     "data-[pressed]:bg-ink",
+  hairline:
+    "border border-line text-muted data-[hovered]:border-rule data-[hovered]:bg-panel-raised " +
+    "data-[hovered]:text-text data-[pressed]:bg-ink",
   link:
     "text-text underline decoration-transparent decoration-1 underline-offset-4 " +
     "data-[hovered]:decoration-accent data-[pressed]:text-accent",

@@ -3,7 +3,7 @@ import { type JSX, useId } from "react";
 import { refKey, refOf } from "../../domain/entities";
 import { HoloCard } from "../extras/HoloCard";
 import { ResultCard } from "./ResultCard";
-import { type ResultsViewProps, Sections } from "./Sections";
+import { emphasisOf, type ResultsViewProps, Sections } from "./Sections";
 
 function BestMatch({ response, onOpen }: ResultsViewProps): JSX.Element | null {
   const headingId = useId();
@@ -21,7 +21,12 @@ function BestMatch({ response, onOpen }: ResultsViewProps): JSX.Element | null {
       {result.kind === "pokemon" ? (
         <HoloCard pokemon={result} onOpen={onOpen} />
       ) : (
-        <ResultCard result={result} onOpen={onOpen} />
+        <ResultCard
+          result={result}
+          onOpen={onOpen}
+          emphasis={emphasisOf(response)}
+          shown={[result]}
+        />
       )}
     </section>
   );

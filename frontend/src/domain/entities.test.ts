@@ -16,7 +16,7 @@ test("entities have a stable key and a readable name", () => {
 
 test("every kind of result has a one-line summary", () => {
   expect(resultSummary(resultNamed(bulbaSearch, "pokemon", "bulbasaur"))).toBe("Seed Pokémon");
-  expect(resultSummary(resultNamed(sleepSearch, "move", "spore"))).toBe("grass · status");
+  expect(resultSummary(resultNamed(sleepSearch, "move", "spore"))).toBe("status move");
   expect(resultSummary(resultNamed(rainTeamSearch, "ability", "swift-swim"))).toMatch(/Speed/);
 });
 

@@ -1,6 +1,6 @@
 import { type JSX, lazy, Suspense, useState } from "react";
 
-import type { PokemonResult } from "../../api/contract";
+import type { PokemonResult, Result } from "../../api/contract";
 import { displayName } from "../../domain/entities";
 import { comparedStats } from "../../domain/stats";
 import { Checkbox } from "../../ui/Checkbox";
@@ -24,23 +24,25 @@ export function CriteriaView(props: ResultsViewProps): JSX.Element {
       checked ? [...current, pokemon] : current.filter((other) => other.name !== pokemon.name),
     );
   };
-  const decorate: Decoration = (result, shown) => {
-    if (result.kind !== "pokemon") return bars(result, shown);
+  const overlay = (result: Result): JSX.Element | null => {
+    if (result.kind !== "pokemon") return null;
     const checked = selected.some((pokemon) => pokemon.name === result.name);
     return (
-      <>
-        {bars(result, shown)}
-        <Checkbox
-          label={`Overlay ${displayName(result.name)}`}
-          checked={checked}
-          disabled={!checked && selected.length >= MAX_COMPARED}
-          onChange={(value) => {
-            toggle(result, value);
-          }}
-        />
-      </>
+      <Checkbox
+        label={
+          <>
+            Overlay <span className="sr-only">{displayName(result.name)}</span>
+          </>
+        }
+        checked={checked}
+        disabled={!checked && selected.length >= MAX_COMPARED}
+        onChange={(value) => {
+          toggle(result, value);
+        }}
+      />
     );
   };
+  const decorate: Decoration = { ...bars, action: overlay };
   return (
     <>
       {selected.length >= MIN_OVERLAY ? (

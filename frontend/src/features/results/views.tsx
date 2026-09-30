@@ -2,16 +2,16 @@ import type { ComponentType, JSX } from "react";
 
 import type { Reading } from "../../domain/reading";
 import { CriteriaView } from "./CriteriaView";
-import { chanceBadge, roleBadge } from "./decorations";
+import { chanceOfSuccess, weatherRoleMark } from "./decorations";
 import { NameView } from "./NameView";
 import { type ResultsViewProps, Sections } from "./Sections";
 
 function EffectView(props: ResultsViewProps): JSX.Element {
-  return <Sections {...props} decorate={chanceBadge} />;
+  return <Sections {...props} decorate={chanceOfSuccess} />;
 }
 
 function WeatherView(props: ResultsViewProps): JSX.Element {
-  return <Sections {...props} decorate={roleBadge} />;
+  return <Sections {...props} decorate={weatherRoleMark} />;
 }
 
 function ExplorationView(props: ResultsViewProps): JSX.Element {
