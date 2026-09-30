@@ -23,7 +23,7 @@ export function Dialog({ title, eyebrow, isOpen, onClose, children }: DialogProp
       }}
       className="bg-ink/85 fixed inset-0 z-40 grid place-items-center p-3 sm:p-6"
     >
-      <Modal className="plate motion-safe:data-[entering]:animate-rise scroll-area max-h-[90dvh] w-full max-w-2xl">
+      <Modal className="plate scroll-area max-h-[90dvh] w-full max-w-2xl">
         <AriaDialog className="p-5 outline-none sm:p-7">
           <div className="border-line mb-5 flex items-start justify-between gap-4 border-b pb-4">
             <div className="min-w-0">

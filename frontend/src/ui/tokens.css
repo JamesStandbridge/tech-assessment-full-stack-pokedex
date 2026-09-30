@@ -83,6 +83,9 @@
   --radius-control: 2px;
   --radius-plate: 3px;
 
+  /* In pixels so it matches the side the sky keeps free for the results and the workbench. */
+  --container-sidebar: 416px;
+
   --shadow-plate: 0 1px 0 0 rgb(0 0 0 / 0.55), 0 28px 48px -30px rgb(0 0 0 / 0.95);
 
   --ease-plate: cubic-bezier(0.2, 0.7, 0.1, 1);

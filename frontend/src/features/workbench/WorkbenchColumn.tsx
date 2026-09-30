@@ -23,7 +23,7 @@ export function WorkbenchColumn({
   const open = unfolded || pending !== null;
   return (
     <div
-      className={`scroll-area pointer-events-none absolute bottom-3 left-3 z-30 w-[calc(100%-1.5rem)] space-y-2 sm:bottom-4 sm:left-4 sm:z-20 sm:w-[28rem] ${lowered ? "top-44 sm:top-32" : "top-32 sm:top-24"}`}
+      className={`scroll-area sm:w-sidebar pointer-events-none absolute bottom-3 left-3 z-30 w-[calc(100%-1.5rem)] space-y-2 sm:bottom-4 sm:left-4 sm:z-20 ${lowered ? "top-44 sm:top-32" : "top-32 sm:top-24"}`}
     >
       <div className="pointer-events-auto inline-flex sm:hidden">
         <Button

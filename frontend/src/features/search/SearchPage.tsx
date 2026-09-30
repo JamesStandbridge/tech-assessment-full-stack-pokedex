@@ -90,7 +90,7 @@ function Answer(props: {
       title={props.controller.query}
       actions={<ClearSearch controller={props.controller} />}
       scrolls
-      className="motion-safe:animate-rise absolute right-0 bottom-0 left-0 z-20 max-h-[62dvh] sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none sm:w-[28rem]"
+      className="motion-safe:animate-rise sm:w-sidebar absolute right-0 bottom-0 left-0 z-20 max-h-[62dvh] sm:top-24 sm:right-4 sm:bottom-4 sm:left-auto sm:max-h-none"
     >
       <Outcome {...props} />
     </Panel>
