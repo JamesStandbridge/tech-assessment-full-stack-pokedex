@@ -21,14 +21,15 @@ export interface Mark {
   readonly position: Point;
 }
 
-/** The parts of the viewport covered by the results and the workbench, which the camera centers away from. */
+/** The parts of the viewport covered by the header, the results and the workbench, which the camera centers away from. */
 export interface Inset {
+  readonly top: number;
   readonly left: number;
   readonly right: number;
   readonly bottom: number;
 }
 
-export const NO_INSET: Inset = { left: 0, right: 0, bottom: 0 };
+export const NO_INSET: Inset = { top: 0, left: 0, right: 0, bottom: 0 };
 
 export type Backend = "webgpu" | "webgl2";
 

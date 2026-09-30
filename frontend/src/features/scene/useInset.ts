@@ -9,6 +9,9 @@ const SHEET_SHARE = 0.58;
 const HOME_SHARE = 0.22;
 /** The party and the bench: 26rem wide plus its margin, beside the sky only when the screen is wide. */
 const WORKBENCH_WIDTH = 432;
+/** The header: one row when wide, the title above the command bar when narrow. */
+const HEADER_HEIGHT = 72;
+const NARROW_HEADER_HEIGHT = 104;
 const NARROW_HOME_SHARE = 0.4;
 const WIDE = "(min-width: 640px)";
 
@@ -33,12 +36,13 @@ export function useInset(panel: boolean, workbench: boolean): Inset {
       window.removeEventListener("resize", update);
     };
   }, []);
+  const top = screen.wide ? HEADER_HEIGHT : NARROW_HEADER_HEIGHT;
   const left = workbench && screen.wide ? WORKBENCH_WIDTH : 0;
   if (!panel) {
     const share = screen.wide ? HOME_SHARE : NARROW_HOME_SHARE;
-    return { left, right: 0, bottom: Math.round(screen.height * share) };
+    return { top, left, right: 0, bottom: Math.round(screen.height * share) };
   }
   return screen.wide
-    ? { left, right: PANEL_WIDTH, bottom: 0 }
-    : { left, right: 0, bottom: Math.round(screen.height * SHEET_SHARE) };
+    ? { top, left, right: PANEL_WIDTH, bottom: 0 }
+    : { top, left, right: 0, bottom: Math.round(screen.height * SHEET_SHARE) };
 }

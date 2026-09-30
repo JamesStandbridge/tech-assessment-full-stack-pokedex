@@ -27,7 +27,7 @@ export function stillView(frame: SceneFrame, space: Space): StillView {
   const { viewport, inset } = space;
   const free = {
     width: viewport.width - inset.left - inset.right,
-    height: viewport.height - inset.bottom,
+    height: viewport.height - inset.top - inset.bottom,
   };
   const scale = Math.min(free.width, free.height) / (frame.camera.distance * FIELD);
   const target = frame.camera.target;
@@ -35,7 +35,7 @@ export function stillView(frame: SceneFrame, space: Space): StillView {
   return {
     project: (at) => ({
       x: inset.left + free.width / 2 + (at.x - target.x) * scale * cue(at.z),
-      y: free.height / 2 - (at.y - target.y) * scale * cue(at.z),
+      y: inset.top + free.height / 2 - (at.y - target.y) * scale * cue(at.z),
     }),
     radius: (size, depth) => (size / 2) * scale * cue(depth),
   };
