@@ -168,8 +168,6 @@ readers and tests never depend on the canvas. The cost is complexity and a
 lazy-loaded 3D chunk; the fallbacks (WebGL2, then an SVG still map for reduced
 motion, slow devices or lost contexts) are part of that cost.
 
-![How each reading rearranges the constellation](docs/readings.svg)
-
 **Undo instead of confirmations**
 ([ADR 13](docs/adr/0013-workbench-and-undo-history.md)). Removing from the
 party or the bench happens at once and can be undone with Ctrl+Z. The browser's
